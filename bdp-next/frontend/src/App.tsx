@@ -5,8 +5,11 @@ import { MainLayout } from './layouts/MainLayout';
 import { DashboardViewPage } from './pages/DashboardViewPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { BoardPage } from './pages/config/BoardPage';
 import { CategoryPage } from './pages/config/CategoryPage';
-import { ListConfigPage } from './pages/config/ListConfigPage';
+import { DatasetPage } from './pages/config/DatasetPage';
+import { DatasourcePage } from './pages/config/DatasourcePage';
+import { WidgetPage } from './pages/config/WidgetPage';
 
 function RequireAuth({ children }: { children: ReactNode }) {
   if (!getToken()) {
@@ -30,50 +33,10 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="dashboard/category/:categoryId/:id" element={<DashboardViewPage />} />
         <Route path="mine/:id" element={<DashboardViewPage />} />
-        <Route
-          path="config/datasource"
-          element={
-            <ListConfigPage
-              titleKey="SIDEBAR.DATA_SOURCE"
-              headerKey="CONFIG.DATA_SOURCE.DATA_SOURCE_HEADER"
-              fetchPath="/cboard/dashboard/getDatasourceList"
-              icon="fa-database"
-            />
-          }
-        />
-        <Route
-          path="config/dataset"
-          element={
-            <ListConfigPage
-              titleKey="SIDEBAR.DATASET"
-              headerKey="CONFIG.DATASET.DATASET_HEADER"
-              fetchPath="/cboard/dashboard/getDatasetList"
-              icon="fa-table"
-            />
-          }
-        />
-        <Route
-          path="config/widget"
-          element={
-            <ListConfigPage
-              titleKey="SIDEBAR.WIDGET"
-              headerKey="CONFIG.WIDGET.WIDGET_HEADER"
-              fetchPath="/cboard/dashboard/getWidgetList"
-              icon="fa-line-chart"
-            />
-          }
-        />
-        <Route
-          path="config/board"
-          element={
-            <ListConfigPage
-              titleKey="SIDEBAR.DASHBOARD"
-              headerKey="CONFIG.DASHBOARD.DASHBOARD_HEADER"
-              fetchPath="/cboard/dashboard/getBoardList"
-              icon="fa-puzzle-piece"
-            />
-          }
-        />
+        <Route path="config/datasource" element={<DatasourcePage />} />
+        <Route path="config/dataset" element={<DatasetPage />} />
+        <Route path="config/widget" element={<WidgetPage />} />
+        <Route path="config/board" element={<BoardPage />} />
         <Route path="config/category" element={<CategoryPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
