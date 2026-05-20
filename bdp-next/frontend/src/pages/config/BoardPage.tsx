@@ -60,6 +60,7 @@ function BoardForm({
             name: w?.name ?? `Widget ${wid}`,
             show: true,
             loading: false,
+            widgetId: wid,
             widget: { id: wid },
           };
         }),
@@ -68,7 +69,7 @@ function BoardForm({
     if (rows[0].widgets.length === 0 && widgets.length > 0) {
       const wid = widgets[0].id;
       rows[0].widgets = [
-        { width: 12, name: widgets[0].name, show: true, loading: false, widget: { id: wid } },
+        { width: 12, name: widgets[0].name, show: true, loading: false, widgetId: wid, widget: { id: wid } },
       ];
     }
     const body = {

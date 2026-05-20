@@ -6,6 +6,8 @@ import com.bdp.domain.metadata.DashboardCategory;
 import com.bdp.domain.metadata.DashboardDataset;
 import com.bdp.domain.metadata.DashboardDatasource;
 import com.bdp.domain.metadata.DashboardWidget;
+import com.bdp.domain.metadata.DashboardBoardParam;
+import com.bdp.infrastructure.persistence.DashboardBoardParamRepository;
 import com.bdp.infrastructure.persistence.DashboardBoardRepository;
 import com.bdp.infrastructure.persistence.DashboardCategoryRepository;
 import com.bdp.infrastructure.persistence.DashboardDatasetRepository;
@@ -30,6 +32,7 @@ public class CboardDashboardService {
     private final DashboardWidgetRepository widgetRepository;
     private final DashboardDatasetRepository datasetRepository;
     private final DashboardDatasourceRepository datasourceRepository;
+    private final DashboardBoardParamRepository boardParamRepository;
     private final ObjectMapper objectMapper;
 
     public CboardDashboardService(
@@ -38,12 +41,14 @@ public class CboardDashboardService {
             DashboardWidgetRepository widgetRepository,
             DashboardDatasetRepository datasetRepository,
             DashboardDatasourceRepository datasourceRepository,
+            DashboardBoardParamRepository boardParamRepository,
             ObjectMapper objectMapper) {
         this.boardRepository = boardRepository;
         this.categoryRepository = categoryRepository;
         this.widgetRepository = widgetRepository;
         this.datasetRepository = datasetRepository;
         this.datasourceRepository = datasourceRepository;
+        this.boardParamRepository = boardParamRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -55,7 +60,63 @@ public class CboardDashboardService {
         DashboardBoard board = boardRepository
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Board not found"));
-        return toBoardView(board, userId);
+        Map<String, Object> view = toBoardView(board, userId);
+        view.put("layout", hydrateLayout(board.getLayoutJson()));
+        return view;
+    }
+
+    public Map<String, Object> getDashboardWidget(Long widgetId) {
+        DashboardWidget widget = widgetRepository
+                .findById(widgetId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Widget not found"));
+        return toWidgetView(widget);
+    }
+
+    public List<Map<String, Object>> getAllWidgetList() {
+        return widgetRepository.findAll().stream().map(this::toWidgetView).toList();
+    }
+
+    public ServiceStatusDto checkWidget(Long id) {
+        long datasets = datasetRepository.findAll().stream()
+                .filter(d -> d.getDataJson() != null && d.getDataJson().contains("\"widgetId\":" + id))
+                .count();
+        if (datasets > 0) {
+            return ServiceStatusDto.fail("Widget is referenced by datasets");
+        }
+        return ServiceStatusDto.ok();
+    }
+
+    public ServiceStatusDto checkDatasource(Long id) {
+        long datasets = datasetRepository.findAll().stream()
+                .filter(d -> d.getDataJson() != null && d.getDataJson().contains("\"datasource\":" + id))
+                .count();
+        if (datasets > 0) {
+            return ServiceStatusDto.fail("Datasource is referenced by datasets");
+        }
+        return ServiceStatusDto.ok();
+    }
+
+    public DashboardBoardParam getBoardParam(Long boardId, String userId) {
+        return boardParamRepository
+                .findByBoardIdAndUserId(boardId, userId)
+                .orElseGet(() -> {
+                    DashboardBoardParam p = new DashboardBoardParam();
+                    p.setBoardId(boardId);
+                    p.setUserId(userId);
+                    p.setConfig("{}");
+                    return p;
+                });
+    }
+
+    public String saveBoardParam(Long boardId, String userId, String config) {
+        DashboardBoardParam param = boardParamRepository
+                .findByBoardIdAndUserId(boardId, userId)
+                .orElseGet(DashboardBoardParam::new);
+        param.setBoardId(boardId);
+        param.setUserId(userId);
+        param.setConfig(config);
+        boardParamRepository.save(param);
+        return "1";
     }
 
     public List<DashboardCategory> getCategoryList() {
@@ -241,16 +302,14 @@ public class CboardDashboardService {
         return ServiceStatusDto.ok();
     }
 
-    public List<Map<String, Object>> getConfigParams(String type, String page) {
+    public List<Map<String, Object>> getConfigParams(String type, String page, Long datasourceId) {
         return List.of(
-                Map.of("name", "jdbcurl", "label", "JDBC URL", "type", "input"),
-                Map.of("name", "driver", "label", "Driver", "type", "input"),
-                Map.of("name", "username", "label", "Username", "type", "input"),
-                Map.of("name", "password", "label", "Password", "type", "password"));
+                Map.of("name", "table", "label", "Table / query", "type", "input"),
+                Map.of("name", "sql", "label", "SQL", "type", "textarea"));
     }
 
-    public String getConfigView(String type, String page) {
-        return "<div class=\"form-group\"><label>JDBC URL</label><input class=\"form-control\" name=\"jdbcurl\"/></div>";
+    public String getConfigView(String type, String page, Long datasourceId) {
+        return "<div class=\"form-group\"><label>SQL</label><textarea class=\"form-control\" name=\"sql\" rows=\"4\"></textarea></div>";
     }
 
     private ServiceStatusDto saveWidget(String userId, String json, Long existingId) {
@@ -327,8 +386,72 @@ public class CboardDashboardService {
         if (board.getCategoryId() != null) {
             categoryRepository.findById(board.getCategoryId()).ifPresent(c -> m.put("categoryName", c.getCategoryName()));
         }
-        m.put("layout", parseJson(board.getLayoutJson(), defaultLayout()));
         return m;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> hydrateLayout(String layoutJson) {
+        Map<String, Object> layout = (Map<String, Object>) parseJson(layoutJson, defaultLayout());
+        Object rowsObj = layout.get("rows");
+        if (!(rowsObj instanceof List<?> rows)) {
+            return layout;
+        }
+        boolean containsParam = false;
+        List<Map<String, Object>> newRows = new ArrayList<>();
+        for (Object rowObj : rows) {
+            if (!(rowObj instanceof Map<?, ?> rowMap)) {
+                continue;
+            }
+            Map<String, Object> row = new LinkedHashMap<>();
+            rowMap.forEach((k, v) -> row.put(String.valueOf(k), v));
+            if ("param".equals(row.get("type"))) {
+                containsParam = true;
+                newRows.add(row);
+                continue;
+            }
+            Object widgetsObj = row.get("widgets");
+            if (widgetsObj instanceof List<?> widgets) {
+                List<Map<String, Object>> newWidgets = new ArrayList<>();
+                for (Object wObj : widgets) {
+                    if (!(wObj instanceof Map<?, ?> wMap)) {
+                        continue;
+                    }
+                    Map<String, Object> cell = new LinkedHashMap<>();
+                    wMap.forEach((k, v) -> cell.put(String.valueOf(k), v));
+                    Long widgetId = resolveWidgetId(cell);
+                    if (widgetId != null) {
+                        widgetRepository.findById(widgetId).ifPresent(w -> {
+                            cell.put("widget", toWidgetView(w));
+                            cell.putIfAbsent("widgetId", widgetId);
+                        });
+                    }
+                    cell.putIfAbsent("show", Boolean.TRUE);
+                    newWidgets.add(cell);
+                }
+                row.put("widgets", newWidgets);
+            }
+            newRows.add(row);
+        }
+        layout.put("rows", newRows);
+        if (containsParam) {
+            layout.put("containsParam", true);
+        }
+        return layout;
+    }
+
+    private Long resolveWidgetId(Map<String, Object> cell) {
+        Object widgetId = cell.get("widgetId");
+        if (widgetId instanceof Number n) {
+            return n.longValue();
+        }
+        Object widget = cell.get("widget");
+        if (widget instanceof Map<?, ?> wm) {
+            Object id = wm.get("id");
+            if (id instanceof Number n) {
+                return n.longValue();
+            }
+        }
+        return null;
     }
 
     private Map<String, Object> defaultLayout() {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { cboardDelete, cboardGet, cboardSave } from '../../api/cboard';
+import { cboardDelete, cboardGet, cboardPost, cboardSave } from '../../api/cboard';
 import { ConfigWorkspace, ListItem } from '../../components/ConfigWorkspace';
 import { translate } from '../../i18n/en';
 
@@ -48,8 +48,15 @@ function DatasetForm({
     onSaved();
   }
 
+  async function loadColumns() {
+    const result = await cboardPost<{ columns: string[]; data: string[][] }>('getColumns', {
+      datasetId: item?.id ?? 1,
+    });
+    alert(`Columns: ${result.columns?.join(', ')}\nSample rows: ${result.data?.length ?? 0}`);
+  }
+
   async function previewAgg() {
-    const result = await cboardGet<unknown>('getAggregateData', { datasetId: item?.id ?? 1 });
+    const result = await cboardPost<unknown>('getAggregateData', { datasetId: item?.id ?? 1, cfg: '{}' });
     alert(JSON.stringify(result, null, 2).slice(0, 800));
   }
 
@@ -71,8 +78,11 @@ function DatasetForm({
       <button type="button" className="btn btn-primary" onClick={save}>
         {translate('COMMON.SAVE')}
       </button>
+      <button type="button" className="btn btn-default" style={{ marginLeft: 8 }} onClick={loadColumns}>
+        Load columns
+      </button>
       <button type="button" className="btn btn-default" style={{ marginLeft: 8 }} onClick={previewAgg}>
-        Preview Aggregate
+        Preview aggregate
       </button>
     </div>
   );

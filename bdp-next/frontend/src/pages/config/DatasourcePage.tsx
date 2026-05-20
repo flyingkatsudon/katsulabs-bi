@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { cboardDelete, cboardGet, cboardSave } from '../../api/cboard';
+import { cboardDelete, cboardGet, cboardPost, cboardSave, type ServiceStatus } from '../../api/cboard';
 import { ConfigWorkspace, ListItem } from '../../components/ConfigWorkspace';
 import { translate } from '../../i18n/en';
 
@@ -36,6 +36,15 @@ function DatasourceForm({
     return <p className="text-muted">Select or create a datasource.</p>;
   }
 
+  async function testConnection() {
+    const body = { name, type, config: { driver: 'org.h2.Driver', jdbcurl, username: 'sa', password: '' } };
+    const res = await cboardPost<ServiceStatus>('test', {
+      datasource: JSON.stringify(body),
+      query: '{}',
+    });
+    setMsg(res.status === '1' ? 'Connection OK' : res.msg);
+  }
+
   async function save() {
     const config = { driver: 'org.h2.Driver', jdbcurl, username: 'sa', password: '' };
     const body = { id: item?.id, name, type, config };
@@ -63,7 +72,10 @@ function DatasourceForm({
         <label>JDBC URL</label>
         <input className="form-control" value={jdbcurl} onChange={(e) => setJdbcurl(e.target.value)} />
       </div>
-      <button type="button" className="btn btn-primary" onClick={save}>
+      <button type="button" className="btn btn-default" onClick={testConnection}>
+        Test connection
+      </button>
+      <button type="button" className="btn btn-primary" style={{ marginLeft: 8 }} onClick={save}>
         {translate('COMMON.SAVE')}
       </button>
       {msg && <p className="text-danger">{msg}</p>}
