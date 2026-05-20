@@ -1,37 +1,17 @@
-# BDP Next — 리빌드 스캐폴드
+# BDP Next — Spring Boot + React (CBoard UI)
 
-레거시 `bdp` WAR를 대체하기 위한 **Spring Boot 3 + Gradle + H2 + JWT + JPA** 프로젝트입니다.
+레거시 CBoard(AdminLTE **skin-blue**) 화면을 React로 재구현한 스택입니다.
 
-## 요구 사항
+## 실행 (2터미널)
 
-- Java 21+
-- (선택) Node 22+ — 프론트엔드
-
-## 빠른 실행
+**터미널 1 — API**
 
 ```bash
 cd bdp-next/backend
 ./gradlew bootRun
 ```
 
-- API: http://localhost:8080  
-- Swagger: http://localhost:8080/swagger-ui.html  
-- H2 Console: http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:bdp`)
-
-### 기본 계정
-
-| 필드 | 값 |
-|------|-----|
-| login | `admin` |
-| password | `admin` |
-
-```bash
-curl -s -X POST http://localhost:8080/api/v1/auth/login \
-  -H 'Content-Type: application/json' \
-  -d '{"username":"admin","password":"admin"}'
-```
-
-## 프론트엔드 (React)
+**터미널 2 — UI**
 
 ```bash
 cd bdp-next/frontend
@@ -39,16 +19,41 @@ npm install
 npm run dev
 ```
 
-Vite proxy → `http://localhost:8080`
+브라우저: http://localhost:5173  
+로그인: `admin` / `admin`
+
+## 포함 화면 (레거시 동일 레이아웃)
+
+| 화면 | 경로 |
+|------|------|
+| 로그인 (Shinhan \| BDP) | `/login` |
+| 홈 / Cubes | `/` |
+| 대시보드 보기 (ECharts 위젯) | `/dashboard/category/:catId/:id`, `/mine/:id` |
+| Config — DataSource | `/config/datasource` |
+| Config — Dataset | `/config/dataset` |
+| Config — Widget | `/config/widget` |
+| Config — Board | `/config/board` |
+| Config — Category | `/config/category` |
+
+API는 레거시와 동일 prefix: `/cboard/dashboard/*`, `/cboard/commons/*` (JWT Bearer)
+
+## 데모 데이터
+
+- 카테고리 **시장 브리핑**
+- 보드 **데모 대시보드** (라인 + 파이 차트 위젯 2개)
+- H2 in-memory, 재시작 시 시드 재생성 (`ddl-auto: create-drop`)
 
 ## 테스트
 
 ```bash
-cd bdp-next/backend
-./gradlew test jacocoTestReport
+cd bdp-next/backend && ./gradlew test
+cd bdp-next/frontend && npm run build
 ```
+
+## 스타일 자산
+
+`frontend/public/cboard/` — 레거시 AdminLTE CSS, Bootstrap 3, Font Awesome (일부 복사)
 
 ## 문서
 
-- [프로젝트 평가](../docs/01-PROJECT_ASSESSMENT.md)
-- [리빌드 로드맵](../docs/02-REBUILD_ROADMAP.md)
+- [../docs/08-REBUILD_DIRECTION_V2.md](../docs/08-REBUILD_DIRECTION_V2.md)

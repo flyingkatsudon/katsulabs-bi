@@ -1,0 +1,27 @@
+/* AdminLTE sidebar-collapse (React controlled) */
+.sidebar-collapse .main-sidebar {
+  transform: translate(-230px, 0);
+}
+
+.wrapper {
+  min-height: 100vh;
+}
+
+.login-page {
+  background: #d2d6de;
+}
+
+.toolbar-icon {
+  cursor: pointer;
+}
+
+.content-wrapper {
+  min-height: calc(100vh - 50px);
+}
+
+.box .box-title {
+  display: inline-block;
+  font-size: 18px;
+  margin: 0;
+  line-height: 1;
+}

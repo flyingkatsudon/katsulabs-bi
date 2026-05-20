@@ -1,0 +1,36 @@
+export const t = {
+  'SIDEBAR.MENU': 'MENU',
+  'SIDEBAR.C_DASHBOARD': 'Dashboard',
+  'SIDEBAR.MY_DASHBOARD': 'My DashBoard',
+  'SIDEBAR.CONFIG': 'Configuration',
+  'SIDEBAR.DATA_SOURCE': 'DataSource',
+  'SIDEBAR.DATASET': 'Dataset',
+  'SIDEBAR.WIDGET': 'Widget',
+  'SIDEBAR.DASHBOARD': 'Dashboard',
+  'SIDEBAR.DASHBOARD_CATEGORY': 'Dashboard Category',
+  'SIDEBAR.INSIGHT_REPORT': 'Insight Report',
+  'SIDEBAR.G_ANALYSIS': 'General Analysis',
+  'SIDEBAR.E_ANALYSIS': 'Expert Analysis',
+  'SIDEBAR.ADMIN_PAGE': 'Admin Page',
+  'HEADER.SIGN_OUT': 'SignOut',
+  'HEADER.TOGGLE_NAVIGATION': 'Toggle navigation',
+  'HOMEPAGE.TITLE': 'HOMEPAGE',
+  'HOMEPAGE.LINK_CAPTION': 'Home',
+  'HOMEPAGE.QUICK_START': 'Quick Start',
+  'HOMEPAGE.CUBES': 'Cubes',
+  'HOMEPAGE.CUBES_TIP': 'Double click a cube, start chart design!',
+  'COMMON.NEW': 'New',
+  'COMMON.EDIT': 'Edit',
+  'COMMON.DELETE': 'Delete',
+  'COMMON.SAVE': 'Save',
+  'COMMON.CANCEL': 'Cancel',
+  'CONFIG.DATA_SOURCE.DATA_SOURCE_HEADER': 'Data Source',
+  'CONFIG.DATASET.DATASET_HEADER': 'Dataset',
+  'CONFIG.WIDGET.WIDGET_HEADER': 'Widget',
+  'CONFIG.DASHBOARD.DASHBOARD_HEADER': 'Dashboard',
+  'CONFIG.CATEGORY.CATEGORY_HEADER': 'Category',
+} as const;
+
+export function translate(key: string): string {
+  return (t as Record<string, string>)[key] ?? key;
+}

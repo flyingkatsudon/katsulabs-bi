@@ -1,71 +1,81 @@
-import { FormEvent, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { getToken } from './api/client';
+import { MainLayout } from './layouts/MainLayout';
+import { DashboardViewPage } from './pages/DashboardViewPage';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
+import { CategoryPage } from './pages/config/CategoryPage';
+import { ListConfigPage } from './pages/config/ListConfigPage';
 
-type TokenResponse = {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
-};
+function RequireAuth({ children }: { children: ReactNode }) {
+  if (!getToken()) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
 
 export default function App() {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('bdp_token'));
-  const [trends, setTrends] = useState<unknown[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  async function onLogin(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    const form = new FormData(e.currentTarget);
-    const res = await fetch('/api/v1/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: form.get('username'),
-        password: form.get('password'),
-      }),
-    });
-    if (!res.ok) {
-      setError('로그인 실패');
-      return;
-    }
-    const data = (await res.json()) as TokenResponse;
-    localStorage.setItem('bdp_token', data.accessToken);
-    setToken(data.accessToken);
-  }
-
-  async function loadTrends() {
-    if (!token) return;
-    const res = await fetch('/api/v1/report/trends', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ fid: 'BDPC04030205' }),
-    });
-    setTrends(await res.json());
-  }
-
-  if (!token) {
-    return (
-      <main className="page">
-        <h1>BDP Next</h1>
-        <form onSubmit={onLogin}>
-          <input name="username" placeholder="username" defaultValue="admin" />
-          <input name="password" type="password" placeholder="password" defaultValue="admin" />
-          <button type="submit">로그인</button>
-        </form>
-        {error && <p className="error">{error}</p>}
-      </main>
-    );
-  }
-
   return (
-    <main className="page">
-      <h1>BDP 대시보드 (React)</h1>
-      <button type="button" onClick={loadTrends}>
-        키워드 트렌드 조회
-      </button>
-      <pre>{JSON.stringify(trends, null, 2)}</pre>
-    </main>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/"
+        element={
+          <RequireAuth>
+            <MainLayout />
+          </RequireAuth>
+        }
+      >
+        <Route index element={<HomePage />} />
+        <Route path="dashboard/category/:categoryId/:id" element={<DashboardViewPage />} />
+        <Route path="mine/:id" element={<DashboardViewPage />} />
+        <Route
+          path="config/datasource"
+          element={
+            <ListConfigPage
+              titleKey="SIDEBAR.DATA_SOURCE"
+              headerKey="CONFIG.DATA_SOURCE.DATA_SOURCE_HEADER"
+              fetchPath="/cboard/dashboard/getDatasourceList"
+              icon="fa-database"
+            />
+          }
+        />
+        <Route
+          path="config/dataset"
+          element={
+            <ListConfigPage
+              titleKey="SIDEBAR.DATASET"
+              headerKey="CONFIG.DATASET.DATASET_HEADER"
+              fetchPath="/cboard/dashboard/getDatasetList"
+              icon="fa-table"
+            />
+          }
+        />
+        <Route
+          path="config/widget"
+          element={
+            <ListConfigPage
+              titleKey="SIDEBAR.WIDGET"
+              headerKey="CONFIG.WIDGET.WIDGET_HEADER"
+              fetchPath="/cboard/dashboard/getWidgetList"
+              icon="fa-line-chart"
+            />
+          }
+        />
+        <Route
+          path="config/board"
+          element={
+            <ListConfigPage
+              titleKey="SIDEBAR.DASHBOARD"
+              headerKey="CONFIG.DASHBOARD.DASHBOARD_HEADER"
+              fetchPath="/cboard/dashboard/getBoardList"
+              icon="fa-puzzle-piece"
+            />
+          }
+        />
+        <Route path="config/category" element={<CategoryPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
