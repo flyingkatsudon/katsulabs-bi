@@ -25,7 +25,7 @@
 ### 1.2 Gradle 멀티모듈 (목표 트리)
 
 ```
-bdp-next/
+insight-board/
 ├── settings.gradle.kts
 ├── build.gradle.kts                 # 공통 convention (Java 21, 테스트, OWASP)
 ├── modules/
@@ -43,7 +43,7 @@ flowchart TB
     FE[frontend React]
   end
   subgraph app_mod [modules/app]
-    Boot[BdpApplication]
+    Boot[InsightBoardApplication]
     Sec[JWT Security]
   end
   subgraph dash [modules/dashboard]
@@ -100,7 +100,7 @@ flowchart TB
 | 단계 | 내용 |
 |------|------|
 | **D0** | 레거시 `org.cboard` 패키지 맵·API 목록·`dashboard_*` 테이블 고정 (이미 [03-ERD](./03-ERD_PREDICTION.md)) |
-| **D1** | 메타 CRUD JPA + REST (`board`, `widget`, `dataset`, `datasource`, `category`) — **현재 bdp-next 일부 구현** |
+| **D1** | 메타 CRUD JPA + REST (`board`, `widget`, `dataset`, `datasource`, `category`) — **현재 insight-board 일부 구현** |
 | **D2** | DataProvider **SPI** 재설계: `Jdbc`, `File`, `Solr`, `Kylin`, `Presto` 등은 **선택 모듈** (`dashboard-provider-*`) |
 | **D3** | Job(Quartz) → Spring `@Scheduled` 또는 외부 스케줄러; Mail → Spring Mail |
 | **D4** | 프론트: AngularJS 자산 **미이전**, React + ECharts/Apache ECharts로 차트 재구현 |
@@ -213,7 +213,7 @@ flowchart TB
 ### Phase 0 — 구조 (신규, 최우선)
 
 - [ ] Gradle `modules:common`, `dashboard`, `web`, `app` 생성
-- [ ] 기존 `bdp-next/backend` 단일 모듈 코드를 `dashboard` / `app`으로 이동
+- [ ] 기존 `insight-board/backend` 단일 모듈 코드를 `dashboard` / `app`으로 이동
 - [ ] `web`에 `TrendReport` 등 신한 API 스텁
 - [ ] OWASP/SBOM Gradle 플러그인 루트 적용
 

@@ -1,6 +1,6 @@
 # BDP 리빌드 로드맵
 
-요구사항 1~9를 단계별로 실행하기 위한 계획입니다. 구현 코드는 [`bdp-next/`](../bdp-next/)에 둡니다.
+요구사항 1~9를 단계별로 실행하기 위한 계획입니다. 구현 코드는 [`insight-board/`](../insight-board/)에 둡니다.
 
 > **v2 방향 (모듈 분리·CBoard 보안·Boot 4):** [08-REBUILD_DIRECTION_V2.md](./08-REBUILD_DIRECTION_V2.md) · [09-CBOARD_SECURITY_AUDIT.md](./09-CBOARD_SECURITY_AUDIT.md)
 
@@ -28,11 +28,11 @@
 | 0 | AWS 배포 | `docs/07` | ✅ |
 | 0b | 모듈 분리 설계 | `08-REBUILD_DIRECTION_V2.md` | ✅ |
 | 0c | CBoard 보안 체크리스트 | `09-CBOARD_SECURITY_AUDIT.md` | ✅ |
-| 1 | Gradle + 최신 Java/Spring | `bdp-next/backend` → **4모듈** | 🚧 스캐폴드 |
+| 1 | Gradle + 최신 Java/Spring | `insight-board/backend` → **4모듈** | 🚧 스캐폴드 |
 | 2 | H2 + Flyway clone-run | `V1__*.sql`, `application-local.yml` | 🚧 |
 | 4 | JWT | `SecurityConfig`, `/api/v1/auth/*` | 🚧 |
 | 5 | JPA | `dashboard_*` 엔티티 | 🚧 |
-| 6 | React | `bdp-next/frontend` | 🚧 |
+| 6 | React | `insight-board/frontend` | 🚧 |
 | 3 | 테스트 | `@WebMvcTest`, `@DataJpaTest` | 🚧 초기 |
 | 7 | Python/Node 가이드 | 문서 | ✅ |
 | 8 | 데이터 파이프라인 | 문서 + `ingestion` 패키지 스텁 | 📋 |
@@ -99,7 +99,7 @@
 ## 디렉터리 구조 (v2 목표)
 
 ```
-bdp-next/
+insight-board/
 ├── modules/
 │   ├── common/
 │   ├── dashboard/    # 구 CBoard

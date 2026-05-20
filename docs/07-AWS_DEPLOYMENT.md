@@ -1,6 +1,6 @@
 # AWS 배포 가이드 (ECS · EC2)
 
-`bdp-next` Spring Boot JAR + React 정적 파일 기준입니다.
+`insight-board` Spring Boot JAR + React 정적 파일 기준입니다.
 
 ---
 
@@ -34,12 +34,12 @@ flowchart TB
 
 ## 3. 컨테이너 빌드
 
-`bdp-next/backend/Dockerfile` (개념):
+`insight-board/backend/Dockerfile` (개념):
 
 ```dockerfile
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
-COPY build/libs/bdp-next-*.jar app.jar
+COPY build/libs/insight-board-*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=prod
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]
@@ -74,7 +74,7 @@ aws ecr get-login-password | docker login ...
 docker run -d -p 8080:8080 \
   -e SPRING_PROFILES_ACTIVE=prod \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://... \
-  <ecr-uri>/bdp-next:latest
+  <ecr-uri>/insight-board:latest
 ```
 
 - **Nginx** reverse proxy + Let's Encrypt
@@ -103,7 +103,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { java-version: '21' }
-      - run: cd bdp-next/backend && ./gradlew test bootJar
+      - run: cd insight-board/backend && ./gradlew test bootJar
       - run: docker build -t $ECR_REPO:$GITHUB_SHA .
       - run: docker push $ECR_REPO:$GITHUB_SHA
       - run: aws ecs update-service --cluster bdp --force-new-deployment

@@ -154,7 +154,7 @@ erDiagram
 
 ---
 
-## 4. H2 로컬 구현 전략 (`bdp-next`)
+## 4. H2 로컬 구현 전략 (`insight-board`)
 
 | PostgreSQL | H2 대응 |
 |------------|---------|
@@ -163,7 +163,7 @@ erDiagram
 | `::DATE`, `::varchar[]` | `CAST(... AS DATE)` |
 | `row_number() OVER` | 지원 (H2 2.x) |
 
-Flyway 마이그레이션: `bdp-next/backend/src/main/resources/db/migration/`
+Flyway 마이그레이션: `insight-board/backend/src/main/resources/db/migration/`
 
 ---
 

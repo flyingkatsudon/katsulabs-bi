@@ -1,6 +1,6 @@
 # Node.js 마이그레이션 가이드
 
-`bdp-next`를 **NestJS** (또는 Express + Zod)로 이전할 때의 가이드입니다.  
+`insight-board`를 **NestJS** (또는 Express + Zod)로 이전할 때의 가이드입니다.  
 TypeScript를 쓰면 React 프론트와 **타입 공유**가 가능합니다.
 
 ---
@@ -143,7 +143,7 @@ describe('AuthController (e2e)', () => {
 
 | 시나리오 | 권장 |
 |----------|------|
-| 금융 도메인·기존 Java 인력 | Java `bdp-next` 유지 |
+| 금융 도메인·기존 Java 인력 | Java `insight-board` 유지 |
 | 프론트 팀 중심·빠른 API 프로토타입 | Node monorepo |
 | NLP/배치/크롤링 | Python 워커 + Node/Java API |
 
