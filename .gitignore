@@ -97,3 +97,6 @@ hs_err_pid*
 *.log
 
 **/CElasticsearchDataProvider.java
+data/
+*.h2.db
+mycache/

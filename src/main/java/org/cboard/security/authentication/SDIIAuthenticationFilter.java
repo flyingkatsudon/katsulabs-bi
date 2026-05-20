@@ -44,6 +44,12 @@ public class SDIIAuthenticationFilter extends AbstractAuthenticationProcessingFi
 
 	@Value("${initPwd}")
 	private String initPwd;
+
+	@Value("${dev.auth.enabled:false}")
+	private boolean devAuthEnabled;
+
+	@Value("${dev.auth.userId:000admin}")
+	private String devUserId;
 	
 	public SDIIAuthenticationFilter() {
 		super(new AntPathRequestMatcher("/process", "POST"));
@@ -74,8 +80,14 @@ public class SDIIAuthenticationFilter extends AbstractAuthenticationProcessingFi
 		}
 
 		String v0 = obtainV0(request).trim();
-		String v1 = validation(obtainV1(request));
+		String v1 = obtainV1(request).trim();
 		String v2 = validationPw(obtainV2(request));
+
+		if (devAuthEnabled && "admin".equalsIgnoreCase(v1)) {
+			v1 = devUserId;
+		} else {
+			v1 = validation(v1);
+		}
 
 		User user = new User();
 		user.setV0(v0);

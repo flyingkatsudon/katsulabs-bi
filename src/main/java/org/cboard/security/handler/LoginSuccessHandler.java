@@ -38,8 +38,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 		request.setAttribute("error", false);
 		
 		if (userPwd == null || userPwd.isEmpty()) {
-			// 처리로직 추가
-			response.sendRedirect("/");
+			request.getSession().setAttribute("isInitPwd", false);
+			response.sendRedirect(request.getContextPath() + "/login.jsp");
+			return;
 		}
 
 		if (userPwd != null && userPwd.equals(initPwd))

@@ -5,6 +5,7 @@ import org.cboard.services.SDIIUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,6 +19,21 @@ public class SDIIAuthenticationProvider implements AuthenticationProvider  {
 	
 	@Autowired
 	private SDIIUserService userService;
+
+	@Value("${dev.auth.enabled:false}")
+	private boolean devAuthEnabled;
+
+	@Value("${dev.auth.bypass:false}")
+	private boolean devAuthBypass;
+
+	@Value("${dev.auth.businessCode:SY}")
+	private String devBusinessCode;
+
+	@Value("${dev.auth.userId:000admin}")
+	private String devUserId;
+
+	@Value("${dev.auth.password:qwerty!23}")
+	private String devPassword;
 	
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -26,6 +42,12 @@ public class SDIIAuthenticationProvider implements AuthenticationProvider  {
 		User user = (User) authentication.getPrincipal();
 		
 		if (user == null) throw new AuthenticationServiceException("올바르지 않은 접근입니다.");
+
+		if (devAuthEnabled && devAuthBypass && matchesDevCredentials(user)) {
+			User devUser = buildDevUser(user);
+			return new SDIIAuthenticationToken(devUser, devUser.getAuthorities());
+		}
+
 		User load = userService.loadUserByUsername(user);
 		
 		String retnMsg = "사번 또는 비밀번호가 일치하지 않습니다.";
@@ -87,5 +109,35 @@ public class SDIIAuthenticationProvider implements AuthenticationProvider  {
 	public boolean supports(Class<?> authentication) {
 		// TODO Auto-generated method stub
 		return SDIIAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	private boolean matchesDevCredentials(User user) {
+		String business = user.getBusinessCode() != null ? user.getBusinessCode() : "";
+		String userId = user.getUserId() != null ? user.getUserId() : "";
+		if ("admin".equalsIgnoreCase(userId)) {
+			userId = devUserId;
+			user.setUserId(devUserId);
+		}
+		return devBusinessCode.equalsIgnoreCase(business)
+				&& devUserId.equalsIgnoreCase(userId)
+				&& user.getUserPassword() != null
+				&& user.getUserPassword().equalsIgnoreCase(
+						org.cboard.util.CheckPwd.passwordEncoder.encodePassword(devPassword, "").toUpperCase());
+	}
+
+	private User buildDevUser(User requestUser) {
+		User devUser = new User();
+		devUser.setUserId(devUserId);
+		devUser.setBusinessCode(devBusinessCode);
+		devUser.setLoginName("admin");
+		devUser.setUserName("Local Administrator");
+		devUser.setRoleId("1");
+		devUser.setRbacPolicy(0);
+		devUser.setUserStateInfo("0");
+		devUser.setDelCd("N");
+		devUser.setV3(requestUser.getV3());
+		devUser.setUserPassword(
+				org.cboard.util.CheckPwd.passwordEncoder.encodePassword(devPassword, "").toUpperCase());
+		return devUser;
 	}
 }

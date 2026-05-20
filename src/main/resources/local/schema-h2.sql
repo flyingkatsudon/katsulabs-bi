@@ -1,0 +1,103 @@
+-- CBoard metadata schema (H2 / MySQL mode) + Shinhan extensions
+
+CREATE TABLE IF NOT EXISTS dashboard_board (
+  board_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(50) NOT NULL,
+  category_id BIGINT DEFAULT NULL,
+  board_name VARCHAR(100) NOT NULL,
+  layout_json CLOB
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_category (
+  category_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  category_name VARCHAR(100) NOT NULL,
+  user_id VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_datasource (
+  datasource_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(50) NOT NULL,
+  source_name VARCHAR(100) NOT NULL,
+  source_type VARCHAR(100) NOT NULL,
+  config CLOB
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_widget (
+  widget_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(100) NOT NULL,
+  category_name VARCHAR(100) DEFAULT NULL,
+  widget_name VARCHAR(100) DEFAULT NULL,
+  data_json CLOB
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_dataset (
+  dataset_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(100) NOT NULL,
+  category_name VARCHAR(100) DEFAULT NULL,
+  dataset_name VARCHAR(100) DEFAULT NULL,
+  data_json CLOB
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_user (
+  user_id VARCHAR(50) NOT NULL,
+  business_code VARCHAR(10) NOT NULL DEFAULT 'SY',
+  login_name VARCHAR(100) DEFAULT NULL,
+  user_name VARCHAR(100) DEFAULT NULL,
+  user_password VARCHAR(200) DEFAULT NULL,
+  user_status VARCHAR(100) DEFAULT NULL,
+  rbac_policy INT DEFAULT 0,
+  user_state_info VARCHAR(10) DEFAULT '0',
+  user_last_date TIMESTAMP DEFAULT NULL,
+  del_cd VARCHAR(10) DEFAULT 'N',
+  PRIMARY KEY (user_id, business_code)
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_user_role (
+  user_role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(100) DEFAULT NULL,
+  business_code VARCHAR(10) DEFAULT 'SY',
+  role_id VARCHAR(100) DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_role (
+  role_id VARCHAR(100) NOT NULL PRIMARY KEY,
+  role_name VARCHAR(100) DEFAULT NULL,
+  user_id VARCHAR(50) DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_role_res (
+  role_res_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  role_id VARCHAR(100) DEFAULT NULL,
+  res_type VARCHAR(100) DEFAULT NULL,
+  res_id BIGINT DEFAULT NULL,
+  permission VARCHAR(20) DEFAULT NULL,
+  del_cd VARCHAR(10) DEFAULT 'N'
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_job (
+  job_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  job_name VARCHAR(200) DEFAULT NULL,
+  cron_exp VARCHAR(200) DEFAULT NULL,
+  start_date TIMESTAMP DEFAULT NULL,
+  end_date TIMESTAMP DEFAULT NULL,
+  job_type VARCHAR(200) DEFAULT NULL,
+  job_config CLOB,
+  user_id VARCHAR(100) DEFAULT NULL,
+  last_exec_time TIMESTAMP DEFAULT NULL,
+  job_status BIGINT,
+  exec_log CLOB
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_board_param (
+  board_param_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(50) NOT NULL,
+  board_id BIGINT NOT NULL,
+  config CLOB
+);
+
+CREATE TABLE IF NOT EXISTS dashboard_menu (
+  menu_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  parent_id BIGINT DEFAULT NULL,
+  menu_name VARCHAR(100) DEFAULT NULL,
+  menu_code VARCHAR(100) DEFAULT NULL
+);
