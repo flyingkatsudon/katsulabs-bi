@@ -9,12 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "com.insightboard")
-@EnableJpaRepositories(
-        basePackages = {
-            "com.insightboard.api.infrastructure.persistence",
-            "com.insightboard.web.infrastructure.persistence"
-        })
-@EntityScan(basePackages = {"com.insightboard.api.domain", "com.insightboard.web.domain"})
+@EnableJpaRepositories(basePackages = "com.insightboard.api.infrastructure.persistence")
+@EntityScan(basePackages = "com.insightboard.api.domain")
 @EnableConfigurationProperties({JwtProperties.class, CorsProperties.class})
 public class InsightBoardApplication {
 

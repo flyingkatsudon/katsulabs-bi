@@ -19,9 +19,6 @@ public class CboardMenuService {
     record MenuDef(long menuId, long parentId, String menuName, String menuCode) {}
 
     private static final List<MenuDef> ALL_MENUS = List.of(
-            new MenuDef(1, -1, "SIDEBAR.INSIGHT_REPORT", "insightboard.insight"),
-            new MenuDef(2, -1, "SIDEBAR.G_ANALYSIS", "insightboard.g_analysis"),
-            new MenuDef(3, -1, "SIDEBAR.E_ANALYSIS", "insightboard.e_analysis"),
             new MenuDef(4, -1, "SIDEBAR.ADMIN_PAGE", "admin.user"),
             new MenuDef(6, -1, "SIDEBAR.CONFIG", "config"),
             new MenuDef(7, 6, "SIDEBAR.DATA_SOURCE", "config.datasource"),

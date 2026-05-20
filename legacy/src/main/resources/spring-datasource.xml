@@ -34,14 +34,7 @@
         <property name="logAbandoned" value="true"/>
         <property name="filters" value="mergeStat,log4j"/>
     </bean>
-    
-	<bean id="postgreSqlSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="org.postgresql.Driver"></property>
-        <!-- <property name="url" value="#{jdbc['jdbc.postgresql.url']}"/> -->
-        <property name="username" value="#{jdbc['jdbc.postgresql.username']}"/>
-        <property name="password" value="#{jdbc['jdbc.postgresql.password']}"/>
-	</bean>
-    
+
     <!-- Jasypt -->
     <bean id="environmentVariablesConfiguration" class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
         <!-- <property name="algorithm" value="PBEWITHHMACSHA256ANDAES_256"/>

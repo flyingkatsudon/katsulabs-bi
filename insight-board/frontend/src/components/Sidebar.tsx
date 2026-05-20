@@ -46,33 +46,6 @@ export function Sidebar({ user, boardList, categoryList, isShowMenu }: Props) {
             </li>
           )}
 
-          {isShowMenu('insightboard.insight') && (
-            <li className="treeview">
-              <a href="/report/index.html" target="_blank" rel="noreferrer">
-                <i className="fa fa-th" />
-                <span>{translate('SIDEBAR.INSIGHT_REPORT')}</span>
-              </a>
-            </li>
-          )}
-
-          {isShowMenu('insightboard.g_analysis') && (
-            <li className="treeview">
-              <a href="/report/ga.html" target="_blank" rel="noreferrer">
-                <i className="fa fa-th" />
-                <span>{translate('SIDEBAR.G_ANALYSIS')}</span>
-              </a>
-            </li>
-          )}
-
-          {isShowMenu('insightboard.e_analysis') && (
-            <li className="treeview">
-              <a href="#">
-                <i className="fa fa-th" />
-                <span>{translate('SIDEBAR.E_ANALYSIS')}</span>
-              </a>
-            </li>
-          )}
-
           <li className={`treeview ${location.pathname.includes('/dashboard') ? 'active' : ''}`}>
             <a href="#">
               <i className="fa fa-th" />

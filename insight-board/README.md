@@ -30,12 +30,11 @@ npm run dev
 backend/modules/
 ├── common/     # 공유 예외·유틸
 ├── api/        # CBoard/dashboard — domain · application · infrastructure · presentation
-├── web/        # 신한 인사이트·리포트 — domain · application · infrastructure · presentation
 ├── external/   # JDBC DataProvider 등 외부 연동 (api.domain.port 구현)
 └── app/        # Spring Boot 진입점, Security(JWT), 설정, DB 마이그레이션
 ```
 
-의존 방향: `app` → `api`, `web`, `external` → `common` · `external` → `api` (포트 구현)
+의존 방향: `app` → `api`, `external` → `common` · `external` → `api` (포트 구현)
 
 ## Stack
 

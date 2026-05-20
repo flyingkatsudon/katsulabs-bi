@@ -7,7 +7,6 @@ plugins {
 dependencies {
     implementation(project(":modules:common"))
     implementation(project(":modules:api"))
-    implementation(project(":modules:web"))
     implementation(project(":modules:external"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")

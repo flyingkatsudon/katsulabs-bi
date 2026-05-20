@@ -1,6 +1,6 @@
 # BDP Legacy (단독 실행)
 
-레거시 WAR 프로젝트입니다. CBoard BI(`org.cboard`) + 신한 커스텀(`com.shinhan`)이 포함됩니다.
+레거시 WAR 프로젝트입니다. CBoard BI(`org.cboard`)만 포함합니다.
 
 신규 개발은 [insight-board/](../insight-board/README.md)를 사용하세요.
 
@@ -38,6 +38,4 @@ mvn tomcat7:run
 | 경로 | 설명 |
 |------|------|
 | `src/main/java/org/cboard/` | CBoard BI 엔진 |
-| `src/main/java/com/shinhan/` | 신한 인사이트·리포트 |
 | `src/main/webapp/cboard/` | AngularJS SPA |
-| `src/main/webapp/report/` | 정적 리포트 페이지 |

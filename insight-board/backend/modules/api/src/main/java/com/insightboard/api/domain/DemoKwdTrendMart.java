@@ -1,4 +1,4 @@
-package com.insightboard.web.domain;
+package com.insightboard.api.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,11 +10,12 @@ import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
+/** CBoard DataProvider JDBC 데모용 샘플 마트 (로컬 H2). */
 @Entity
 @Table(name = "daily_kwd_trend_cnt_minimal_v2")
 @Getter
 @Setter
-public class DailyKwdTrend {
+public class DemoKwdTrendMart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

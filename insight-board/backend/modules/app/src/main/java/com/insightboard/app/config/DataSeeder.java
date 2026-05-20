@@ -1,26 +1,26 @@
 package com.insightboard.app.config;
 
-import com.insightboard.web.domain.DailyKwdTrend;
+import com.insightboard.api.domain.DemoKwdTrendMart;
 import com.insightboard.api.domain.DashboardBoard;
+import com.insightboard.api.infrastructure.persistence.DemoKwdTrendMartRepository;
+import java.time.LocalDate;
 import com.insightboard.api.domain.DashboardCategory;
 import com.insightboard.api.domain.DashboardDataset;
 import com.insightboard.api.domain.DashboardDatasource;
+import com.insightboard.api.domain.DashboardRole;
+import com.insightboard.api.domain.DashboardRoleRes;
 import com.insightboard.api.domain.DashboardUser;
+import com.insightboard.api.domain.DashboardUserRole;
 import com.insightboard.api.domain.DashboardWidget;
-import com.insightboard.web.infrastructure.persistence.DailyKwdTrendRepository;
-import com.insightboard.api.infrastructure.persistence.DashboardRoleResRepository;
 import com.insightboard.api.infrastructure.persistence.DashboardBoardRepository;
 import com.insightboard.api.infrastructure.persistence.DashboardCategoryRepository;
 import com.insightboard.api.infrastructure.persistence.DashboardDatasetRepository;
 import com.insightboard.api.infrastructure.persistence.DashboardDatasourceRepository;
-import com.insightboard.api.domain.DashboardRole;
-import com.insightboard.api.domain.DashboardRoleRes;
-import com.insightboard.api.domain.DashboardUserRole;
 import com.insightboard.api.infrastructure.persistence.DashboardRoleRepository;
+import com.insightboard.api.infrastructure.persistence.DashboardRoleResRepository;
 import com.insightboard.api.infrastructure.persistence.DashboardUserRepository;
 import com.insightboard.api.infrastructure.persistence.DashboardUserRoleRepository;
 import com.insightboard.api.infrastructure.persistence.DashboardWidgetRepository;
-import java.time.LocalDate;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +49,6 @@ public class DataSeeder {
     @Profile("local")
     CommandLineRunner seedLocalData(
             DashboardUserRepository userRepository,
-            DailyKwdTrendRepository trendRepository,
             DashboardCategoryRepository categoryRepository,
             DashboardBoardRepository boardRepository,
             DashboardWidgetRepository widgetRepository,
@@ -58,6 +57,7 @@ public class DataSeeder {
             DashboardRoleRepository roleRepository,
             DashboardUserRoleRepository userRoleRepository,
             DashboardRoleResRepository roleResRepository,
+            DemoKwdTrendMartRepository demoMartRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
             if (userRepository.count() == 0) {
@@ -80,7 +80,7 @@ public class DataSeeder {
                 ur.setUserId("1");
                 ur.setRoleId("ADMIN");
                 userRoleRepository.save(ur);
-                for (long menuId = 1; menuId <= 12; menuId++) {
+                for (long menuId = 4; menuId <= 12; menuId++) {
                     DashboardRoleRes res = new DashboardRoleRes();
                     res.setRoleId("ADMIN");
                     res.setResType("menu");
@@ -89,10 +89,10 @@ public class DataSeeder {
                     roleResRepository.save(res);
                 }
             }
-            if (trendRepository.count() == 0) {
-                seedTrend(trendRepository, LocalDate.now().minusDays(2), "코스피", "상승", 15);
-                seedTrend(trendRepository, LocalDate.now().minusDays(1), "코스피", "변동성", 18);
-                seedTrend(trendRepository, LocalDate.now(), "금리", "한국은행", 25);
+            if (demoMartRepository.count() == 0) {
+                seedDemoMart(demoMartRepository, LocalDate.now().minusDays(2), "코스피", "상승", 15);
+                seedDemoMart(demoMartRepository, LocalDate.now().minusDays(1), "코스피", "변동성", 18);
+                seedDemoMart(demoMartRepository, LocalDate.now(), "금리", "한국은행", 25);
             }
             if (categoryRepository.count() == 0) {
                 DashboardCategory cat = new DashboardCategory();
@@ -139,9 +139,9 @@ public class DataSeeder {
         };
     }
 
-    private static void seedTrend(
-            DailyKwdTrendRepository repo, LocalDate date, String kwdA, String kwdB, int both) {
-        DailyKwdTrend row = new DailyKwdTrend();
+    private static void seedDemoMart(
+            DemoKwdTrendMartRepository repo, LocalDate date, String kwdA, String kwdB, int both) {
+        DemoKwdTrendMart row = new DemoKwdTrendMart();
         row.setFid("BDPC04030205");
         row.setBusinessCode("FIN");
         row.setCategoryCode("BDPC01");

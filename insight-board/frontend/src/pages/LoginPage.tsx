@@ -30,10 +30,8 @@ export function LoginPage() {
       <div className="login-box">
         <div className="login-logo">
           <span>
-            <b>Shinhan</b>
+            <b>InsightBoard</b>
           </span>
-          &nbsp;|&nbsp;
-          <span>InsightBoard</span>
         </div>
         <div className="login-box-body">
           <form onSubmit={onSubmit}>

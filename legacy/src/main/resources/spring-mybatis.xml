@@ -45,25 +45,5 @@
     </aop:config>
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
- 	
- 	
- 	<!-- <bean id="postgreSqlSession" class="org.mybatis.spring.SqlSessionTemplate">
-		<constructor-arg index="0" ref="postgreSqlSessionFactory"/>
- 	</bean> -->
- 	 <bean id="postgreSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
- 		<property name="dataSource" ref="postgreSqlSource"/>
- 		<property name="mapperLocations" value="classpath:mapper/report/*.xml"/>
- 		<!-- <property name="mapperLocations" value="classpath:/sqlMap/*.xml"/> -->
- 		<property name="configLocation" value="classpath:spring-mybatis-config.xml"/>
- 	</bean> 	
- 	
-    <bean id="postgreSqlScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.shinhan.dao" />
-        <property name="sqlSessionFactory" ref="postgreSqlSessionFactory"/>
-    </bean>
-   
-    <bean id="postgreSqlTransactionManager"   class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    	<property name="dataSource" ref="postgreSqlSource" />
-    </bean>
-    
+
 </beans>

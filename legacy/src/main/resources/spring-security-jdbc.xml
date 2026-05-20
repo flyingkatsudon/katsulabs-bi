@@ -23,12 +23,7 @@
         <security:intercept-url pattern="/cboard/css/**" access="permitAll"/>
         
         <security:intercept-url pattern="/cboard/**" access="isAuthenticated()"/>
-        
-        <security:intercept-url pattern="/report/css/**" access="permitAll"/>
-        <security:intercept-url pattern="/report/img/**" access="permitAll"/>
-        <security:intercept-url pattern="/report/js/**" access="permitAll"/>
-        <security:intercept-url pattern="/report/lib/**" access="permitAll"/>
-        <security:intercept-url pattern="/report/**" access="isAuthenticated()"/>
+
     	
 		<security:form-login 
 			login-page="/" 
