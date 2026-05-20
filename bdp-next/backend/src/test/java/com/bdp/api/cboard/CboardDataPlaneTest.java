@@ -59,6 +59,32 @@ class CboardDataPlaneTest {
     }
 
     @Test
+    void getAggregateData_withAggConfig_groupsByKwdA() throws Exception {
+        String cfg =
+                "{\"rows\":[{\"columnName\":\"kwd_a\"}],\"values\":[{\"column\":\"doc_cnt_both\",\"aggType\":\"sum\"}]}";
+        MvcResult result = mockMvc.perform(post("/cboard/dashboard/getAggregateData?datasetId=1&cfg="
+                                + java.net.URLEncoder.encode(cfg, java.nio.charset.StandardCharsets.UTF_8))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertThat(body.get("columnList").size()).isEqualTo(2);
+        assertThat(body.get("data").size()).isGreaterThan(0);
+    }
+
+    @Test
+    void viewAggDataQuery_returnsSql() throws Exception {
+        String cfg = "{\"rows\":[{\"columnName\":\"doc_date\"}],\"values\":[{\"column\":\"doc_cnt_both\",\"aggType\":\"sum\"}]}";
+        MvcResult result = mockMvc.perform(post("/cboard/dashboard/viewAggDataQuery?datasetId=1&cfg="
+                                + java.net.URLEncoder.encode(cfg, java.nio.charset.StandardCharsets.UTF_8))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+        JsonNode arr = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertThat(arr.get(0).asText()).contains("GROUP BY doc_date");
+    }
+
+    @Test
     void getAggregateData_postAndGet() throws Exception {
         mockMvc.perform(post("/cboard/dashboard/getAggregateData?datasetId=1")
                         .header("Authorization", "Bearer " + token))

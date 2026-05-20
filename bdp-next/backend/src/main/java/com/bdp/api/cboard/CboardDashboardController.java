@@ -2,6 +2,14 @@ package com.bdp.api.cboard;
 
 import com.bdp.application.cboard.CboardDashboardService;
 import com.bdp.application.cboard.CboardDataProviderService;
+import com.bdp.application.cboard.CboardExportService;
+import com.bdp.application.cboard.CboardJobService;
+import com.bdp.application.cboard.CboardQueryParams;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import com.bdp.application.cboard.dto.AggregateResultDto;
 import com.bdp.application.cboard.dto.DataProviderResultDto;
 import com.bdp.domain.metadata.DashboardBoardParam;
@@ -24,11 +32,21 @@ public class CboardDashboardController {
 
     private final CboardDashboardService dashboardService;
     private final CboardDataProviderService dataProviderService;
+    private final CboardJobService jobService;
+    private final CboardExportService exportService;
+    private final ObjectMapper objectMapper;
 
     public CboardDashboardController(
-            CboardDashboardService dashboardService, CboardDataProviderService dataProviderService) {
+            CboardDashboardService dashboardService,
+            CboardDataProviderService dataProviderService,
+            CboardJobService jobService,
+            CboardExportService exportService,
+            ObjectMapper objectMapper) {
         this.dashboardService = dashboardService;
         this.dataProviderService = dataProviderService;
+        this.jobService = jobService;
+        this.exportService = exportService;
+        this.objectMapper = objectMapper;
     }
 
     @RequestMapping("/getBoardList")
@@ -119,7 +137,19 @@ public class CboardDashboardController {
             @RequestParam(required = false) Long datasetId,
             @RequestParam(required = false) String cfg,
             @RequestParam(required = false, defaultValue = "false") Boolean reload) {
-        return dataProviderService.queryAggData(datasetId, cfg);
+        return dataProviderService.queryAggData(
+                datasourceId, datasetId, cfg, CboardQueryParams.parse(query, objectMapper));
+    }
+
+    @RequestMapping("/viewAggDataQuery")
+    public String[] viewAggDataQuery(
+            @RequestParam(required = false) Long datasourceId,
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) Long datasetId,
+            @RequestParam(required = false) String cfg) {
+        String sql = dataProviderService.viewAggDataQuery(
+                datasourceId, datasetId, cfg, CboardQueryParams.parse(query, objectMapper));
+        return new String[] {sql};
     }
 
     @RequestMapping("/getColumns")
@@ -128,7 +158,8 @@ public class CboardDashboardController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) Long datasetId,
             @RequestParam(required = false, defaultValue = "false") Boolean reload) {
-        return dataProviderService.getColumns(datasetId);
+        return dataProviderService.getColumns(
+                datasourceId, datasetId, CboardQueryParams.parse(query, objectMapper));
     }
 
     @RequestMapping("/getDimensionValues")
@@ -139,7 +170,12 @@ public class CboardDashboardController {
             @RequestParam(name = "colmunName") String columnName,
             @RequestParam(required = false) String cfg,
             @RequestParam(required = false, defaultValue = "false") Boolean reload) {
-        return dataProviderService.getDimensionValues(columnName);
+        return dataProviderService.getDimensionValues(
+                datasourceId,
+                datasetId,
+                columnName,
+                cfg,
+                CboardQueryParams.parse(query, objectMapper));
     }
 
     @RequestMapping("/test")
@@ -250,5 +286,51 @@ public class CboardDashboardController {
     @RequestMapping("/deleteDatasource")
     public ServiceStatusDto deleteDatasource(@RequestParam Long id, @AuthenticationPrincipal String userId) {
         return dashboardService.deleteDatasource(userId, id);
+    }
+
+    @RequestMapping("/getJobList")
+    public List<Map<String, Object>> getJobList(@AuthenticationPrincipal String userId) {
+        return jobService.getJobList(userId);
+    }
+
+    @RequestMapping("/saveJob")
+    public ServiceStatusDto saveJob(@RequestParam String json, @AuthenticationPrincipal String userId) {
+        return jobService.save(userId, json);
+    }
+
+    @RequestMapping("/updateJob")
+    public ServiceStatusDto updateJob(@RequestParam String json, @AuthenticationPrincipal String userId) {
+        return jobService.update(userId, json);
+    }
+
+    @RequestMapping("/deleteJob")
+    public ServiceStatusDto deleteJob(@RequestParam Long id, @AuthenticationPrincipal String userId) {
+        return jobService.delete(userId, id);
+    }
+
+    @RequestMapping("/execJob")
+    public ServiceStatusDto execJob(@RequestParam Long id, @AuthenticationPrincipal String userId) {
+        return jobService.exec(userId, id);
+    }
+
+    @RequestMapping("/getJobStatus")
+    public Map<String, Object> getJobStatus(@RequestParam Long id) {
+        return jobService.getJobStatus(id);
+    }
+
+    @RequestMapping("/exportBoard")
+    public ResponseEntity<byte[]> exportBoard(@RequestParam Long id, @AuthenticationPrincipal String userId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "report.xls");
+        return new ResponseEntity<>(exportService.exportBoard(id, userId), headers, HttpStatus.OK);
+    }
+
+    @RequestMapping("/tableToxls")
+    public ResponseEntity<byte[]> tableToxls(@RequestParam String data) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "table.xls");
+        return new ResponseEntity<>(exportService.tableToXls(data), headers, HttpStatus.OK);
     }
 }

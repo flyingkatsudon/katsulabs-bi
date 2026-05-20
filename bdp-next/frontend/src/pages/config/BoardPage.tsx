@@ -39,44 +39,63 @@ function BoardForm({
   const [categories, setCategories] = useState<Category[]>([]);
   const [widgets, setWidgets] = useState<WidgetRef[]>([]);
   const [selectedWidgetIds, setSelectedWidgetIds] = useState<number[]>([]);
+  const [dragId, setDragId] = useState<number | null>(null);
 
   useEffect(() => {
     cboardGet<Category[]>('getCategoryList').then(setCategories);
     cboardGet<WidgetRef[]>('getWidgetList').then((list) =>
       setWidgets(list.map((w) => ({ id: w.id, name: w.name }))),
     );
-  }, []);
+    if (item?.layout && typeof item.layout === 'object') {
+      const layout = item.layout as { rows?: Array<{ widgets?: Array<{ widgetId?: number; widget?: { id: number } }> }> };
+      const ids: number[] = [];
+      layout.rows?.forEach((row) =>
+        row.widgets?.forEach((cell) => {
+          const id = cell.widgetId ?? cell.widget?.id;
+          if (id) ids.push(id);
+        }),
+      );
+      if (ids.length) setSelectedWidgetIds(ids);
+    }
+  }, [item]);
 
   if (!mode) return <p className="text-muted">Select or create a board.</p>;
 
+  function toggleWidget(wid: number, checked: boolean) {
+    setSelectedWidgetIds((prev) =>
+      checked ? (prev.includes(wid) ? prev : [...prev, wid]) : prev.filter((id) => id !== wid),
+    );
+  }
+
+  function onDrop(targetId: number) {
+    if (dragId == null || dragId === targetId) return;
+    setSelectedWidgetIds((prev) => {
+      const next = prev.filter((id) => id !== dragId);
+      const idx = next.indexOf(targetId);
+      next.splice(idx, 0, dragId);
+      return next;
+    });
+    setDragId(null);
+  }
+
   async function save() {
-    const rows = [
-      {
-        height: 360,
-        widgets: selectedWidgetIds.map((wid, i) => {
-          const w = widgets.find((x) => x.id === wid);
-          return {
-            width: 6,
-            name: w?.name ?? `Widget ${wid}`,
-            show: true,
-            loading: false,
-            widgetId: wid,
-            widget: { id: wid },
-          };
-        }),
-      },
-    ];
-    if (rows[0].widgets.length === 0 && widgets.length > 0) {
-      const wid = widgets[0].id;
-      rows[0].widgets = [
-        { width: 12, name: widgets[0].name, show: true, loading: false, widgetId: wid, widget: { id: wid } },
-      ];
-    }
+    const ordered = selectedWidgetIds.length > 0 ? selectedWidgetIds : widgets.slice(0, 1).map((w) => w.id);
+    const rowWidgets = ordered.map((wid) => {
+      const w = widgets.find((x) => x.id === wid);
+      return {
+        width: ordered.length > 1 ? Math.floor(12 / ordered.length) : 12,
+        name: w?.name ?? `Widget ${wid}`,
+        show: true,
+        loading: false,
+        widgetId: wid,
+        widget: { id: wid },
+      };
+    });
     const body = {
       id: item?.id,
       name,
       categoryId: categoryId || categories[0]?.categoryId,
-      layout: { type: 'grid', rows },
+      layout: { type: 'grid', rows: [{ height: 360, widgets: rowWidgets }] },
     };
     await cboardSave(mode === 'new' ? 'saveNewBoard' : 'updateBoard', body);
     onSaved();
@@ -103,22 +122,46 @@ function BoardForm({
           ))}
         </select>
       </div>
-      <div className="form-group">
-        <label>Widgets in board</label>
-        {widgets.map((w) => (
-          <label key={w.id} style={{ display: 'block', fontWeight: 'normal' }}>
-            <input
-              type="checkbox"
-              checked={selectedWidgetIds.includes(w.id)}
-              onChange={(e) => {
-                setSelectedWidgetIds((prev) =>
-                  e.target.checked ? [...prev, w.id] : prev.filter((id) => id !== w.id),
-                );
-              }}
-            />{' '}
-            {w.name}
-          </label>
-        ))}
+      <div className="row">
+        <div className="col-md-6">
+          <label>Widget palette</label>
+          <ul className="list-group">
+            {widgets.map((w) => (
+              <li key={w.id} className="list-group-item">
+                <label style={{ fontWeight: 'normal', margin: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedWidgetIds.includes(w.id)}
+                    onChange={(e) => toggleWidget(w.id, e.target.checked)}
+                  />{' '}
+                  {w.name}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="col-md-6">
+          <label>Board layout (drag to reorder)</label>
+          <ul className="list-group">
+            {selectedWidgetIds.map((wid) => {
+              const w = widgets.find((x) => x.id === wid);
+              return (
+                <li
+                  key={wid}
+                  className="list-group-item"
+                  draggable
+                  onDragStart={() => setDragId(wid)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => onDrop(wid)}
+                  style={{ cursor: 'move' }}
+                >
+                  <i className="fa fa-arrows" style={{ marginRight: 8 }} />
+                  {w?.name ?? wid}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
       <button type="button" className="btn btn-primary" onClick={save}>
         {translate('COMMON.SAVE')}

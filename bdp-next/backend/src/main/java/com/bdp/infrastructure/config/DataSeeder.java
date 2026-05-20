@@ -12,7 +12,11 @@ import com.bdp.infrastructure.persistence.DashboardBoardRepository;
 import com.bdp.infrastructure.persistence.DashboardCategoryRepository;
 import com.bdp.infrastructure.persistence.DashboardDatasetRepository;
 import com.bdp.infrastructure.persistence.DashboardDatasourceRepository;
+import com.bdp.domain.metadata.DashboardRole;
+import com.bdp.domain.metadata.DashboardUserRole;
+import com.bdp.infrastructure.persistence.DashboardRoleRepository;
 import com.bdp.infrastructure.persistence.DashboardUserRepository;
+import com.bdp.infrastructure.persistence.DashboardUserRoleRepository;
 import com.bdp.infrastructure.persistence.DashboardWidgetRepository;
 import java.time.LocalDate;
 import org.springframework.boot.CommandLineRunner;
@@ -49,6 +53,8 @@ public class DataSeeder {
             DashboardWidgetRepository widgetRepository,
             DashboardDatasetRepository datasetRepository,
             DashboardDatasourceRepository datasourceRepository,
+            DashboardRoleRepository roleRepository,
+            DashboardUserRoleRepository userRoleRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
             if (userRepository.count() == 0) {
@@ -60,6 +66,17 @@ public class DataSeeder {
                 admin.setUserStatus("ACTIVE");
                 admin.setBusinessCode("DEFAULT");
                 userRepository.save(admin);
+            }
+            if (roleRepository.count() == 0) {
+                DashboardRole adminRole = new DashboardRole();
+                adminRole.setRoleId("ADMIN");
+                adminRole.setRoleName("Administrator");
+                adminRole.setUserId("1");
+                roleRepository.save(adminRole);
+                DashboardUserRole ur = new DashboardUserRole();
+                ur.setUserId("1");
+                ur.setRoleId("ADMIN");
+                userRoleRepository.save(ur);
             }
             if (trendRepository.count() == 0) {
                 seedTrend(trendRepository, LocalDate.now().minusDays(2), "코스피", "상승", 15);
@@ -83,7 +100,8 @@ public class DataSeeder {
                 dataset.setUserId("1");
                 dataset.setDatasetName("데모 데이터셋");
                 dataset.setCategoryName("default");
-                dataset.setDataJson("{\"schema\":{\"measure\":[],\"dimension\":[]}}");
+                dataset.setDataJson(
+                        "{\"datasource\":1,\"query\":{\"table\":\"daily_kwd_trend_cnt_minimal_v2\"},\"schema\":{\"measure\":[{\"column\":\"doc_cnt_both\",\"aggType\":\"sum\"}],\"dimension\":[{\"columnName\":\"doc_date\"},{\"columnName\":\"kwd_a\"}]}}");
                 datasetRepository.save(dataset);
 
                 DashboardWidget w1 = new DashboardWidget();

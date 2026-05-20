@@ -1,36 +1,49 @@
 # CBoard 100% 내재화 로드맵
 
-## 완료 (이번 작업 — P0 데이터 플레인)
+## P0 — 데이터 플레인 ✅
 
 | 항목 | 상태 |
 |------|------|
-| `getBoardData` 레이아웃 위젯 하이드레이션 | ✅ |
-| `getAggregateData` / `getColumns` / `getDimensionValues` | ✅ (H2 시드 기반) |
-| `test` 데이터소스 연결 | ✅ |
-| `getDatasourceParams` / `getDatasourceView` | ✅ |
-| `dashboardWidget`, `getAllWidgetList` | ✅ |
-| `checkWidget` / `checkDatasource` | ✅ |
-| `getBoardParam` / `saveBoardParam` | ✅ |
-| GET+POST `@RequestMapping` (레거시 `$http.post` 호환) | ✅ |
-| React 대시보드 뷰 — 하이드레이션된 `widget.data` 사용 | ✅ |
+| `getBoardData` 위젯 하이드레이션 | ✅ |
+| `getAggregateData` / `getColumns` / `getDimensionValues` / `test` | ✅ |
+| GET+POST `@RequestMapping` | ✅ |
 
-## 다음 우선순위 (P1)
+## P1 — AggConfig + JDBC 집계 ✅
 
-1. **AggConfig 파싱** — `cfg` JSON 기반 실제 집계 (GROUP BY, measure)
-2. **JDBC DataProvider** — 사용자 SQL / 테이블 쿼리
-3. **`/cboard/admin/*`** — 사용자·역할·RBAC
-4. **Job** — `saveJob`, `execJob`, 메일 스냅샷 (`commons/persist`)
-5. **보드 빌더** — 드래그앤드롭, `dashboardWidget` 미리보기
+| 항목 | 상태 |
+|------|------|
+| `ViewAggConfig` / `AggConfig` 파싱 | ✅ |
+| `JdbcAggregateQueryBuilder` (GROUP BY, SUM/COUNT/…) | ✅ |
+| 데이터셋 `query.table` / `query.sql` 해석 | ✅ |
+| `viewAggDataQuery` (SQL 디버그) | ✅ |
+| 테스트: `JdbcAggregateQueryBuilderTest`, agg cfg 통합 테스트 | ✅ |
 
-## P2
+## P2 — Admin / RBAC ✅
 
-- `exportBoard` / `tableToxls`
-- `viewAggDataQuery` (SQL 디버그)
-- Kylin / Elasticsearch 등 추가 프로바이더 (BDP에서 실제 쓰는 것만)
+| 항목 | 상태 |
+|------|------|
+| `dashboard_role`, `dashboard_user_role`, `dashboard_role_res` JPA | ✅ |
+| `/cboard/admin/*` (`CboardAdminController`) | ✅ |
+| `isAdmin` / `isConfig`, 사용자·역할 CRUD | ✅ |
+| 시드: ADMIN 역할 + admin 사용자 | ✅ |
+| 테스트: `CboardAdminTest` | ✅ |
 
-## P3
+## P3 — Job · Export · 보드 빌더 ✅ (기본)
 
-- 메뉴 DB + 역할 필터 (`getMenuList`)
-- `edit`/`delete` 플래그 RBAC 연동
+| 항목 | 상태 |
+|------|------|
+| `dashboard_job` + Job CRUD / `execJob` | ✅ |
+| `exportBoard` / `tableToxls` (TSV 바이트) | ✅ |
+| React 보드 설정: 드래그 순서 변경 | ✅ |
+| 대시보드 Export 버튼 | ✅ |
+| 테스트: `CboardJobExportTest` | ✅ |
 
-자세한 갭 목록: 레거시 `org.cboard.controller.DashboardController` 48 endpoints 대비 `CboardDashboardController`.
+## 남은 고도화 (100% 완전 동등 이전)
+
+- 실제 POI XLS, 메일 Job 실행, `commons/persist` 스냅샷
+- Kylin / ES 등 추가 DataProvider
+- Ace/OLAP 위젯·데이터셋 편집기
+- 메뉴 DB + 역할별 `getMenuList` 필터
+- 레거시 보드 파라미터 UI (`param` row)
+
+**총 백엔드 테스트:** 17개 (`./gradlew test`)

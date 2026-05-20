@@ -1,17 +1,22 @@
 package com.bdp.application.cboard;
 
 import com.bdp.api.cboard.ServiceStatusDto;
+import com.bdp.application.cboard.config.AggConfigDto;
+import com.bdp.application.cboard.config.ViewAggConfigDto;
 import com.bdp.application.cboard.dto.AggregateResultDto;
 import com.bdp.application.cboard.dto.ColumnIndexDto;
 import com.bdp.application.cboard.dto.DataProviderResultDto;
-import com.bdp.domain.analytics.DailyKwdTrend;
+import com.bdp.domain.metadata.DashboardDataset;
 import com.bdp.domain.metadata.DashboardDatasource;
-import com.bdp.infrastructure.persistence.DailyKwdTrendRepository;
+import com.bdp.infrastructure.persistence.DashboardDatasetRepository;
 import com.bdp.infrastructure.persistence.DashboardDatasourceRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,81 +26,96 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.springframework.stereotype.Service;
 
-/**
- * CBoard DataProvider SPI의 내재화 구현 (JPA/H2 기반).
- * 레거시 {@code getAggregateData}, {@code getColumns}, {@code getDimensionValues}, {@code test} 호환.
- */
 @Service
 public class CboardDataProviderService {
 
-    private static final List<ColumnIndexDto> TREND_COLUMNS = List.of(
-            new ColumnIndexDto(0, "doc_date", null),
-            new ColumnIndexDto(1, "kwd_a", null),
-            new ColumnIndexDto(2, "kwd_b", null),
-            new ColumnIndexDto(3, "doc_cnt_both", "sum"));
+    private static final String DEFAULT_TABLE = "daily_kwd_trend_cnt_minimal_v2";
 
-    private final DailyKwdTrendRepository trendRepository;
+    private final DashboardDatasetRepository datasetRepository;
     private final DashboardDatasourceRepository datasourceRepository;
     private final DataSource dataSource;
     private final ObjectMapper objectMapper;
+    private final JdbcAggregateQueryBuilder queryBuilder;
 
     public CboardDataProviderService(
-            DailyKwdTrendRepository trendRepository,
+            DashboardDatasetRepository datasetRepository,
             DashboardDatasourceRepository datasourceRepository,
             DataSource dataSource,
-            ObjectMapper objectMapper) {
-        this.trendRepository = trendRepository;
+            ObjectMapper objectMapper,
+            JdbcAggregateQueryBuilder queryBuilder) {
+        this.datasetRepository = datasetRepository;
         this.datasourceRepository = datasourceRepository;
         this.dataSource = dataSource;
         this.objectMapper = objectMapper;
+        this.queryBuilder = queryBuilder;
     }
 
-    public AggregateResultDto queryAggData(Long datasetId, String cfg) {
-        List<DailyKwdTrend> rows = trendRepository.findAll();
-        String[][] data = new String[rows.size()][4];
-        for (int i = 0; i < rows.size(); i++) {
-            DailyKwdTrend r = rows.get(i);
-            data[i] = new String[] {
-                r.getDocDate() != null ? r.getDocDate().toString() : "",
-                nullToEmpty(r.getKwdA()),
-                nullToEmpty(r.getKwdB()),
-                r.getDocCntBoth() != null ? r.getDocCntBoth().toString() : "0"
-            };
-        }
-        return new AggregateResultDto(TREND_COLUMNS, data);
+    public AggregateResultDto queryAggData(
+            Long datasourceId, Long datasetId, String cfg, Map<String, String> queryParams) {
+        DatasetQueryContext ctx = resolveContext(datasourceId, datasetId, queryParams);
+        AggConfigDto agg = parseAggConfig(cfg);
+        JdbcAggregateQueryBuilder.BuiltQuery built = queryBuilder.build(ctx.fromClause(), agg);
+        return executeAggregate(built);
     }
 
-    public DataProviderResultDto getColumns(Long datasetId) {
-        String[] columns = TREND_COLUMNS.stream().map(ColumnIndexDto::name).toArray(String[]::new);
-        List<DailyKwdTrend> rows = trendRepository.findAll();
-        String[][] data = new String[Math.min(rows.size(), 100)][columns.length];
-        for (int i = 0; i < data.length; i++) {
-            DailyKwdTrend r = rows.get(i);
-            data[i] = new String[] {
-                r.getDocDate() != null ? r.getDocDate().toString() : "",
-                nullToEmpty(r.getKwdA()),
-                nullToEmpty(r.getKwdB()),
-                r.getDocCntBoth() != null ? r.getDocCntBoth().toString() : "0"
-            };
-        }
-        return new DataProviderResultDto(data, columns, "ok", rows.size());
+    public String viewAggDataQuery(
+            Long datasourceId, Long datasetId, String cfg, Map<String, String> queryParams) {
+        DatasetQueryContext ctx = resolveContext(datasourceId, datasetId, queryParams);
+        AggConfigDto agg = parseAggConfig(cfg);
+        return queryBuilder.build(ctx.fromClause(), agg).sql();
     }
 
-    public String[] getDimensionValues(String columnName) {
-        Set<String> values = new LinkedHashSet<>();
-        for (DailyKwdTrend r : trendRepository.findAll()) {
-            String v =
-                    switch (columnName) {
-                        case "doc_date" -> r.getDocDate() != null ? r.getDocDate().toString() : null;
-                        case "kwd_a" -> r.getKwdA();
-                        case "kwd_b" -> r.getKwdB();
-                        case "doc_cnt_both" ->
-                                r.getDocCntBoth() != null ? r.getDocCntBoth().toString() : null;
-                        default -> null;
-                    };
-            if (v != null && !v.isBlank()) {
-                values.add(v);
+    public DataProviderResultDto getColumns(
+            Long datasourceId, Long datasetId, Map<String, String> queryParams) {
+        DatasetQueryContext ctx = resolveContext(datasourceId, datasetId, queryParams);
+        String sql = queryBuilder.buildPreviewColumnsQuery(ctx.fromClause());
+        try (Connection conn = dataSource.getConnection();
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
+            ResultSetMetaData meta = rs.getMetaData();
+            int colCount = meta.getColumnCount();
+            String[] columns = new String[colCount];
+            for (int i = 1; i <= colCount; i++) {
+                columns[i - 1] = meta.getColumnLabel(i);
             }
+            List<String[]> rows = new ArrayList<>();
+            int n = 0;
+            while (rs.next() && n < 100) {
+                String[] row = new String[colCount];
+                for (int i = 1; i <= colCount; i++) {
+                    Object v = rs.getObject(i);
+                    row[i - 1] = v != null ? String.valueOf(v) : "";
+                }
+                rows.add(row);
+                n++;
+            }
+            return new DataProviderResultDto(
+                    rows.toArray(String[][]::new), columns, "1", rows.size());
+        } catch (Exception e) {
+            return new DataProviderResultDto(new String[0][], new String[0], e.getMessage(), 0);
+        }
+    }
+
+    public String[] getDimensionValues(
+            Long datasourceId,
+            Long datasetId,
+            String columnName,
+            String cfg,
+            Map<String, String> queryParams) {
+        DatasetQueryContext ctx = resolveContext(datasourceId, datasetId, queryParams);
+        String sql = queryBuilder.buildDistinctQuery(ctx.fromClause(), columnName);
+        Set<String> values = new LinkedHashSet<>();
+        try (Connection conn = dataSource.getConnection();
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                Object v = rs.getObject(1);
+                if (v != null) {
+                    values.add(String.valueOf(v));
+                }
+            }
+        } catch (Exception e) {
+            return new String[0];
         }
         return values.toArray(String[]::new);
     }
@@ -145,31 +165,94 @@ public class CboardDataProviderService {
                 """;
     }
 
-    public Map<String, String> resolveDatasourceConfig(Long datasourceId) {
-        if (datasourceId == null) {
-            return Map.of();
+public AggConfigDto parseAggConfig(String cfg) {
+        if (cfg == null || cfg.isBlank() || "{}".equals(cfg.trim())) {
+            return defaultAggConfig();
         }
-        return datasourceRepository
-                .findById(datasourceId)
-                .map(this::parseConfigMap)
-                .orElse(Map.of());
+        try {
+            ViewAggConfigDto view = objectMapper.readValue(cfg, ViewAggConfigDto.class);
+            return view.toAggConfig();
+        } catch (Exception e) {
+            return defaultAggConfig();
+        }
     }
 
-    private Map<String, String> parseConfigMap(DashboardDatasource ds) {
-        try {
-            Map<String, Object> raw = objectMapper.readValue(ds.getConfig(), new TypeReference<>() {});
-            return raw.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
-        } catch (Exception e) {
-            return Map.of();
+    private AggConfigDto defaultAggConfig() {
+        AggConfigDto agg = new AggConfigDto();
+        var dim = new com.bdp.application.cboard.config.DimensionConfigDto();
+        dim.setColumnName("doc_date");
+        agg.getRows().add(dim);
+        var val = new com.bdp.application.cboard.config.ValueConfigDto();
+        val.setColumn("doc_cnt_both");
+        val.setAggType("sum");
+        agg.getValues().add(val);
+        return agg;
+    }
+
+    private DatasetQueryContext resolveContext(
+            Long datasourceId, Long datasetId, Map<String, String> queryParams) {
+        if (datasetId != null) {
+            return datasetRepository
+                    .findById(datasetId)
+                    .map(this::contextFromDataset)
+                    .orElse(new DatasetQueryContext(datasourceId, DEFAULT_TABLE));
         }
+        if (queryParams != null && queryParams.get("sql") != null) {
+            return new DatasetQueryContext(datasourceId, queryParams.get("sql"));
+        }
+        return new DatasetQueryContext(datasourceId, DEFAULT_TABLE);
+    }
+
+    @SuppressWarnings("unchecked")
+    private DatasetQueryContext contextFromDataset(DashboardDataset dataset) {
+        Long dsId = null;
+        String from = DEFAULT_TABLE;
+        try {
+            Map<String, Object> data = objectMapper.readValue(dataset.getDataJson(), new TypeReference<>() {});
+            if (data.get("datasource") instanceof Number n) {
+                dsId = n.longValue();
+            }
+            Object query = data.get("query");
+            if (query instanceof Map<?, ?> qm) {
+                if (qm.get("sql") != null) {
+                    from = String.valueOf(qm.get("sql"));
+                } else if (qm.get("table") != null) {
+                    from = String.valueOf(qm.get("table"));
+                }
+            }
+        } catch (Exception ignored) {
+            // use defaults
+        }
+        return new DatasetQueryContext(dsId, from);
+    }
+
+    private AggregateResultDto executeAggregate(JdbcAggregateQueryBuilder.BuiltQuery built) {
+        List<ColumnIndexDto> columnList = new ArrayList<>();
+        for (int i = 0; i < built.selectAliases().size(); i++) {
+            String name = built.selectAliases().get(i);
+            boolean isMeasure = built.groupByColumns().stream().noneMatch(g -> g.equals(name));
+            columnList.add(new ColumnIndexDto(i, name, isMeasure ? "sum" : null));
+        }
+        List<String[]> dataRows = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(built.sql())) {
+            int colCount = built.selectAliases().size();
+            while (rs.next()) {
+                String[] row = new String[colCount];
+                for (int i = 1; i <= colCount; i++) {
+                    Object v = rs.getObject(i);
+                    row[i - 1] = v != null ? String.valueOf(v) : "";
+                }
+                dataRows.add(row);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Aggregate query failed: " + e.getMessage(), e);
+        }
+        return new AggregateResultDto(columnList, dataRows.toArray(String[][]::new));
     }
 
     private static String str(Object o) {
         return o == null ? null : String.valueOf(o);
-    }
-
-    private static String nullToEmpty(String s) {
-        return s == null ? "" : s;
     }
 }

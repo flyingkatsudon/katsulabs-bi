@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { apiGet } from '../api/client';
+import { apiGet, getToken } from '../api/client';
 import { ChartWidget } from '../components/ChartWidget';
 
 type LayoutWidget = {
@@ -44,7 +44,28 @@ export function DashboardViewPage() {
   return (
     <div id="inner-container" className="content">
       <section className="content-header">
-        <h1>{board.name}</h1>
+        <h1>
+          {board.name}
+          <button
+            type="button"
+            className="btn btn-default btn-sm pull-right"
+            onClick={async () => {
+              const token = getToken();
+              const res = await fetch(`/cboard/dashboard/exportBoard?id=${id}`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+              });
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'report.xls';
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            <i className="fa fa-download" /> Export
+          </button>
+        </h1>
       </section>
       {rows.map((row, ri) => {
         if (row.type === 'param') {
