@@ -1,6 +1,6 @@
 # Python 마이그레이션 가이드
 
-`bdp-next` 백엔드를 **FastAPI** 기반으로 이전할 때의 실무 가이드입니다.
+`insight-board` 백엔드를 **FastAPI** 기반으로 이전할 때의 실무 가이드입니다.
 
 ---
 
@@ -40,7 +40,7 @@ bdp-python/
 
 ## 3. 레이어별 매핑
 
-| Java (bdp-next) | Python |
+| Java (insight-board) | Python |
 |-----------------|--------|
 | `@RestController` | `APIRouter` |
 | `@Service` | `services/*.py` 함수/클래스 |

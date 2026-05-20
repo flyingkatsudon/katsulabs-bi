@@ -151,11 +151,11 @@ flowchart TB
 | Node 마이그레이션 | [05-MIGRATION_NODE.md](./05-MIGRATION_NODE.md) |
 | Open API·크롤링 | [06-OPEN_DATA_AND_CRAWLING.md](./06-OPEN_DATA_AND_CRAWLING.md) |
 | AWS 배포 | [07-AWS_DEPLOYMENT.md](./07-AWS_DEPLOYMENT.md) |
-| 신규 코드 | [`/bdp-next`](../bdp-next/README.md) |
+| 신규 코드 | [`/insight-board`](../insight-board/README.md) |
 
 ---
 
 ## 7. 최종 판정
 
 **리빌딩 권장 (Refactor-in-place 비권장).**  
-현 코드베이스는 운영 레거시로 보존하고, `bdp-next`에서 **계약(API)·스키마·인증**을 먼저 고정한 뒤 기능을 단계적으로 이전하는 것이 비용 대비 리스크가 가장 낮다.
+현 코드베이스는 운영 레거시로 보존하고, `insight-board`에서 **계약(API)·스키마·인증**을 먼저 고정한 뒤 기능을 단계적으로 이전하는 것이 비용 대비 리스크가 가장 낮다.
