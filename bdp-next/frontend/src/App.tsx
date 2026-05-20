@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getToken } from './api/client';
 import { MainLayout } from './layouts/MainLayout';
