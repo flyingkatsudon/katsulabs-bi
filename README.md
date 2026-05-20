@@ -15,6 +15,8 @@
 | [docs/05-MIGRATION_NODE.md](docs/05-MIGRATION_NODE.md) | Node.js 이전 가이드 |
 | [docs/06-OPEN_DATA_AND_CRAWLING.md](docs/06-OPEN_DATA_AND_CRAWLING.md) | Open API·크롤링 |
 | [docs/07-AWS_DEPLOYMENT.md](docs/07-AWS_DEPLOYMENT.md) | ECS/EC2 배포 |
+| [docs/08-REBUILD_DIRECTION_V2.md](docs/08-REBUILD_DIRECTION_V2.md) | **모듈 분리·CBoard·Boot 4 방향** |
+| [docs/09-CBOARD_SECURITY_AUDIT.md](docs/09-CBOARD_SECURITY_AUDIT.md) | CBoard 보안 검증 |
 | [bdp-next/README.md](bdp-next/README.md) | **신규** Spring Boot + React (`clone & run`) |
 
 ### 신규 스택 빠른 실행

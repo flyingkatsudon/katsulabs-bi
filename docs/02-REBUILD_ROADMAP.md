@@ -2,6 +2,19 @@
 
 요구사항 1~9를 단계별로 실행하기 위한 계획입니다. 구현 코드는 [`bdp-next/`](../bdp-next/)에 둡니다.
 
+> **v2 방향 (모듈 분리·CBoard 보안·Boot 4):** [08-REBUILD_DIRECTION_V2.md](./08-REBUILD_DIRECTION_V2.md) · [09-CBOARD_SECURITY_AUDIT.md](./09-CBOARD_SECURITY_AUDIT.md)
+
+---
+
+## 모듈 구조 (v2)
+
+| 모듈 | 레거시 | 역할 |
+|------|--------|------|
+| `dashboard` | `org.cboard.*` | CBoard BI 메타·DataProvider |
+| `web` | `com.shinhan.*` | 인사이트·리포트·GA |
+| `common` | — | 공유 커널 |
+| `app` | WAR 진입점 | Boot 조립·JWT·OpenAPI |
+
 ---
 
 ## Phase 0 — 기반 (현재 진행)
@@ -13,7 +26,9 @@
 | 0 | 마이그레이션 가이드 | `docs/04`, `05` | ✅ |
 | 0 | Open API·크롤링 | `docs/06` | ✅ |
 | 0 | AWS 배포 | `docs/07` | ✅ |
-| 1 | Gradle + 최신 Java/Spring | `bdp-next/backend` | 🚧 스캐폴드 |
+| 0b | 모듈 분리 설계 | `08-REBUILD_DIRECTION_V2.md` | ✅ |
+| 0c | CBoard 보안 체크리스트 | `09-CBOARD_SECURITY_AUDIT.md` | ✅ |
+| 1 | Gradle + 최신 Java/Spring | `bdp-next/backend` → **4모듈** | 🚧 스캐폴드 |
 | 2 | H2 + Flyway clone-run | `V1__*.sql`, `application-local.yml` | 🚧 |
 | 4 | JWT | `SecurityConfig`, `/api/v1/auth/*` | 🚧 |
 | 5 | JPA | `dashboard_*` 엔티티 | 🚧 |
@@ -64,32 +79,37 @@
 
 ---
 
-## 기술 스택 (목표)
+## 기술 스택 (목표, v2)
 
 | 레이어 | 선택 |
 |--------|------|
 | Runtime | Java 21 |
-| Framework | Spring Boot 3.4.x |
-| Build | Gradle 8.14 (Wrapper) |
-| ORM | Spring Data JPA + Flyway |
-| Security | Spring Security 6 + JWT (jjwt 0.12) |
-| API Docs | springdoc-openapi 2.x |
-| DB (local) | H2 2.2 |
-| DB (prod) | PostgreSQL 16 / Aurora |
-| Front | React 19, Vite 6, TypeScript 5 |
-| Cache | Redis (선택, Phase 3) |
+| Framework | Spring Boot **3.4.x → 4.0.x** (POC 후, [08](./08-REBUILD_DIRECTION_V2.md)#4) |
+| Modules | `common`, `dashboard`, `web`, `app` |
+| Build | Gradle 8.14 + **OWASP/SBOM** |
+| ORM | Spring Data JPA; `web`은 복잡 SQL 시 JDBC/MyBatis |
+| Security | JWT; **fastjson·druid 금지** |
+| CBoard | 업스트림 JAR ❌ → **dashboard 재구현** |
+| DB (local) | H2 (메타+분석 시드) |
+| DB (prod) | MySQL/Aurora (dashboard) + PostgreSQL (web) |
+| Front | React 19 (AngularJS 미이전) |
 
 ---
 
-## 디렉터리 구조
+## 디렉터리 구조 (v2 목표)
 
 ```
 bdp-next/
-├── backend/          # Spring Boot
-├── frontend/         # React SPA
-├── docker-compose.yml
-└── README.md         # clone & run
+├── modules/
+│   ├── common/
+│   ├── dashboard/    # 구 CBoard
+│   ├── web/          # 구 shinhan
+│   └── app/
+├── frontend/
+└── README.md
 ```
+
+현재는 단일 `backend/` 스캐폴드 → Phase 0에서 멀티모듈로 분리 예정.
 
 ---
 
