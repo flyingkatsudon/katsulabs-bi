@@ -2,6 +2,7 @@ package com.bdp.api.cboard;
 
 import com.bdp.application.cboard.CboardAdminService;
 import com.bdp.application.cboard.CboardDashboardService;
+import com.bdp.application.cboard.CboardMenuService;
 import com.bdp.domain.metadata.DashboardRole;
 import com.bdp.domain.metadata.DashboardRoleRes;
 import com.bdp.domain.metadata.DashboardUser;
@@ -19,10 +20,15 @@ public class CboardAdminController {
 
     private final CboardAdminService adminService;
     private final CboardDashboardService dashboardService;
+    private final CboardMenuService menuService;
 
-    public CboardAdminController(CboardAdminService adminService, CboardDashboardService dashboardService) {
+    public CboardAdminController(
+            CboardAdminService adminService,
+            CboardDashboardService dashboardService,
+            CboardMenuService menuService) {
         this.adminService = adminService;
         this.dashboardService = dashboardService;
+        this.menuService = menuService;
     }
 
     @RequestMapping("/isAdmin")
@@ -122,7 +128,7 @@ public class CboardAdminController {
 
     @RequestMapping("/getWidgetList")
     public List<Map<String, Object>> getWidgetList(@AuthenticationPrincipal String userId) {
-        return dashboardService.getAllWidgetList();
+        return dashboardService.getAllWidgetList(userId);
     }
 
     @RequestMapping("/getWidgetListUser")
@@ -131,8 +137,8 @@ public class CboardAdminController {
     }
 
     @RequestMapping("/getDatasetList")
-    public List<Map<String, Object>> getDatasetList() {
-        return dashboardService.getAllDatasetList();
+    public List<Map<String, Object>> getDatasetList(@AuthenticationPrincipal String userId) {
+        return dashboardService.getAllDatasetList(userId);
     }
 
     @RequestMapping("/getDatasetListUser")
@@ -147,8 +153,6 @@ public class CboardAdminController {
 
     @RequestMapping("/getMenuList")
     public List<Map<String, Object>> getMenuList(@AuthenticationPrincipal String userId) {
-        return List.of(
-                Map.of("menuId", 1, "menuCode", "config", "menuName", "SIDEBAR.CONFIG"),
-                Map.of("menuId", 2, "menuCode", "admin.user", "menuName", "SIDEBAR.ADMIN_PAGE"));
+        return menuService.getMenuList(userId);
     }
 }

@@ -8,6 +8,7 @@ export const t = {
   'SIDEBAR.WIDGET': 'Widget',
   'SIDEBAR.DASHBOARD': 'Dashboard',
   'SIDEBAR.DASHBOARD_CATEGORY': 'Dashboard Category',
+  'SIDEBAR.JOB': 'Scheduled Job',
   'SIDEBAR.INSIGHT_REPORT': 'Insight Report',
   'SIDEBAR.G_ANALYSIS': 'General Analysis',
   'SIDEBAR.E_ANALYSIS': 'Expert Analysis',

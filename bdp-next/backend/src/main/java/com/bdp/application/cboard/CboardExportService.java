@@ -1,6 +1,5 @@
 package com.bdp.application.cboard;
 
-import com.bdp.infrastructure.persistence.DashboardBoardRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
@@ -12,15 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class CboardExportService {
 
-    private final DashboardBoardRepository boardRepository;
     private final CboardDashboardService dashboardService;
     private final ObjectMapper objectMapper;
 
-    public CboardExportService(
-            DashboardBoardRepository boardRepository,
-            CboardDashboardService dashboardService,
-            ObjectMapper objectMapper) {
-        this.boardRepository = boardRepository;
+    public CboardExportService(CboardDashboardService dashboardService, ObjectMapper objectMapper) {
         this.dashboardService = dashboardService;
         this.objectMapper = objectMapper;
     }

@@ -33,6 +33,7 @@ public class CboardDashboardService {
     private final DashboardDatasetRepository datasetRepository;
     private final DashboardDatasourceRepository datasourceRepository;
     private final DashboardBoardParamRepository boardParamRepository;
+    private final CboardPermissionService permissionService;
     private final ObjectMapper objectMapper;
 
     public CboardDashboardService(
@@ -42,6 +43,7 @@ public class CboardDashboardService {
             DashboardDatasetRepository datasetRepository,
             DashboardDatasourceRepository datasourceRepository,
             DashboardBoardParamRepository boardParamRepository,
+            CboardPermissionService permissionService,
             ObjectMapper objectMapper) {
         this.boardRepository = boardRepository;
         this.categoryRepository = categoryRepository;
@@ -49,6 +51,7 @@ public class CboardDashboardService {
         this.datasetRepository = datasetRepository;
         this.datasourceRepository = datasourceRepository;
         this.boardParamRepository = boardParamRepository;
+        this.permissionService = permissionService;
         this.objectMapper = objectMapper;
     }
 
@@ -61,19 +64,19 @@ public class CboardDashboardService {
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Board not found"));
         Map<String, Object> view = toBoardView(board, userId);
-        view.put("layout", hydrateLayout(board.getLayoutJson()));
+        view.put("layout", hydrateLayout(board.getLayoutJson(), userId));
         return view;
     }
 
-    public Map<String, Object> getDashboardWidget(Long widgetId) {
+    public Map<String, Object> getDashboardWidget(Long widgetId, String userId) {
         DashboardWidget widget = widgetRepository
                 .findById(widgetId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Widget not found"));
-        return toWidgetView(widget);
+        return toWidgetView(widget, userId);
     }
 
-    public List<Map<String, Object>> getAllWidgetList() {
-        return widgetRepository.findAll().stream().map(this::toWidgetView).toList();
+    public List<Map<String, Object>> getAllWidgetList(String userId) {
+        return widgetRepository.findAll().stream().map(w -> toWidgetView(w, userId)).toList();
     }
 
     public ServiceStatusDto checkWidget(Long id) {
@@ -125,25 +128,25 @@ public class CboardDashboardService {
 
     public List<Map<String, Object>> getDatasourceList(String userId) {
         return datasourceRepository.findByUserIdOrderBySourceNameAsc(userId).stream()
-                .map(this::toDatasourceView)
+                .map(ds -> toDatasourceView(ds, userId))
                 .toList();
     }
 
     public List<Map<String, Object>> getDatasetList(String userId) {
         return datasetRepository.findByUserIdOrderByDatasetNameAsc(userId).stream()
-                .map(this::toDatasetView)
+                .map(d -> toDatasetView(d, userId))
                 .toList();
     }
 
-    public List<Map<String, Object>> getAllDatasetList() {
+    public List<Map<String, Object>> getAllDatasetList(String userId) {
         return datasetRepository.findAllByOrderByDatasetNameAsc().stream()
-                .map(this::toDatasetView)
+                .map(d -> toDatasetView(d, userId))
                 .toList();
     }
 
     public List<Map<String, Object>> getWidgetList(String userId) {
         return widgetRepository.findByUserIdOrderByWidgetNameAsc(userId).stream()
-                .map(this::toWidgetView)
+                .map(w -> toWidgetView(w, userId))
                 .toList();
     }
 
@@ -381,8 +384,8 @@ public class CboardDashboardService {
         m.put("name", board.getBoardName());
         m.put("userName", "Administrator");
         m.put("loginName", "admin");
-        m.put("edit", userId.equals(board.getUserId()));
-        m.put("delete", userId.equals(board.getUserId()));
+        m.put("edit", permissionService.canEdit(userId, board.getUserId(), "board", board.getBoardId()));
+        m.put("delete", permissionService.canDelete(userId, board.getUserId(), "board", board.getBoardId()));
         if (board.getCategoryId() != null) {
             categoryRepository.findById(board.getCategoryId()).ifPresent(c -> m.put("categoryName", c.getCategoryName()));
         }
@@ -390,7 +393,7 @@ public class CboardDashboardService {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> hydrateLayout(String layoutJson) {
+    private Map<String, Object> hydrateLayout(String layoutJson, String userId) {
         Map<String, Object> layout = (Map<String, Object>) parseJson(layoutJson, defaultLayout());
         Object rowsObj = layout.get("rows");
         if (!(rowsObj instanceof List<?> rows)) {
@@ -421,7 +424,7 @@ public class CboardDashboardService {
                     Long widgetId = resolveWidgetId(cell);
                     if (widgetId != null) {
                         widgetRepository.findById(widgetId).ifPresent(w -> {
-                            cell.put("widget", toWidgetView(w));
+                            cell.put("widget", toWidgetView(w, userId));
                             cell.putIfAbsent("widgetId", widgetId);
                         });
                     }
@@ -461,36 +464,36 @@ public class CboardDashboardService {
         return layout;
     }
 
-    private Map<String, Object> toDatasourceView(DashboardDatasource ds) {
+    private Map<String, Object> toDatasourceView(DashboardDatasource ds, String userId) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", ds.getDatasourceId());
         m.put("name", ds.getSourceName());
         m.put("type", ds.getSourceType());
         m.put("config", parseJson(ds.getConfig(), Map.of()));
-        m.put("edit", true);
-        m.put("delete", true);
+        m.put("edit", permissionService.canEdit(userId, ds.getUserId(), "datasource", ds.getDatasourceId()));
+        m.put("delete", permissionService.canDelete(userId, ds.getUserId(), "datasource", ds.getDatasourceId()));
         return m;
     }
 
-    private Map<String, Object> toDatasetView(DashboardDataset ds) {
+    private Map<String, Object> toDatasetView(DashboardDataset ds, String userId) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", ds.getDatasetId());
         m.put("name", ds.getDatasetName());
         m.put("categoryName", ds.getCategoryName());
         m.put("data", parseJson(ds.getDataJson(), Map.of()));
-        m.put("edit", true);
-        m.put("delete", true);
+        m.put("edit", permissionService.canEdit(userId, ds.getUserId(), "dataset", ds.getDatasetId()));
+        m.put("delete", permissionService.canDelete(userId, ds.getUserId(), "dataset", ds.getDatasetId()));
         return m;
     }
 
-    private Map<String, Object> toWidgetView(DashboardWidget w) {
+    private Map<String, Object> toWidgetView(DashboardWidget w, String userId) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", w.getWidgetId());
         m.put("name", w.getWidgetName());
         m.put("categoryName", w.getCategoryName());
         m.put("data", parseJson(w.getDataJson(), Map.of()));
-        m.put("edit", true);
-        m.put("delete", true);
+        m.put("edit", permissionService.canEdit(userId, w.getUserId(), "widget", w.getWidgetId()));
+        m.put("delete", permissionService.canDelete(userId, w.getUserId(), "widget", w.getWidgetId()));
         return m;
     }
 

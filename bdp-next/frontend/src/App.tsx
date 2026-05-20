@@ -9,6 +9,7 @@ import { BoardPage } from './pages/config/BoardPage';
 import { CategoryPage } from './pages/config/CategoryPage';
 import { DatasetPage } from './pages/config/DatasetPage';
 import { DatasourcePage } from './pages/config/DatasourcePage';
+import { JobPage } from './pages/config/JobPage';
 import { WidgetPage } from './pages/config/WidgetPage';
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="config/widget" element={<WidgetPage />} />
         <Route path="config/board" element={<BoardPage />} />
         <Route path="config/category" element={<CategoryPage />} />
+        <Route path="config/job" element={<JobPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

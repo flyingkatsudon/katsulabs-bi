@@ -13,6 +13,7 @@ import com.bdp.infrastructure.persistence.DashboardCategoryRepository;
 import com.bdp.infrastructure.persistence.DashboardDatasetRepository;
 import com.bdp.infrastructure.persistence.DashboardDatasourceRepository;
 import com.bdp.domain.metadata.DashboardRole;
+import com.bdp.domain.metadata.DashboardRoleRes;
 import com.bdp.domain.metadata.DashboardUserRole;
 import com.bdp.infrastructure.persistence.DashboardRoleRepository;
 import com.bdp.infrastructure.persistence.DashboardUserRepository;
@@ -55,6 +56,7 @@ public class DataSeeder {
             DashboardDatasourceRepository datasourceRepository,
             DashboardRoleRepository roleRepository,
             DashboardUserRoleRepository userRoleRepository,
+            com.bdp.infrastructure.persistence.DashboardRoleResRepository roleResRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
             if (userRepository.count() == 0) {
@@ -77,6 +79,14 @@ public class DataSeeder {
                 ur.setUserId("1");
                 ur.setRoleId("ADMIN");
                 userRoleRepository.save(ur);
+                for (long menuId = 1; menuId <= 12; menuId++) {
+                    DashboardRoleRes res = new DashboardRoleRes();
+                    res.setRoleId("ADMIN");
+                    res.setResType("menu");
+                    res.setResId(menuId);
+                    res.setPermission("11");
+                    roleResRepository.save(res);
+                }
             }
             if (trendRepository.count() == 0) {
                 seedTrend(trendRepository, LocalDate.now().minusDays(2), "코스피", "상승", 15);

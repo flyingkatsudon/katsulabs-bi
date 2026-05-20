@@ -7,9 +7,7 @@ import com.bdp.application.cboard.dto.AggregateResultDto;
 import com.bdp.application.cboard.dto.ColumnIndexDto;
 import com.bdp.application.cboard.dto.DataProviderResultDto;
 import com.bdp.domain.metadata.DashboardDataset;
-import com.bdp.domain.metadata.DashboardDatasource;
 import com.bdp.infrastructure.persistence.DashboardDatasetRepository;
-import com.bdp.infrastructure.persistence.DashboardDatasourceRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
@@ -32,19 +30,16 @@ public class CboardDataProviderService {
     private static final String DEFAULT_TABLE = "daily_kwd_trend_cnt_minimal_v2";
 
     private final DashboardDatasetRepository datasetRepository;
-    private final DashboardDatasourceRepository datasourceRepository;
     private final DataSource dataSource;
     private final ObjectMapper objectMapper;
     private final JdbcAggregateQueryBuilder queryBuilder;
 
     public CboardDataProviderService(
             DashboardDatasetRepository datasetRepository,
-            DashboardDatasourceRepository datasourceRepository,
             DataSource dataSource,
             ObjectMapper objectMapper,
             JdbcAggregateQueryBuilder queryBuilder) {
         this.datasetRepository = datasetRepository;
-        this.datasourceRepository = datasourceRepository;
         this.dataSource = dataSource;
         this.objectMapper = objectMapper;
         this.queryBuilder = queryBuilder;

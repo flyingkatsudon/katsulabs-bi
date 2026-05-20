@@ -1,12 +1,15 @@
 package com.bdp.api.cboard;
 
+import com.bdp.application.cboard.CboardCommonsService;
+import com.bdp.application.cboard.CboardMenuService;
 import com.bdp.domain.metadata.DashboardUser;
 import com.bdp.infrastructure.persistence.DashboardUserRepository;
 import java.util.List;
 import java.util.Map;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,12 +17,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class CboardCommonsController {
 
     private final DashboardUserRepository userRepository;
+    private final CboardCommonsService commonsService;
+    private final CboardMenuService menuService;
 
-    public CboardCommonsController(DashboardUserRepository userRepository) {
+    public CboardCommonsController(
+            DashboardUserRepository userRepository,
+            CboardCommonsService commonsService,
+            CboardMenuService menuService) {
         this.userRepository = userRepository;
+        this.commonsService = commonsService;
+        this.menuService = menuService;
     }
 
-    @GetMapping("/getUserDetail")
+    @RequestMapping("/getUserDetail")
     public Map<String, Object> getUserDetail(@AuthenticationPrincipal String userId) {
         DashboardUser user = userRepository.findById(userId).orElseThrow();
         return Map.of(
@@ -29,22 +39,22 @@ public class CboardCommonsController {
                 "avatar", "/cboard/dist/img/user-male-circle-blue-128.png");
     }
 
-    @GetMapping("/getMenuList")
-    public List<Map<String, Object>> getMenuList() {
-        return List.of(
-                menu("bdp.insight", "SIDEBAR.INSIGHT_REPORT"),
-                menu("bdp.g_analysis", "SIDEBAR.G_ANALYSIS"),
-                menu("bdp.e_analysis", "SIDEBAR.E_ANALYSIS"),
-                menu("admin.user", "SIDEBAR.ADMIN_PAGE"),
-                menu("config", "SIDEBAR.CONFIG"),
-                menu("config.datasource", "SIDEBAR.DATA_SOURCE"),
-                menu("config.dataset", "SIDEBAR.DATASET"),
-                menu("config.widget", "SIDEBAR.WIDGET"),
-                menu("config.board", "SIDEBAR.DASHBOARD"),
-                menu("config.category", "SIDEBAR.DASHBOARD_CATEGORY"));
+    @RequestMapping("/getMenuList")
+    public List<Map<String, Object>> getMenuList(@AuthenticationPrincipal String userId) {
+        return menuService.getMenuList(userId);
     }
 
-    private static Map<String, Object> menu(String code, String name) {
-        return Map.of("menuCode", code, "menuName", name);
+    @RequestMapping("/changePwd")
+    public ServiceStatusDto changePwd(
+            @RequestParam String curPwd,
+            @RequestParam String newPwd,
+            @RequestParam String cfmPwd,
+            @AuthenticationPrincipal String userId) {
+        return commonsService.changePassword(userId, curPwd, newPwd, cfmPwd);
+    }
+
+    @RequestMapping("/persist")
+    public String persist(@RequestBody String dataStr) {
+        return commonsService.persist(dataStr);
     }
 }

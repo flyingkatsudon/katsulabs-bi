@@ -26,20 +26,46 @@ type BoardData = {
   layout?: { type?: string; rows?: LayoutRow[]; containsParam?: boolean };
 };
 
+type BoardParam = { config?: string };
+
 export function DashboardViewPage() {
   const { id } = useParams();
   const [board, setBoard] = useState<BoardData | null>(null);
+  const [kwdFilter, setKwdFilter] = useState('');
 
   useEffect(() => {
     if (!id) return;
-    apiGet<BoardData>(`/cboard/dashboard/getBoardData?id=${id}`).then(setBoard);
+    Promise.all([
+      apiGet<BoardData>(`/cboard/dashboard/getBoardData?id=${id}`),
+      apiGet<BoardParam>(`/cboard/dashboard/getBoardParam?boardId=${id}`),
+    ]).then(([b, param]) => {
+      setBoard(b);
+      if (param?.config) {
+        try {
+          const cfg = JSON.parse(param.config) as { kwd_a?: string };
+          if (cfg.kwd_a) setKwdFilter(cfg.kwd_a);
+        } catch {
+          /* ignore */
+        }
+      }
+    });
   }, [id]);
+
+  async function saveParams() {
+    if (!id) return;
+    const config = JSON.stringify({ kwd_a: kwdFilter });
+    const token = getToken();
+    await fetch(`/cboard/dashboard/saveBoardParam?boardId=${id}&config=${encodeURIComponent(config)}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  }
 
   if (!board) {
     return <div className="content">Loading...</div>;
   }
 
   const rows = board.layout?.rows ?? [];
+  const showParams = board.layout?.containsParam || rows.some((r) => r.type === 'param');
 
   return (
     <div id="inner-container" className="content">
@@ -67,16 +93,28 @@ export function DashboardViewPage() {
           </button>
         </h1>
       </section>
-      {rows.map((row, ri) => {
-        if (row.type === 'param') {
-          return (
-            <div key={ri} className="row">
-              <div className="col-md-12">
-                <p className="text-muted">Board parameters (filter bar) — saved via saveBoardParam in a later iteration.</p>
+      {showParams && (
+        <div className="row">
+          <div className="col-md-12">
+            <div className="box box-solid">
+              <div className="box-body form-inline">
+                <label>Keyword (kwd_a)</label>
+                <input
+                  className="form-control"
+                  style={{ marginLeft: 8, marginRight: 8 }}
+                  value={kwdFilter}
+                  onChange={(e) => setKwdFilter(e.target.value)}
+                />
+                <button type="button" className="btn btn-primary btn-sm" onClick={saveParams}>
+                  Apply filters
+                </button>
               </div>
             </div>
-          );
-        }
+          </div>
+        </div>
+      )}
+      {rows.map((row, ri) => {
+        if (row.type === 'param') return null;
         return (
           <div key={ri} className="row" style={{ height: row.height ?? 360 }}>
             {(row.widgets ?? []).map((cell, wi) => {
@@ -88,14 +126,6 @@ export function DashboardViewPage() {
                   <div className="box box-solid" style={{ zIndex: 99 }}>
                     <div className="box-header">
                       <h3 className="box-title">{cell.name ?? cell.widget?.name}</h3>
-                      <div className="box-tools pull-right">
-                        <button type="button" className="btn btn-box-tool" title="Refresh">
-                          <i className="fa fa-refresh" />
-                        </button>
-                        <button type="button" className="btn btn-box-tool">
-                          <i className="fa fa-minus" />
-                        </button>
-                      </div>
                     </div>
                     <div className="box-body" style={{ padding: '3px 0 3px 13px' }}>
                       {wdata ? (

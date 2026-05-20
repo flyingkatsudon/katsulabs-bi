@@ -184,6 +184,14 @@ export function Sidebar({ user, boardList, categoryList, isShowMenu }: Props) {
                     </Link>
                   </li>
                 )}
+                {isShowMenu('config.job') && (
+                  <li className={linkClass('/config/job')}>
+                    <Link to="/config/job">
+                      <i className="fa fa-clock-o" />
+                      {translate('SIDEBAR.JOB')}
+                    </Link>
+                  </li>
+                )}
               </ul>
             </li>
           )}

@@ -75,8 +75,8 @@ public class CboardDashboardController {
     }
 
     @RequestMapping("/getAllDatasetList")
-    public List<Map<String, Object>> getAllDatasetList() {
-        return dashboardService.getAllDatasetList();
+    public List<Map<String, Object>> getAllDatasetList(@AuthenticationPrincipal String userId) {
+        return dashboardService.getAllDatasetList(userId);
     }
 
     @RequestMapping("/getWidgetList")
@@ -85,8 +85,8 @@ public class CboardDashboardController {
     }
 
     @RequestMapping("/getAllWidgetList")
-    public List<Map<String, Object>> getAllWidgetList() {
-        return dashboardService.getAllWidgetList();
+    public List<Map<String, Object>> getAllWidgetList(@AuthenticationPrincipal String userId) {
+        return dashboardService.getAllWidgetList(userId);
     }
 
     @RequestMapping("/getWidgetCategoryList")
@@ -185,8 +185,8 @@ public class CboardDashboardController {
     }
 
     @RequestMapping("/dashboardWidget")
-    public Map<String, Object> dashboardWidget(@RequestParam Long id) {
-        return dashboardService.getDashboardWidget(id);
+    public Map<String, Object> dashboardWidget(@RequestParam Long id, @AuthenticationPrincipal String userId) {
+        return dashboardService.getDashboardWidget(id, userId);
     }
 
     @RequestMapping("/checkWidget")

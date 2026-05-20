@@ -1,49 +1,28 @@
 # CBoard 100% 내재화 로드맵
 
-## P0 — 데이터 플레인 ✅
+## 완료
 
-| 항목 | 상태 |
-|------|------|
-| `getBoardData` 위젯 하이드레이션 | ✅ |
-| `getAggregateData` / `getColumns` / `getDimensionValues` / `test` | ✅ |
-| GET+POST `@RequestMapping` | ✅ |
+| Phase | 내용 |
+|-------|------|
+| P0 | 데이터 플레인, 보드 하이드레이션, GET+POST |
+| P1 | AggConfig + JDBC 집계, viewAggDataQuery |
+| P2 | `/cboard/admin` RBAC |
+| P3 | Job CRUD, export, 보드 DnD |
+| **P4** | `changePwd`, `persist` (`CboardCommonsService`) |
+| **P5** | 역할 기반 `getMenuList`, `CboardPermissionService` edit/delete |
+| **P6** | 보드 파라미터 UI (`getBoardParam` / `saveBoardParam`) |
+| **P7** | 미사용 코드·의존성 정리 (springdoc 제거, ListConfigPage 삭제) |
 
-## P1 — AggConfig + JDBC 집계 ✅
+**백엔드 테스트:** 21개 (`./gradlew test`)
 
-| 항목 | 상태 |
-|------|------|
-| `ViewAggConfig` / `AggConfig` 파싱 | ✅ |
-| `JdbcAggregateQueryBuilder` (GROUP BY, SUM/COUNT/…) | ✅ |
-| 데이터셋 `query.table` / `query.sql` 해석 | ✅ |
-| `viewAggDataQuery` (SQL 디버그) | ✅ |
-| 테스트: `JdbcAggregateQueryBuilderTest`, agg cfg 통합 테스트 | ✅ |
+## 의존성 정책
 
-## P2 — Admin / RBAC ✅
+- **추가하지 않음:** Apache POI, Kylin, Elasticsearch, fastjson, 레거시 CBoard JAR
+- **제거함:** `springdoc-openapi` (미사용 API 문서)
+- **유지:** Spring Boot Web/JPA/Security, JWT, H2, Lombok, Actuator(health)
 
-| 항목 | 상태 |
-|------|------|
-| `dashboard_role`, `dashboard_user_role`, `dashboard_role_res` JPA | ✅ |
-| `/cboard/admin/*` (`CboardAdminController`) | ✅ |
-| `isAdmin` / `isConfig`, 사용자·역할 CRUD | ✅ |
-| 시드: ADMIN 역할 + admin 사용자 | ✅ |
-| 테스트: `CboardAdminTest` | ✅ |
+## 선택적 후속 (완전 동등)
 
-## P3 — Job · Export · 보드 빌더 ✅ (기본)
-
-| 항목 | 상태 |
-|------|------|
-| `dashboard_job` + Job CRUD / `execJob` | ✅ |
-| `exportBoard` / `tableToxls` (TSV 바이트) | ✅ |
-| React 보드 설정: 드래그 순서 변경 | ✅ |
-| 대시보드 Export 버튼 | ✅ |
-| 테스트: `CboardJobExportTest` | ✅ |
-
-## 남은 고도화 (100% 완전 동등 이전)
-
-- 실제 POI XLS, 메일 Job 실행, `commons/persist` 스냅샷
-- Kylin / ES 등 추가 DataProvider
-- Ace/OLAP 위젯·데이터셋 편집기
-- 메뉴 DB + 역할별 `getMenuList` 필터
-- 레거시 보드 파라미터 UI (`param` row)
-
-**총 백엔드 테스트:** 17개 (`./gradlew test`)
+- 실제 메일 발송 Job 스케줄러 (Quartz 등 — 필요 시만)
+- Ace/OLAP 편집기 (프론트 전용 라이브러리)
+- POI XLS (현재 TSV 바이트로 `.xls` 다운로드 호환)
