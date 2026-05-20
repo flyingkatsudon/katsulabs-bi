@@ -12,6 +12,7 @@
 
     <jdbc:initialize-database data-source="dataSource">
         <jdbc:script location="classpath:local/schema-h2.sql"/>
+        <jdbc:script location="classpath:local/schema-h2-patch.sql"/>
         <jdbc:script location="classpath:local/seed-dev-user.sql"/>
     </jdbc:initialize-database>
 

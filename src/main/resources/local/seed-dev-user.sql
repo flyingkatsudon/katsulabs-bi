@@ -1,7 +1,7 @@
 -- Dev admin: business SY, employee id 000admin, password qwerty!23 (SHA-256, uppercase hex)
 
 INSERT INTO dashboard_role (role_id, role_name, user_id)
-SELECT '1', 'Administrator', 'SY00000admin'
+SELECT '1', 'Administrator', '000admin'
 WHERE NOT EXISTS (SELECT 1 FROM dashboard_role WHERE role_id = '1');
 
 INSERT INTO dashboard_user (user_id, business_code, login_name, user_name, user_password, user_status, rbac_policy, user_state_info, del_cd)

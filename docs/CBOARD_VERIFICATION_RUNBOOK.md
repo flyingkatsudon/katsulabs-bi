@@ -111,7 +111,16 @@ PostgreSQL 리포트 매퍼는 로컬에서 H2 스텁 DB 로 기동만 보장합
 신한 커스텀 JAR `com.owlnest.*` 는 저장소에 없어, 로컬 검증용 스텁을 `src/main/java/com/owlnest/` 에 두었습니다.  
 운영/통합 환경에서는 실제 JAR 을 `lib/` 또는 사설 Maven 저장소에 배치해야 합니다.
 
-## 8. 알려진 제한
+## 8. 로그인 후 쿼리 오류 (create_time / update_time)
+
+증상: `Column "A.CREATE_TIME" not found` 등 MyBatis SQL 오류.
+
+원인: 로컬 H2 스키마에 CBoard 0.4 패치 컬럼(`create_time`, `update_time`) 누락.
+
+조치: `schema-h2.sql` 및 기동 시 `schema-h2-patch.sql` 이 자동 적용됩니다.  
+이미 생성된 `./data/cboard_meta.mv.db` 가 있다면 서버 재기동만으로 패치가 적용되며, 계속 실패하면 `rm -rf data` 후 재기동하세요.
+
+## 9. 알려진 제한
 
 - Tomcat 7 + Spring 4.3 은 Java 21 에서 `--add-opens` JVM 옵션이 필요합니다.
 - 로그인 POST 직후 HTTP 302 → `login.jsp` → `starter.jsp` 체인은 정상이나, 중간 응답 코드가 302/500 으로 보일 수 있습니다(핸들러 forward 이슈). 세션 쿠키 기준 UI 접근은 정상입니다.

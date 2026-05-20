@@ -5,7 +5,9 @@ CREATE TABLE IF NOT EXISTS dashboard_board (
   user_id VARCHAR(50) NOT NULL,
   category_id BIGINT DEFAULT NULL,
   board_name VARCHAR(100) NOT NULL,
-  layout_json CLOB
+  layout_json CLOB,
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS dashboard_category (
@@ -19,7 +21,9 @@ CREATE TABLE IF NOT EXISTS dashboard_datasource (
   user_id VARCHAR(50) NOT NULL,
   source_name VARCHAR(100) NOT NULL,
   source_type VARCHAR(100) NOT NULL,
-  config CLOB
+  config CLOB,
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS dashboard_widget (
@@ -27,7 +31,9 @@ CREATE TABLE IF NOT EXISTS dashboard_widget (
   user_id VARCHAR(100) NOT NULL,
   category_name VARCHAR(100) DEFAULT NULL,
   widget_name VARCHAR(100) DEFAULT NULL,
-  data_json CLOB
+  data_json CLOB,
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS dashboard_dataset (
@@ -35,7 +41,9 @@ CREATE TABLE IF NOT EXISTS dashboard_dataset (
   user_id VARCHAR(100) NOT NULL,
   category_name VARCHAR(100) DEFAULT NULL,
   dataset_name VARCHAR(100) DEFAULT NULL,
-  data_json CLOB
+  data_json CLOB,
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS dashboard_user (
