@@ -1,0 +1,7 @@
+package com.insightboard.app.config;
+
+import java.util.List;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "insightboard.cors")
+public record CorsProperties(List<String> allowedOrigins) {}

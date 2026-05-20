@@ -212,9 +212,9 @@ flowchart TB
 
 ### Phase 0 — 구조 (신규, 최우선)
 
-- [ ] Gradle `modules:common`, `dashboard`, `web`, `app` 생성
-- [ ] 기존 `insight-board/backend` 단일 모듈 코드를 `dashboard` / `app`으로 이동
-- [ ] `web`에 `TrendReport` 등 신한 API 스텁
+- [x] Gradle `modules:common`, `api`(dashboard), `web`, `external`, `app` 생성
+- [x] 기존 `insight-board/backend` 단일 모듈 코드를 모듈별 Clean Architecture 패키지로 이동
+- [x] 레거시 WAR → `legacy/` 단독 Maven 모듈 분리
 - [ ] OWASP/SBOM Gradle 플러그인 루트 적용
 
 ### Phase 1 — dashboard MVP
