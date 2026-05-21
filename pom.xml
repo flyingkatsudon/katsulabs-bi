@@ -489,9 +489,13 @@
                     <path>/bdp</path>
                     <port>8080</port>
                     <uriEncoding>UTF-8</uriEncoding>
-                    <systemProperties>
-                        <MAVEN_OPTS>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED</MAVEN_OPTS>
-                    </systemProperties>
+                    <!-- Fork Tomcat in a child JVM so add-opens applies (Java 17+ / Spring 4 CGLIB) -->
+                    <fork>true</fork>
+                    <jvmArgs>
+                        --add-opens=java.base/java.lang=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+                    </jvmArgs>
                 </configuration>
             </plugin>
         </plugins>

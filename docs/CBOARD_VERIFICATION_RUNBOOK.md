@@ -45,6 +45,28 @@ mvn org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Denv=local
 bash scripts/run-local.sh
 ```
 
+### IntelliJ IDEA에서 `tomcat7:run` 실행 시
+
+**증상:** `Cannot load configuration class: org.cboard.controller.WebConfig` + `InaccessibleObjectException: module java.base does not "opens java.lang"`.
+
+**원인:** Java 17+ 에서 Spring 4 CGLIB 이 `--add-opens` 없이 동작하지 않음. `systemProperties` 로 넣은 `MAVEN_OPTS` 는 Tomcat JVM 에 적용되지 않습니다.
+
+**해결 (프로젝트 반영됨):** `pom.xml` 의 `tomcat7-maven-plugin` 에 `fork=true` + `jvmArgs` 가 설정되어 있습니다. 최신 코드 pull 후 다시 실행하세요.
+
+**추가로 IntelliJ Maven Run 설정에 VM options 를 넣을 때** (여전히 실패할 경우):
+
+```
+--add-opens=java.base/java.lang=ALL-UNNAMED
+--add-opens=java.base/java.util=ALL-UNNAMED
+--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+```
+
+설정 위치: Run/Debug Configurations → 해당 Maven 실행 → **Runner** 탭 → **VM Options**
+
+`.mvn/jvm.config` 파일도 Maven 프로세스용으로 동일 옵션을 포함합니다.
+
+**module-info.class SEVERE 로그:** Tomcat 7 이 JAXB 등 Java 9+ JAR 의 `module-info.class` 를 스캔할 때 나는 경고이며, Spring 컨텍스트가 정상 기동되면 무시해도 됩니다.
+
 ## 3. 로그인 (개발용)
 
 로그인 화면: http://127.0.0.1:8080/bdp/login.jsp
