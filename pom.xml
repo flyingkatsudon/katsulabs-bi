@@ -425,6 +425,14 @@
             <artifactId>jasypt-spring31</artifactId>
             <version>1.9.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.owlnest</groupId>
+            <artifactId>owlnest-api</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/owlnest-stub.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
