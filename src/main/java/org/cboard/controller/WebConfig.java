@@ -15,7 +15,8 @@ import java.util.List;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.cboard.controller, com.shinhan.ctrl"})
+@Import(ShinhanMvcConfig.class)
+@ComponentScan(basePackages = "org.cboard.controller")
 @PropertySource(value = {"classpath:config.properties"})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class WebConfig extends WebMvcConfigurerAdapter {

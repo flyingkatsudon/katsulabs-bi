@@ -393,30 +393,12 @@
             <artifactId>dynamicreports-core</artifactId>
             <version>5.0.0</version>
         </dependency> -->
-        
+
         <dependency>
-        	<groupId>org.apache.poi</groupId>
-        	<artifactId>poi</artifactId>
-        	<version>${poi.version}</version>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>${poi.version}</version>
         </dependency>
-        
-        <dependency>
-        	<groupId>org.apache.poi</groupId>
-        	<artifactId>poi-ooxml</artifactId>
-        	<version>${poi.version}</version>
-        </dependency>
-        
-        <dependency>
-        	<groupId>org.apache.poi</groupId>
-        	<artifactId>poi-ooxml-schemas</artifactId>
-        	<version>${poi.version}</version>
-        </dependency>
-        
-        <dependency>
-        	<groupId>commons-io</groupId>
-        	<artifactId>commons-io</artifactId>
-        	<version>${commons-io.version}</version>
-        </dependency> 
 
 	    <!-- <dependency>
 	        <groupId>commons-fileupload</groupId>
@@ -489,13 +471,6 @@
                     <path>/bdp</path>
                     <port>8080</port>
                     <uriEncoding>UTF-8</uriEncoding>
-                    <!-- Fork Tomcat in a child JVM so add-opens applies (Java 17+ / Spring 4 CGLIB) -->
-                    <fork>true</fork>
-                    <jvmArgs>
-                        --add-opens=java.base/java.lang=ALL-UNNAMED
-                        --add-opens=java.base/java.util=ALL-UNNAMED
-                        --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-                    </jvmArgs>
                 </configuration>
             </plugin>
         </plugins>
@@ -516,13 +491,14 @@
                         <version>2.6</version>
                         <executions>
                             <execution>
-                                <id>copy-resources</id>
-                                <phase>validate</phase>
+                                <id>overlay-local-resources</id>
+                                <phase>process-resources</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
                                     <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <overwrite>true</overwrite>
                                     <resources>
                                         <resource>
                                             <directory>src/main/resources/${env}</directory>

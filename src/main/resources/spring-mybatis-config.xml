@@ -4,4 +4,7 @@
 	<settings>
 		<setting name="mapUnderscoreToCamelCase" value="true"></setting>
 	</settings>
+	<typeAliases>
+		<package name="com.shinhan.vo"/>
+	</typeAliases>
 </configuration>
