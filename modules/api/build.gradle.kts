@@ -27,8 +27,31 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.20.6")
 }
 
+val frontendDistDir = rootProject.layout.projectDirectory.dir("frontend/dist")
+val generatedFrontendResources = layout.buildDirectory.dir("generated/frontendResources")
+val generatedFrontendStatic = generatedFrontendResources.map { it.dir("static") }
+
+sourceSets.named("main") {
+    resources.srcDir(generatedFrontendResources)
+}
+
+tasks.register<Copy>("copyFrontendDist") {
+    group = "build"
+    description = "Copies frontend/dist into the API JAR (classpath:/static/)"
+    onlyIf { frontendDistDir.asFile.exists() }
+    from(frontendDistDir)
+    into(generatedFrontendStatic)
+    inputs.dir(frontendDistDir)
+    outputs.dir(generatedFrontendStatic)
+}
+
+tasks.named<ProcessResources>("processResources") {
+    dependsOn("copyFrontendDist")
+}
+
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    archiveBaseName.set("insight-board")
+    archiveFileName.set("insight-board.jar")
+    dependsOn("copyFrontendDist")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
