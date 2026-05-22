@@ -40,12 +40,12 @@ function categoriesWithBoards(categories: CategoryItem[], boards: BoardSummary[]
   return categories.filter((c) => boardsInCategory(boards, c.id).length > 0)
 }
 
-/** AdminLTE sidebar-menu — menu-open 토글로 접기/펼치기 */
+/** AdminLTE sidebar-menu — 역할별 메뉴 */
 export function AppSidebar({ user, dimmed = false }: AppSidebarProps) {
   const [boards, setBoards] = useState<BoardSummary[]>([])
   const [categories, setCategories] = useState<CategoryItem[]>([])
+  const viewer = isViewer(user.roleId)
   const showConfig = canAccessConfiguration(user.roleId)
-  const showViewerBoards = isViewer(user.roleId)
   const showDs = canWriteDatasource(user.roleId)
   const showDashConfig = canWriteDashboard(user.roleId)
 
@@ -54,18 +54,19 @@ export function AppSidebar({ user, dimmed = false }: AppSidebarProps) {
       try {
         const [b, c] = await Promise.all([
           api.get<BoardSummary[]>('/api/v1/boards'),
-          api.get<CategoryItem[]>('/api/v1/categories'),
+          showConfig ? api.get<CategoryItem[]>('/api/v1/categories') : Promise.resolve([] as CategoryItem[]),
         ])
         setBoards(b)
         setCategories(c)
       } catch {
-        /* sidebar 보조 데이터 — 실패해도 Config 메뉴는 동작 */
+        /* sidebar 보조 데이터 — 실패해도 기본 메뉴는 동작 */
       }
     })()
-  }, [])
+  }, [showConfig])
 
+  const treeBoards = viewer ? boards : boards
   const myBoards = boards.filter((b) => b.userId === user.userId)
-  const dashCategories = categoriesWithBoards(categories, boards)
+  const dashCategories = categoriesWithBoards(categories, treeBoards)
   const { top, categories: categoryOpen, toggleTop, toggleCategory } = useSidebarTreeState(
     dashCategories.map((c) => c.id),
   )
@@ -94,10 +95,24 @@ export function AppSidebar({ user, dimmed = false }: AppSidebarProps) {
                 }}
               >
                 <i className="fa fa-th" />
-                <span>{SIDEBAR.C_DASHBOARD}</span>
+                <span>{viewer ? SIDEBAR.DASHBOARD : SIDEBAR.C_DASHBOARD}</span>
                 <SidebarTreeChevron open={top.dashboard} />
               </a>
               <ul className="treeview-menu">
+                {dashCategories.length === 0 && treeBoards.length > 0 && (
+                  <li>
+                    <ul className="treeview-menu" style={{ display: 'block', paddingLeft: 0 }}>
+                      {treeBoards.map((b) => (
+                        <li key={b.id}>
+                          <NavLink to={`/mine/${b.id}`} className={navClass}>
+                            <i className="fa fa-dashboard" />
+                            <span>{b.name}</span>
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                )}
                 {dashCategories.map((c) => (
                   <li key={c.id} className={treeviewClass(categoryOpen[c.id] ?? true)}>
                     <a
@@ -112,7 +127,7 @@ export function AppSidebar({ user, dimmed = false }: AppSidebarProps) {
                       <SidebarTreeChevron open={categoryOpen[c.id] ?? true} />
                     </a>
                     <ul className="treeview-menu">
-                      {boardsInCategory(boards, c.id).map((b) => (
+                      {boardsInCategory(treeBoards, c.id).map((b) => (
                         <li key={b.id}>
                           <NavLink to={`/mine/${b.id}`} className={navClass}>
                             <i className="fa fa-dashboard" />
@@ -164,14 +179,6 @@ export function AppSidebar({ user, dimmed = false }: AppSidebarProps) {
                   <SidebarTreeChevron open={top.config} />
                 </a>
                 <ul className="treeview-menu">
-                  {showViewerBoards && (
-                    <li>
-                      <NavLink to="/boards" className={navClass} end>
-                        <i className="fa fa-puzzle-piece" />
-                        <span>{SIDEBAR.DASHBOARD}</span>
-                      </NavLink>
-                    </li>
-                  )}
                   {showDs && (
                     <>
                       <li>

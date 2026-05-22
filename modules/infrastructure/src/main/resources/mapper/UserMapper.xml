@@ -8,6 +8,7 @@
                u.login_name        AS loginName,
                u.user_name         AS userName,
                u.password_hash     AS userPassword,
+               u.default_board_id  AS defaultBoardId,
                ur.role_id          AS roleId
           FROM ib_user u
           LEFT JOIN ib_user_role ur ON ur.user_id = u.user_id

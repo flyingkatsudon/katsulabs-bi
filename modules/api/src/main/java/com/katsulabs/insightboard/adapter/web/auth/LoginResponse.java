@@ -8,5 +8,6 @@ public record LoginResponse(
         String displayName,
         String roleId,
         String roleName,
+        Long defaultBoardId,
         List<Long> resourceTypes,
         String sessionId) {}

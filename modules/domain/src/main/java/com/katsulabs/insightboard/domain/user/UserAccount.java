@@ -6,6 +6,7 @@ public record UserAccount(
         String displayName,
         String passwordHash,
         String roleId,
+        Long defaultBoardId,
         int failedLoginCount,
         String userStateInfo,
         String delCd) {

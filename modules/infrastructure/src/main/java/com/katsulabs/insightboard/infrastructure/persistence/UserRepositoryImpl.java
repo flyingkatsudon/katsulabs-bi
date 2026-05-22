@@ -84,6 +84,7 @@ public class UserRepositoryImpl implements UserRepository {
                 row.getUserName(),
                 row.getUserPassword(),
                 row.getRoleId(),
+                row.getDefaultBoardId(),
                 failed,
                 row.getUserStateInfo(),
                 row.getDelCd());

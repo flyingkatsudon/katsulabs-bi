@@ -62,6 +62,7 @@ public class LoginUseCase {
                 account.displayName(),
                 account.roleId(),
                 roleName,
+                account.defaultBoardId(),
                 resourceTypeLoader.loadByRoleId(account.roleId()));
     }
 

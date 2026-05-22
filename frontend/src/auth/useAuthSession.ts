@@ -10,6 +10,7 @@ export function normalizeLogin(data: LoginResponse): LoginResponse {
     userName: data.userName || data.displayName || data.loginName || data.userId,
     roleId: data.roleId != null ? String(data.roleId) : '2',
     roleName: data.roleName ?? (data.roleId != null ? String(data.roleId) : 'Viewer'),
+    defaultBoardId: data.defaultBoardId ?? null,
   }
 }
 

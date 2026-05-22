@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   BrowserRouter,
   Navigate,
@@ -25,6 +25,7 @@ import { RouteErrorBoundary } from './components/RouteErrorBoundary'
 import { SessionExpiredDialog } from './components/SessionExpiredDialog'
 import { ProtectedLayout } from './layout/ProtectedLayout'
 import { HomeRedirect } from './components/HomeRedirect'
+import { RequireConfigAccess } from './components/RequireConfigAccess'
 import { BoardViewPage } from './pages/BoardViewPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { BoardWorkbenchPage } from './pages/config/BoardWorkbenchPage'
@@ -104,16 +105,19 @@ function AppRoutes() {
     }
   }, [status, user, loadBoards])
 
-  const outletContext: AuthOutletContext =
-    user && status === 'authenticated'
-      ? {
-          roleId: user.roleId,
-          canWriteDashboard: canWriteDashboard(user.roleId),
-          canWriteDatasource: canWriteDatasource(user.roleId),
-          canManageUsers: canManageUsers(user.roleId),
-          bootstrapped,
-        }
-      : { ...DEFAULT_AUTH_OUTLET_CONTEXT, bootstrapped }
+  const outletContext: AuthOutletContext = useMemo(
+    () =>
+      user && status === 'authenticated'
+        ? {
+            roleId: user.roleId,
+            canWriteDashboard: canWriteDashboard(user.roleId),
+            canWriteDatasource: canWriteDatasource(user.roleId),
+            canManageUsers: canManageUsers(user.roleId),
+            bootstrapped,
+          }
+        : { ...DEFAULT_AUTH_OUTLET_CONTEXT, bootstrapped },
+    [user, status, bootstrapped],
+  )
 
   return (
     <>
@@ -158,7 +162,7 @@ function AppRoutes() {
               !bootstrapped ? (
                 <ContentLoading message="세션 확인 중…" />
               ) : status === 'authenticated' && user ? (
-                <HomeRedirect userId={user.userId} onSessionExpired={handleSessionExpired} />
+                <HomeRedirect user={user} onSessionExpired={handleSessionExpired} />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -168,22 +172,87 @@ function AppRoutes() {
           <Route
             path="/boards"
             element={
-              <BoardWorkbenchPage
-                boards={boards}
-                onSessionExpired={handleSessionExpired}
-                onBoardsChange={() => void loadBoards()}
-              />
+              <RequireConfigAccess>
+                <BoardWorkbenchPage
+                  boards={boards}
+                  onSessionExpired={handleSessionExpired}
+                  onBoardsChange={() => void loadBoards()}
+                />
+              </RequireConfigAccess>
             }
           />
-          <Route path="/boards/:id" element={<RedirectConfigId base="/boards" />} />
-          <Route path="/datasources" element={<DatasourceWorkbenchPage onSessionExpired={handleSessionExpired} />} />
-          <Route path="/datasources/:id" element={<RedirectConfigId base="/datasources" />} />
-          <Route path="/datasets" element={<DatasetWorkbenchPage onSessionExpired={handleSessionExpired} />} />
-          <Route path="/datasets/:id" element={<RedirectConfigId base="/datasets" />} />
-          <Route path="/widgets" element={<WidgetWorkbenchPage onSessionExpired={handleSessionExpired} />} />
-          <Route path="/widgets/:id" element={<RedirectConfigId base="/widgets" />} />
-          <Route path="/categories" element={<CategoryPage onSessionExpired={handleSessionExpired} />} />
-          <Route path="/users" element={<UsersPage onSessionExpired={handleSessionExpired} />} />
+          <Route
+            path="/boards/:id"
+            element={
+              <RequireConfigAccess>
+                <RedirectConfigId base="/boards" />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/datasources"
+            element={
+              <RequireConfigAccess>
+                <DatasourceWorkbenchPage onSessionExpired={handleSessionExpired} />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/datasources/:id"
+            element={
+              <RequireConfigAccess>
+                <RedirectConfigId base="/datasources" />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/datasets"
+            element={
+              <RequireConfigAccess>
+                <DatasetWorkbenchPage onSessionExpired={handleSessionExpired} />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/datasets/:id"
+            element={
+              <RequireConfigAccess>
+                <RedirectConfigId base="/datasets" />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/widgets"
+            element={
+              <RequireConfigAccess>
+                <WidgetWorkbenchPage onSessionExpired={handleSessionExpired} />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/widgets/:id"
+            element={
+              <RequireConfigAccess>
+                <RedirectConfigId base="/widgets" />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <RequireConfigAccess>
+                <CategoryPage onSessionExpired={handleSessionExpired} />
+              </RequireConfigAccess>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <RequireConfigAccess>
+                <UsersPage onSessionExpired={handleSessionExpired} />
+              </RequireConfigAccess>
+            }
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
         <Route

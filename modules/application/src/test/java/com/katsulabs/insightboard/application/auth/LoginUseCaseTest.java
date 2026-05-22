@@ -30,7 +30,7 @@ class LoginUseCaseTest {
     @DisplayName("올바른 비밀번호면 로그인에 성공한다")
     @Test
     void success() {
-        var account = new UserAccount("admin01", "admin01", "Admin", "HASHED", "1", 0, "0", "N");
+        var account = new UserAccount("admin01", "admin01", "Admin", "HASHED", "1", null, 0, "0", "N");
         when(userRepository.findByUserId("admin01")).thenReturn(Optional.of(account));
         when(userRepository.findRoleName("1")).thenReturn(Optional.of("Super Admin"));
 
@@ -43,7 +43,7 @@ class LoginUseCaseTest {
     @DisplayName("비밀번호가 틀리면 예외를 던진다")
     @Test
     void wrongPassword() {
-        var account = new UserAccount("admin01", "admin01", "Admin", "OTHER", "1", 0, "0", "N");
+        var account = new UserAccount("admin01", "admin01", "Admin", "OTHER", "1", null, 0, "0", "N");
         when(userRepository.findByUserId("admin01")).thenReturn(Optional.of(account));
 
         assertThatThrownBy(() -> loginUseCase.login(new LoginCommand("admin01", "bad")))

@@ -10,6 +10,15 @@ public class UserRow {
     private String userStateInfo;
     private String delCd;
     private String roleId;
+    private Long defaultBoardId;
+
+    public Long getDefaultBoardId() {
+        return defaultBoardId;
+    }
+
+    public void setDefaultBoardId(Long defaultBoardId) {
+        this.defaultBoardId = defaultBoardId;
+    }
 
     public String getUserId() {
         return userId;

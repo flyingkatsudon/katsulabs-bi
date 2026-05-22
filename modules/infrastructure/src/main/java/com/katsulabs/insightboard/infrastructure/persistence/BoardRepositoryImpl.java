@@ -40,6 +40,7 @@ public class BoardRepositoryImpl implements BoardRepository {
                 row.getUserName(),
                 row.getCategoryId(),
                 row.getCategoryName(),
+                Boolean.TRUE.equals(row.getPublishedToViewers()),
                 PersistenceMapperSupport.toInstant(row.getCreateTime()),
                 PersistenceMapperSupport.toInstant(row.getUpdateTime()));
     }
@@ -52,6 +53,7 @@ public class BoardRepositoryImpl implements BoardRepository {
                 row.getUserName(),
                 row.getCategoryId(),
                 row.getLayout(),
+                Boolean.TRUE.equals(row.getPublishedToViewers()),
                 PersistenceMapperSupport.toInstant(row.getCreateTime()),
                 PersistenceMapperSupport.toInstant(row.getUpdateTime()));
     }
@@ -62,28 +64,47 @@ public class BoardRepositoryImpl implements BoardRepository {
     }
 
     @Override
-    public long insert(String userId, String name, Long categoryId, String layoutJson) {
+    public long insert(
+            String userId,
+            String name,
+            Long categoryId,
+            String layoutJson,
+            boolean publishedToViewers,
+            String publishedByUserId) {
         BoardRow row = new BoardRow();
         row.setUserId(userId);
         row.setName(name);
         row.setCategoryId(categoryId);
         row.setLayout(layoutJson);
+        applyPublish(row, publishedToViewers, publishedByUserId);
         boardMapper.insert(row);
         return row.getId();
     }
 
     @Override
-    public void update(long id, String name, Long categoryId, String layoutJson) {
+    public void update(
+            long id,
+            String name,
+            Long categoryId,
+            String layoutJson,
+            boolean publishedToViewers,
+            String publishedByUserId) {
         BoardRow row = new BoardRow();
         row.setId(id);
         row.setName(name);
         row.setCategoryId(categoryId);
         row.setLayout(layoutJson);
+        applyPublish(row, publishedToViewers, publishedByUserId);
         boardMapper.update(row);
     }
 
     @Override
     public void delete(long id) {
         boardMapper.delete(id);
+    }
+
+    private static void applyPublish(BoardRow row, boolean publishedToViewers, String publishedByUserId) {
+        row.setPublishedToViewers(publishedToViewers);
+        row.setPublishedBy(publishedToViewers ? publishedByUserId : null);
     }
 }

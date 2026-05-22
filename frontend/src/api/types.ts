@@ -7,6 +7,7 @@ export type LoginResponse = {
   loginName?: string
   /** 서버 HttpSession ID — X-Insightboard-Session 헤더용 */
   sessionId?: string
+  defaultBoardId?: number | null
 }
 
 export type UserSummary = {
@@ -25,6 +26,7 @@ export type BoardSummary = {
   userName: string
   categoryId: number | null
   categoryName: string | null
+  publishedToViewers?: boolean
 }
 
 export type BoardDetail = BoardSummary & {

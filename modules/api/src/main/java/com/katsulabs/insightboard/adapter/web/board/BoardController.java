@@ -61,30 +61,40 @@ public class BoardController {
 
     @GetMapping("/{id}")
     public BoardResponse get(@PathVariable long id) {
-        return toResponse(getBoardUseCase.execute(id));
+        return toResponse(getBoardUseCase.execute(accessControl.requireRole(), id));
     }
 
     @PostMapping
     public ServiceResult create(@RequestBody BoardWriteRequest request) {
         accessControl.requireWriteDashboardContent();
         return saveBoardUseCase.execute(
+                accessControl.requireRole(),
                 currentUserProvider.requireUserId(),
-                new BoardWriteCommand(request.name(), request.categoryId(), request.layoutJson()));
+                toCommand(request));
     }
 
     @PutMapping("/{id}")
     public ServiceResult update(@PathVariable long id, @RequestBody BoardWriteRequest request) {
         accessControl.requireWriteDashboardContent();
         return updateBoardUseCase.execute(
+                accessControl.requireRole(),
                 currentUserProvider.requireUserId(),
                 id,
-                new BoardWriteCommand(request.name(), request.categoryId(), request.layoutJson()));
+                toCommand(request));
     }
 
     @DeleteMapping("/{id}")
     public ServiceResult delete(@PathVariable long id) {
         accessControl.requireWriteDashboardContent();
         return deleteBoardUseCase.execute(id);
+    }
+
+    private static BoardWriteCommand toCommand(BoardWriteRequest request) {
+        return new BoardWriteCommand(
+                request.name(),
+                request.categoryId(),
+                request.layoutJson(),
+                Boolean.TRUE.equals(request.publishedToViewers()));
     }
 
     private static BoardResponse toResponse(BoardSummary summary) {
@@ -96,6 +106,7 @@ public class BoardController {
                 summary.categoryId(),
                 summary.categoryName(),
                 null,
+                summary.publishedToViewers(),
                 summary.createdAt(),
                 summary.updatedAt());
     }
@@ -109,6 +120,7 @@ public class BoardController {
                 detail.categoryId(),
                 null,
                 detail.layoutJson(),
+                detail.publishedToViewers(),
                 detail.createdAt(),
                 detail.updatedAt());
     }

@@ -11,8 +11,26 @@ public class BoardRow {
     private Long categoryId;
     private String categoryName;
     private String layout;
+    private Boolean publishedToViewers;
+    private String publishedBy;
     private Timestamp createTime;
     private Timestamp updateTime;
+
+    public Boolean getPublishedToViewers() {
+        return publishedToViewers;
+    }
+
+    public void setPublishedToViewers(Boolean publishedToViewers) {
+        this.publishedToViewers = publishedToViewers;
+    }
+
+    public String getPublishedBy() {
+        return publishedBy;
+    }
+
+    public void setPublishedBy(String publishedBy) {
+        this.publishedBy = publishedBy;
+    }
 
     public Long getId() {
         return id;

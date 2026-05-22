@@ -13,6 +13,8 @@ import { FreeLayoutEditor } from '../../components/board/FreeLayoutEditor'
 import { ConfigJsTree } from '../../components/config/ConfigJsTree'
 import { ConfigEditorPane, type ConfigLoadIssue } from '../../components/config/ConfigEditorPane'
 import { FormAlerts } from '../../components/FormAlerts'
+import { useAuthOutletContext } from '../../hooks/useAuthOutletContext'
+import { canPublishBoard } from '../../utils/permissions'
 import { parseConfigResourceId } from '../../utils/parseConfigResourceId'
 import { resolveConfigLoadError } from '../../utils/configResourceLoad'
 import { buildCategoryTreeData } from '../../utils/configTreeData'
@@ -50,8 +52,11 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
   const [loading, setLoading] = useState(false)
   const [showNewMenu, setShowNewMenu] = useState(false)
   const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
+  const [publishedToViewers, setPublishedToViewers] = useState(false)
+  const { roleId } = useAuthOutletContext()
+  const showPublish = canPublishBoard(roleId)
 
-  const resource = parseConfigResourceId(selectedId)
+  const resource = useMemo(() => parseConfigResourceId(selectedId), [selectedId])
   const isNew = resource.kind === 'new'
   const numericId = resource.kind === 'edit' ? resource.id : null
   const editorOpen = resource.kind === 'new' || resource.kind === 'edit'
@@ -83,6 +88,7 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
     setName(detail.name)
     setCategoryId(detail.categoryId != null ? String(detail.categoryId) : '')
     setLayout(parseBoardLayout(detail.layoutJson))
+    setPublishedToViewers(Boolean(detail.publishedToViewers))
   }, [])
 
   useEffect(() => {
@@ -110,6 +116,7 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
             : emptyGridLayout(),
       )
       setShowNewMenu(false)
+      setPublishedToViewers(false)
       setLoading(false)
       return
     }
@@ -128,7 +135,17 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
         })
         .finally(() => setLoading(false))
     }
-  }, [resource, isNew, newType, loadDetail, onSessionExpired])
+  }, [resource.kind, numericId, isNew, newType, loadDetail, onSessionExpired])
+
+  const handleSelectLeaf = useCallback(
+    (id: number) => {
+      setMessage(null)
+      setError(null)
+      setLoadIssue(null)
+      setSearchParams({ id: String(id) })
+    },
+    [setSearchParams],
+  )
 
   function selectItem(id: string | null, type?: string) {
     setMessage(null)
@@ -151,6 +168,7 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
       name: name.trim(),
       categoryId: categoryId ? Number(categoryId) : null,
       layoutJson: serializeBoardLayout(layout),
+      publishedToViewers: showPublish ? publishedToViewers : false,
     }
     try {
       const result =
@@ -184,6 +202,7 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
       name: `${detail.name}_copy`,
       categoryId: detail.categoryId,
       layoutJson: detail.layoutJson ?? serializeBoardLayout(layout),
+      publishedToViewers: false,
     }
     const result = await api.post<ServiceResult>('/api/v1/boards', body)
     if (result.status === '1' && result.id != null) {
@@ -290,7 +309,7 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
               treeId="boardTreeID"
               treeData={treeData}
               selectedId={numericId != null ? String(numericId) : null}
-              onSelectLeaf={(id) => selectItem(String(id))}
+              onSelectLeaf={handleSelectLeaf}
               maxHeight="70vh"
             />
           </div>
@@ -350,6 +369,21 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
                     <label>Name</label>
                     <input id="BoardName" className="form-control" value={name} onChange={(e) => setName(e.target.value)} />
                   </div>
+                  {showPublish && (
+                    <div className="form-group">
+                      <label className="checkbox-inline">
+                        <input
+                          type="checkbox"
+                          checked={publishedToViewers}
+                          onChange={(e) => setPublishedToViewers(e.target.checked)}
+                        />{' '}
+                        Viewer에게 게시 (published)
+                      </label>
+                      <p className="help-block text-muted" style={{ marginTop: 4 }}>
+                        체크하면 Viewer 역할 사용자가 사이드바·홈에서 이 보드를 볼 수 있습니다.
+                      </p>
+                    </div>
+                  )}
                   {isFreeLayout(layout) ? (
                     <FreeLayoutEditor
                       widgets={layout.widgets ?? []}

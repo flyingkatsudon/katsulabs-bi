@@ -10,6 +10,7 @@
                b.layout_json   AS layout,
                b.category_id   AS categoryId,
                c.name          AS categoryName,
+               b.published_to_viewers AS publishedToViewers,
                u.user_name     AS userName,
                b.created_at    AS createTime,
                b.updated_at    AS updateTime
@@ -42,13 +43,36 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="board_id">
-        INSERT INTO ib_board (owner_user_id, name, layout_json, category_id, layout_mode)
-        VALUES (#{userId}, #{name}, #{layout}, #{categoryId}, 'GRID')
+        INSERT INTO ib_board (owner_user_id, name, layout_json, category_id, layout_mode,
+                              published_to_viewers, published_by, published_at)
+        VALUES (#{userId}, #{name}, #{layout}, #{categoryId}, 'GRID',
+                #{publishedToViewers},
+                <choose>
+                    <when test="publishedToViewers">#{publishedBy}</when>
+                    <otherwise>NULL</otherwise>
+                </choose>,
+                <choose>
+                    <when test="publishedToViewers">CURRENT_TIMESTAMP</when>
+                    <otherwise>NULL</otherwise>
+                </choose>)
     </insert>
 
     <update id="update">
         UPDATE ib_board
-           SET name = #{name}, layout_json = #{layout}, category_id = #{categoryId},
+           SET name = #{name},
+               layout_json = #{layout},
+               category_id = #{categoryId},
+               published_to_viewers = #{publishedToViewers},
+               published_by =
+                   <choose>
+                       <when test="publishedToViewers">#{publishedBy}</when>
+                       <otherwise>NULL</otherwise>
+                   </choose>,
+               published_at =
+                   <choose>
+                       <when test="publishedToViewers">CURRENT_TIMESTAMP</when>
+                       <otherwise>NULL</otherwise>
+                   </choose>,
                updated_at = CURRENT_TIMESTAMP
          WHERE board_id = #{id}
     </update>

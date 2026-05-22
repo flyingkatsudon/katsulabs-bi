@@ -93,6 +93,7 @@ public class AuthController {
                 user.displayName(),
                 user.roleId(),
                 user.roleName(),
+                user.defaultBoardId(),
                 user.resourceTypes(),
                 sessionId);
     }

@@ -8,4 +8,5 @@ public record AuthenticatedUser(
         String displayName,
         String roleId,
         String roleName,
+        Long defaultBoardId,
         List<Long> resourceTypes) {}

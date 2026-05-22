@@ -1,5 +1,7 @@
 package com.katsulabs.insightboard.application.board;
 
+import com.katsulabs.insightboard.application.auth.InsightBoardRole;
+import com.katsulabs.insightboard.application.common.AccessDeniedException;
 import com.katsulabs.insightboard.application.common.ServiceResult;
 import com.katsulabs.insightboard.domain.board.BoardRepository;
 
@@ -11,14 +13,25 @@ public class UpdateBoardUseCase {
         this.boardRepository = boardRepository;
     }
 
-    public ServiceResult execute(String userId, long id, BoardWriteCommand command) {
-        if (boardRepository.findById(id).isEmpty()) {
+    public ServiceResult execute(InsightBoardRole role, String userId, long id, BoardWriteCommand command) {
+        var existing = boardRepository.findById(id);
+        if (existing.isEmpty()) {
             return ServiceResult.fail("대시보드를 찾을 수 없습니다.");
+        }
+        boolean publish = command.publishedToViewers();
+        if (publish && !role.canPublishBoardToViewers()) {
+            throw new AccessDeniedException("Viewer 게시 권한이 없습니다.");
         }
         if (boardRepository.existsByName(userId, command.name(), id)) {
             return ServiceResult.fail("Duplicated name");
         }
-        boardRepository.update(id, command.name(), command.categoryId(), command.layoutJson());
+        boardRepository.update(
+                id,
+                command.name(),
+                command.categoryId(),
+                command.layoutJson(),
+                publish,
+                publish ? userId : null);
         return ServiceResult.success("success");
     }
 }

@@ -10,6 +10,7 @@ public record BoardResponse(
         Long categoryId,
         String categoryName,
         String layoutJson,
+        boolean publishedToViewers,
         Instant createdAt,
         Instant updatedAt) {
 }

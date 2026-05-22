@@ -275,6 +275,31 @@ class ApiIntegrationTest {
                 .andExpect(jsonPath("$[?(@.name == 'Economic Indicators Sample Dashboard')]").exists());
     }
 
+    @DisplayName("Viewer 는 게시되지 않은 보드 상세 조회가 404")
+    @Test
+    void viewerCannotGetUnpublishedBoard() throws Exception {
+        MockHttpSession session = login("viewer01", "admin123");
+        mockMvc.perform(get("/api/v1/boards/2").session(session)).andExpect(status().isNotFound());
+    }
+
+    @DisplayName("Viewer 는 게시된 FoodMart 보드를 조회한다")
+    @Test
+    void viewerCanGetPublishedBoard() throws Exception {
+        MockHttpSession session = login("viewer01", "admin123");
+        mockMvc.perform(get("/api/v1/boards/1").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.publishedToViewers").value(true));
+    }
+
+    @DisplayName("Viewer 세션에 defaultBoardId 가 포함된다")
+    @Test
+    void viewerSessionHasDefaultBoard() throws Exception {
+        MockHttpSession session = login("viewer01", "admin123");
+        mockMvc.perform(get("/api/v1/auth/session").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.defaultBoardId").value(1));
+    }
+
     @DisplayName("Viewer 는 보드 생성이 거부된다")
     @Test
     void viewerCannotCreateBoard() throws Exception {

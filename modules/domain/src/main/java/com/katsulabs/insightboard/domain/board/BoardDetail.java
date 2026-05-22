@@ -9,6 +9,7 @@ public record BoardDetail(
         String userName,
         Long categoryId,
         String layoutJson,
+        boolean publishedToViewers,
         Instant createdAt,
         Instant updatedAt) {
 }

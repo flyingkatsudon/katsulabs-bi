@@ -26,7 +26,11 @@ export function isViewer(roleId: string): boolean {
   return roleId === ROLE_VIEWER
 }
 
-/** Configuration 메뉴 표시 (Viewer 는 보드 목록만) */
+/** Configuration 메뉴 (DataSource·Widget·Board 편집) — Viewer 제외 */
 export function canAccessConfiguration(roleId: string): boolean {
-  return canWriteDashboard(roleId) || canWriteDatasource(roleId) || isViewer(roleId)
+  return canWriteDashboard(roleId) || canWriteDatasource(roleId)
+}
+
+export function canPublishBoard(roleId: string): boolean {
+  return canWriteDashboard(roleId)
 }

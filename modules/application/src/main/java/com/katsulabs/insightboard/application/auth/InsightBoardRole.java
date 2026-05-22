@@ -41,4 +41,8 @@ public enum InsightBoardRole {
     public boolean canWriteDashboardContent() {
         return this == SUPER_ADMIN || this == MANAGER;
     }
+
+    public boolean canPublishBoardToViewers() {
+        return canWriteDashboardContent();
+    }
 }

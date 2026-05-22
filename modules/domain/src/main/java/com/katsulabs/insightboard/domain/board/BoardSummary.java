@@ -9,6 +9,7 @@ public record BoardSummary(
         String userName,
         Long categoryId,
         String categoryName,
+        boolean publishedToViewers,
         Instant createdAt,
         Instant updatedAt) {
 }
