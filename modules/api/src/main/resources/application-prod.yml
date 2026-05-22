@@ -1,0 +1,4 @@
+# Single-process deploy: API + embedded React build (classpath:/static/)
+insightboard:
+  spa:
+    enabled: true
