@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface BoardRepository {
 
-    List<BoardSummary> findAllSummaries();
+    List<BoardSummary> findAllSummaries(boolean publishedOnly);
 
     Optional<BoardDetail> findById(long boardId);
 

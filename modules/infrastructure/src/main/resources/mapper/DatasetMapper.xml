@@ -3,56 +3,61 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetMapper">
 
+    <sql id="datasetSelect">
+        SELECT d.dataset_id       AS id,
+               d.owner_user_id    AS userId,
+               d.name             AS name,
+               d.datasource_id    AS datasourceId,
+               d.sql_text         AS sqlText,
+               d.platform_shared  AS platformShared,
+               d.category_id      AS categoryId,
+               c.name             AS categoryName,
+               u.user_name        AS userName,
+               d.created_at       AS createTime,
+               d.updated_at       AS updateTime
+          FROM ib_dataset d
+          LEFT JOIN ib_user u ON u.user_id = d.owner_user_id
+          LEFT JOIN ib_category c ON c.category_id = d.category_id
+    </sql>
+
     <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetRow">
-        SELECT d.dataset_id    AS id,
-               d.user_id       AS userId,
-               d.dataset_name  AS name,
-               d.category_name AS categoryName,
-               u.user_name     AS userName,
-               d.create_time   AS createTime,
-               d.update_time   AS updateTime
-          FROM dashboard_dataset d
-          LEFT JOIN dashboard_user u
-            ON u.user_id = d.user_id
-         ORDER BY d.dataset_name
+        <include refid="datasetSelect"/>
+         ORDER BY d.name
     </select>
 
     <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetRow">
-        SELECT d.dataset_id    AS id,
-               d.user_id       AS userId,
-               d.dataset_name  AS name,
-               d.data_json     AS data,
-               d.category_name AS categoryName,
-               u.user_name     AS userName,
-               d.create_time   AS createTime,
-               d.update_time   AS updateTime
-          FROM dashboard_dataset d
-          LEFT JOIN dashboard_user u
-            ON u.user_id = d.user_id
+        <include refid="datasetSelect"/>
          WHERE d.dataset_id = #{datasetId}
     </select>
 
     <select id="countByName" resultType="long">
-        SELECT COUNT(1) FROM dashboard_dataset
-         WHERE dataset_name = #{name} AND category_name = #{categoryName}
+        SELECT COUNT(1)
+          FROM ib_dataset d
+          LEFT JOIN ib_category c ON c.category_id = d.category_id
+         WHERE d.name = #{name}
+           AND c.name = #{categoryName}
         <if test="excludeId != null">
-           AND dataset_id &lt;&gt; #{excludeId}
+           AND d.dataset_id &lt;&gt; #{excludeId}
         </if>
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="dataset_id">
-        INSERT INTO dashboard_dataset (user_id, dataset_name, data_json, category_name)
-        VALUES (#{userId}, #{name}, #{data}, #{categoryName})
+        INSERT INTO ib_dataset (owner_user_id, name, datasource_id, category_id, sql_text, platform_shared)
+        VALUES (#{userId}, #{name}, #{datasourceId}, #{categoryId}, #{sqlText}, #{platformShared})
     </insert>
 
     <update id="update">
-        UPDATE dashboard_dataset
-           SET dataset_name = #{name}, data_json = #{data}, category_name = #{categoryName},
-               update_time = CURRENT_TIMESTAMP
+        UPDATE ib_dataset
+           SET name = #{name},
+               datasource_id = #{datasourceId},
+               category_id = #{categoryId},
+               sql_text = #{sqlText},
+               platform_shared = #{platformShared},
+               updated_at = CURRENT_TIMESTAMP
          WHERE dataset_id = #{id}
     </update>
 
     <delete id="delete">
-        DELETE FROM dashboard_dataset WHERE dataset_id = #{datasetId}
+        DELETE FROM ib_dataset WHERE dataset_id = #{datasetId}
     </delete>
 </mapper>

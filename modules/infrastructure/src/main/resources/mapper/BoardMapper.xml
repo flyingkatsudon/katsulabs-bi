@@ -5,23 +5,27 @@
 
     <sql id="boardSelect">
         SELECT b.board_id      AS id,
-               b.user_id       AS userId,
-               b.board_name    AS name,
+               b.owner_user_id AS userId,
+               b.name          AS name,
                b.layout_json   AS layout,
                b.category_id   AS categoryId,
-               c.category_name AS categoryName,
+               c.name          AS categoryName,
                u.user_name     AS userName,
-               b.create_time   AS createTime,
-               b.update_time   AS updateTime
-          FROM dashboard_board b
-          LEFT JOIN dashboard_user u
-            ON u.user_id = b.user_id
-          LEFT JOIN dashboard_category c ON c.category_id = b.category_id
+               b.created_at    AS createTime,
+               b.updated_at    AS updateTime
+          FROM ib_board b
+          LEFT JOIN ib_user u ON u.user_id = b.owner_user_id
+          LEFT JOIN ib_category c ON c.category_id = b.category_id
     </sql>
 
     <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow">
         <include refid="boardSelect"/>
-         ORDER BY b.board_name
+        <where>
+            <if test="publishedOnly">
+               b.published_to_viewers = TRUE
+            </if>
+        </where>
+         ORDER BY b.name
     </select>
 
     <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow">
@@ -30,26 +34,26 @@
     </select>
 
     <select id="countByName" resultType="long">
-        SELECT COUNT(1) FROM dashboard_board
-         WHERE user_id = #{userId} AND board_name = #{name}
+        SELECT COUNT(1) FROM ib_board
+         WHERE owner_user_id = #{userId} AND name = #{name}
         <if test="excludeId != null">
            AND board_id &lt;&gt; #{excludeId}
         </if>
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="board_id">
-        INSERT INTO dashboard_board (user_id, board_name, layout_json, category_id)
-        VALUES (#{userId}, #{name}, #{layout}, #{categoryId})
+        INSERT INTO ib_board (owner_user_id, name, layout_json, category_id, layout_mode)
+        VALUES (#{userId}, #{name}, #{layout}, #{categoryId}, 'GRID')
     </insert>
 
     <update id="update">
-        UPDATE dashboard_board
-           SET board_name = #{name}, layout_json = #{layout}, category_id = #{categoryId},
-               update_time = CURRENT_TIMESTAMP
+        UPDATE ib_board
+           SET name = #{name}, layout_json = #{layout}, category_id = #{categoryId},
+               updated_at = CURRENT_TIMESTAMP
          WHERE board_id = #{id}
     </update>
 
     <delete id="delete">
-        DELETE FROM dashboard_board WHERE board_id = #{boardId}
+        DELETE FROM ib_board WHERE board_id = #{boardId}
     </delete>
 </mapper>

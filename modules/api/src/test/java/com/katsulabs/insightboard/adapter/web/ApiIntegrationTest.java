@@ -119,8 +119,8 @@ class ApiIntegrationTest {
     void loginThenUpdateBoard() throws Exception {
         MockHttpSession session = loginAsAdmin();
 
-        String body = JsonMapper.toJson(new BoardUpdatePayload("Demo Board", 1L, "{}"));
-        mockMvc.perform(put("/api/v1/boards/1")
+        String body = JsonMapper.toJson(new BoardUpdatePayload("Demo Board Updated", 1L, "{}"));
+        mockMvc.perform(put("/api/v1/boards/2")
                         .session(session)
                         .contentType(APPLICATION_JSON)
                         .content(body))
@@ -249,7 +249,7 @@ class ApiIntegrationTest {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/v1/boards")
                         .header(SessionHeaderRegistry.SESSION_HEADER, sessionId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.name == 'Demo Board')]").exists());
+                .andExpect(jsonPath("$[?(@.name == 'Demo Board' || @.name == 'Demo Board Updated')]").exists());
     }
 
     @DisplayName("로그인 후 세션 API 로 사용자 정보를 조회한다")
@@ -268,7 +268,7 @@ class ApiIntegrationTest {
         MockHttpSession session = loginAsAdmin();
         mockMvc.perform(get("/api/v1/boards").session(session))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.name == 'Demo Board')]").exists())
+                .andExpect(jsonPath("$[?(@.name == 'Demo Board' || @.name == 'Demo Board Updated')]").exists())
                 .andExpect(jsonPath("$[?(@.name == 'Chart Gallery')]").exists())
                 .andExpect(jsonPath("$[?(@.name == 'FoodMart Sample Dashboard')]").exists())
                 .andExpect(jsonPath("$[?(@.name == 'Real Estate Sample Dashboard')]").exists())

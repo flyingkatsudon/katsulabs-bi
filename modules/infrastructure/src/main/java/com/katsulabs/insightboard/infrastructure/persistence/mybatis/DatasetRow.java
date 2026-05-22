@@ -9,6 +9,10 @@ public class DatasetRow {
     private String userId;
     private String userName;
     private String categoryName;
+    private Long categoryId;
+    private Long datasourceId;
+    private String sqlText;
+    private boolean platformShared;
     private String data;
     private Timestamp createTime;
     private Timestamp updateTime;
@@ -51,6 +55,38 @@ public class DatasetRow {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
+    }
+
+    public boolean isPlatformShared() {
+        return platformShared;
+    }
+
+    public void setPlatformShared(boolean platformShared) {
+        this.platformShared = platformShared;
     }
 
     public String getData() {

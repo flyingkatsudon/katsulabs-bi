@@ -54,7 +54,9 @@ public class BoardController {
 
     @GetMapping
     public List<BoardResponse> list() {
-        return listBoardsUseCase.execute().stream().map(BoardController::toResponse).toList();
+        return listBoardsUseCase.execute(accessControl.requireRole()).stream()
+                .map(BoardController::toResponse)
+                .toList();
     }
 
     @GetMapping("/{id}")

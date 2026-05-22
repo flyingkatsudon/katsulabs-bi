@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetColumnMapper">
+
+    <select id="findByDatasetId" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetColumnRow">
+        SELECT column_id   AS id,
+               dataset_id  AS datasetId,
+               column_name AS columnName,
+               kind,
+               alias,
+               sort_order  AS sortOrder
+          FROM ib_dataset_column
+         WHERE dataset_id = #{datasetId}
+         ORDER BY sort_order, column_id
+    </select>
+
+    <delete id="deleteByDatasetId">
+        DELETE FROM ib_dataset_column WHERE dataset_id = #{datasetId}
+    </delete>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="column_id">
+        INSERT INTO ib_dataset_column (dataset_id, column_name, kind, alias, sort_order)
+        VALUES (#{datasetId}, #{columnName}, #{kind}, #{alias}, #{sortOrder})
+    </insert>
+</mapper>

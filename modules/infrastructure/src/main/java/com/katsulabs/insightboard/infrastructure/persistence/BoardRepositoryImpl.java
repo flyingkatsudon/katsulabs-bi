@@ -20,8 +20,10 @@ public class BoardRepositoryImpl implements BoardRepository {
     }
 
     @Override
-    public List<BoardSummary> findAllSummaries() {
-        return boardMapper.findAllSummaries().stream().map(BoardRepositoryImpl::toSummary).toList();
+    public List<BoardSummary> findAllSummaries(boolean publishedOnly) {
+        return boardMapper.findAllSummaries(publishedOnly).stream()
+                .map(BoardRepositoryImpl::toSummary)
+                .toList();
     }
 
     @Override

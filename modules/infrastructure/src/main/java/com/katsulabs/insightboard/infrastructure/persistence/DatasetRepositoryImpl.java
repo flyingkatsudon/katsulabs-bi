@@ -3,23 +3,24 @@ package com.katsulabs.insightboard.infrastructure.persistence;
 import java.util.List;
 import java.util.Optional;
 
-import com.katsulabs.insightboard.application.support.JsonMapper;
 import com.katsulabs.insightboard.domain.dataset.DatasetDetail;
 import com.katsulabs.insightboard.domain.dataset.DatasetRepository;
 import com.katsulabs.insightboard.domain.dataset.DatasetSummary;
+import com.katsulabs.insightboard.infrastructure.persistence.compat.CboardDatasetJson;
+import com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetColumnMapper;
 import com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetMapper;
 import com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetRow;
 import org.springframework.stereotype.Repository;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 @Repository
 public class DatasetRepositoryImpl implements DatasetRepository {
 
     private final DatasetMapper datasetMapper;
+    private final DatasetColumnMapper datasetColumnMapper;
 
-    public DatasetRepositoryImpl(DatasetMapper datasetMapper) {
+    public DatasetRepositoryImpl(DatasetMapper datasetMapper, DatasetColumnMapper datasetColumnMapper) {
         this.datasetMapper = datasetMapper;
+        this.datasetColumnMapper = datasetColumnMapper;
     }
 
     @Override
@@ -30,7 +31,12 @@ public class DatasetRepositoryImpl implements DatasetRepository {
     @Override
     public Optional<DatasetDetail> findById(long datasetId) {
         DatasetRow row = datasetMapper.findById(datasetId);
-        return row == null ? Optional.empty() : Optional.of(toDetail(row));
+        if (row == null) {
+            return Optional.empty();
+        }
+        var columns = datasetColumnMapper.findByDatasetId(datasetId);
+        String dataJson = CboardDatasetJson.compose(row, columns);
+        return Optional.of(toDetail(row, dataJson));
     }
 
     @Override
@@ -44,23 +50,25 @@ public class DatasetRepositoryImpl implements DatasetRepository {
         row.setUserId(userId);
         row.setName(name);
         row.setCategoryName(defaultCategory(categoryName));
-        row.setData(dataJson);
-        datasetMapper.insert(row);
+        row.setPlatformShared(userId != null && userId.startsWith("admin"));
+        CboardDatasetJson.persistFromJson(datasetMapper, datasetColumnMapper, row, dataJson);
         return row.getId();
     }
 
     @Override
     public void update(long id, String name, String categoryName, String dataJson) {
-        DatasetRow row = new DatasetRow();
-        row.setId(id);
+        DatasetRow row = datasetMapper.findById(id);
+        if (row == null) {
+            throw new IllegalArgumentException("데이터셋을 찾을 수 없습니다: " + id);
+        }
         row.setName(name);
         row.setCategoryName(defaultCategory(categoryName));
-        row.setData(dataJson);
-        datasetMapper.update(row);
+        CboardDatasetJson.persistFromJson(datasetMapper, datasetColumnMapper, row, dataJson);
     }
 
     @Override
     public void delete(long id) {
+        datasetColumnMapper.deleteByDatasetId(id);
         datasetMapper.delete(id);
     }
 
@@ -71,37 +79,24 @@ public class DatasetRepositoryImpl implements DatasetRepository {
                 row.getUserId(),
                 row.getUserName(),
                 row.getCategoryName(),
-                parseDatasourceId(row.getData()),
+                row.getDatasourceId(),
                 PersistenceMapperSupport.toInstant(row.getCreateTime()),
                 PersistenceMapperSupport.toInstant(row.getUpdateTime()));
     }
 
-    private static Long parseDatasourceId(String dataJson) {
-        if (dataJson == null || dataJson.isBlank()) {
-            return null;
-        }
-        try {
-            JsonNode root = JsonMapper.mapper().readTree(dataJson);
-            long id = root.path("datasource").asLong(0);
-            return id > 0 ? id : null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static DatasetDetail toDetail(DatasetRow row) {
+    private static DatasetDetail toDetail(DatasetRow row, String dataJson) {
         return new DatasetDetail(
                 row.getId(),
                 row.getName(),
                 row.getUserId(),
                 row.getUserName(),
                 row.getCategoryName(),
-                row.getData(),
+                dataJson,
                 PersistenceMapperSupport.toInstant(row.getCreateTime()),
                 PersistenceMapperSupport.toInstant(row.getUpdateTime()));
     }
 
     private static String defaultCategory(String categoryName) {
-        return categoryName == null || categoryName.isBlank() ? "默认分类" : categoryName;
+        return categoryName == null || categoryName.isBlank() ? "Default Category" : categoryName;
     }
 }

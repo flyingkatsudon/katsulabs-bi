@@ -4,22 +4,27 @@
 <mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.WidgetMapper">
 
     <sql id="widgetSelect">
-        SELECT w.widget_id     AS id,
-               w.user_id       AS userId,
-               w.widget_name   AS name,
-               w.data_json     AS data,
-               w.category_name AS categoryName,
-               u.user_name     AS userName,
-               w.create_time   AS createTime,
-               w.update_time   AS updateTime
-          FROM dashboard_widget w
-          LEFT JOIN dashboard_user u
-            ON u.user_id = w.user_id
+        SELECT w.widget_id      AS id,
+               w.owner_user_id  AS userId,
+               w.name           AS name,
+               w.dataset_id     AS datasetId,
+               d.datasource_id  AS datasourceId,
+               w.chart_type     AS chartType,
+               w.options_json   AS optionsJson,
+               w.category_id    AS categoryId,
+               c.name           AS categoryName,
+               u.user_name      AS userName,
+               w.created_at     AS createTime,
+               w.updated_at     AS updateTime
+          FROM ib_widget w
+          LEFT JOIN ib_user u ON u.user_id = w.owner_user_id
+          LEFT JOIN ib_category c ON c.category_id = w.category_id
+          LEFT JOIN ib_dataset d ON d.dataset_id = w.dataset_id
     </sql>
 
     <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.WidgetRow">
         <include refid="widgetSelect"/>
-         ORDER BY w.widget_name
+         ORDER BY w.name
     </select>
 
     <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.WidgetRow">
@@ -28,26 +33,33 @@
     </select>
 
     <select id="countByName" resultType="long">
-        SELECT COUNT(1) FROM dashboard_widget
-         WHERE widget_name = #{name} AND category_name = #{categoryName}
+        SELECT COUNT(1)
+          FROM ib_widget w
+          LEFT JOIN ib_category c ON c.category_id = w.category_id
+         WHERE w.name = #{name}
+           AND c.name = #{categoryName}
         <if test="excludeId != null">
-           AND widget_id &lt;&gt; #{excludeId}
+           AND w.widget_id &lt;&gt; #{excludeId}
         </if>
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="widget_id">
-        INSERT INTO dashboard_widget (user_id, widget_name, data_json, category_name)
-        VALUES (#{userId}, #{name}, #{data}, #{categoryName})
+        INSERT INTO ib_widget (owner_user_id, name, dataset_id, category_id, chart_type, options_json)
+        VALUES (#{userId}, #{name}, #{datasetId}, #{categoryId}, #{chartType}, #{optionsJson})
     </insert>
 
     <update id="update">
-        UPDATE dashboard_widget
-           SET widget_name = #{name}, data_json = #{data}, category_name = #{categoryName},
-               update_time = CURRENT_TIMESTAMP
+        UPDATE ib_widget
+           SET name = #{name},
+               dataset_id = #{datasetId},
+               category_id = #{categoryId},
+               chart_type = #{chartType},
+               options_json = #{optionsJson},
+               updated_at = CURRENT_TIMESTAMP
          WHERE widget_id = #{id}
     </update>
 
     <delete id="delete">
-        DELETE FROM dashboard_widget WHERE widget_id = #{widgetId}
+        DELETE FROM ib_widget WHERE widget_id = #{widgetId}
     </delete>
 </mapper>
