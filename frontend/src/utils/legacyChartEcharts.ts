@@ -11,8 +11,6 @@ export const LEGACY_ECHARTS_CHART_TYPES = new Set([
   'relation',
   'liquidFill',
   'areaMap',
-  'chinaMap',
-  'chinaMapBmap',
   'map',
 ])
 
@@ -20,24 +18,17 @@ export function isLegacyEchartsChartType(chartType: string): boolean {
   return LEGACY_ECHARTS_CHART_TYPES.has(chartType)
 }
 
-const MAP_TYPES = new Set([
-  'googleMap',
-  'map',
-  'areaMap',
-  'chinaMap',
-  'chinaMapBmap',
-])
+const MAP_TYPES = new Set(['googleMap', 'map', 'areaMap'])
 
 function buildMapScatter(chartType: string, result: AggregateResult): EChartsOption | null {
   const { dimIdx, measureIdx } = splitColumns(result.columnList)
   if (!dimIdx.length || !measureIdx.length) return null
   const nameI = dimIdx[0]
   const mi = measureIdx[0]
-  const preferChina = chartType === 'chinaMap' || chartType === 'chinaMapBmap'
   const points: { name: string; value: [number, number, number] }[] = []
   for (const row of result.data) {
     const name = cell(row, nameI)
-    const coord = resolveGeoCoord(name, preferChina)
+    const coord = resolveGeoCoord(name)
     if (!coord) continue
     const v = num(row, mi)
     points.push({ name, value: [...coord, v] })
@@ -47,7 +38,7 @@ function buildMapScatter(chartType: string, result: AggregateResult): EChartsOpt
   const isArea = chartType === 'areaMap'
   return {
     title: {
-      text: preferChina ? '지역 분포 (좌표 근사)' : '국가·지역 분포 (좌표 근사)',
+      text: '국가·지역 분포 (좌표 근사)',
       left: 'center',
       textStyle: { fontSize: 12, fontWeight: 'normal' },
     },

@@ -5,7 +5,6 @@ import { api, ApiError } from '../../api/client'
 import type { DatasourceDetail, DatasourceSummary, ServiceResult } from '../../api/types'
 import { ConfigListActions } from '../../components/config/ConfigListActions'
 import { ConfigWorkbench } from '../../components/config/ConfigWorkbench'
-import { LegacyEditorFrame, LegacyEditorLink } from '../../components/config/LegacyEditorLink'
 import { ConfigEditorPane, type ConfigLoadIssue } from '../../components/config/ConfigEditorPane'
 import { FormAlerts } from '../../components/FormAlerts'
 import { parseConfigResourceId } from '../../utils/parseConfigResourceId'
@@ -34,8 +33,6 @@ export function DatasourceWorkbenchPage({ onSessionExpired }: DatasourceWorkbenc
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showLegacyFrame, setShowLegacyFrame] = useState(false)
-
   const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
   const resource = useMemo(() => parseConfigResourceId(selectedId), [selectedId])
   const isNew = resource.kind === 'new'
@@ -153,9 +150,6 @@ export function DatasourceWorkbenchPage({ onSessionExpired }: DatasourceWorkbenc
     } else setError(result.message)
   }
 
-  const legacyHash =
-    isNew ? '/config/datasource/' : numericId != null ? `/config/datasource/${numericId}` : ''
-
   return (
     <ConfigWorkbench
       title="Data Source"
@@ -219,7 +213,6 @@ export function DatasourceWorkbenchPage({ onSessionExpired }: DatasourceWorkbenc
             <div className="box-tools pull-right">
               {isNew && <span className="label label-danger">NEW</span>}
               {!isNew && <span className="label label-info">EDIT</span>}
-              {legacyHash && <LegacyEditorLink hashPath={legacyHash} />}
             </div>
           </div>
           <form className="box-body form-horizontal" onSubmit={handleSave}>
@@ -347,22 +340,11 @@ export function DatasourceWorkbenchPage({ onSessionExpired }: DatasourceWorkbenc
                     Delete
                   </button>
                 )}
-                {legacyHash && (
-                  <button
-                    type="button"
-                    className="btn btn-info pull-right"
-                    style={{ marginRight: 8 }}
-                    onClick={() => setShowLegacyFrame((v) => !v)}
-                  >
-                    {showLegacyFrame ? '클래식 닫기' : '클래식 편집기'}
-                  </button>
-                )}
               </div>
             </div>
           </form>
         </div>
       </ConfigEditorPane>
-      {showLegacyFrame && legacyHash && <LegacyEditorFrame hashPath={legacyHash} />}
     </ConfigWorkbench>
   )
 }

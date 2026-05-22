@@ -74,3 +74,10 @@ Required mapper XML: `modules/infrastructure/src/main/resources/mapper/*.xml` â€
 ## Migration docs
 
 [docs/migration/README.md](docs/migration/README.md)
+
+## Supply chain (dependencies)
+
+- **Backend**: Gradle resolves **Maven Central only** (`build.gradle.kts`). No Aliyun HTTP mirrors, Kylin/Druid/Fastjson, or legacy `pom.xml`.
+- **Frontend**: npm packages from the public registry (`package-lock.json`). No runtime CDN scripts; static AdminLTE assets are vendored under `frontend/public/insightboard/`.
+- **Removed**: China map / Baidu chart types (`chinaMap`, `chinaMapBmap`), legacy Tomcat CBoard iframe editor (`VITE_LEGACY_*`).
+- **Optional**: `./gradlew dependencyCheckAnalyze` when OWASP dependency-check plugin is added (see migration docs).

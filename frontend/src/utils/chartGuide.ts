@@ -107,10 +107,6 @@ const GUIDES: Record<string, ChartGuide> = {
     summary: '지역별 값을 큰 원 크기로 표시합니다.',
     steps: ['Row: 지역', 'Value: sum(금액)'],
   },
-  chinaMap: {
-    summary: '중국 지역명이 포함되면 해당 좌표를 우선 사용합니다.',
-    steps: ['Row: 성·도시 이름', 'Value: 집계값'],
-  },
   liquidFill: {
     summary: '단일 지표 합계를 수면(liquid fill) 게이지로 표시합니다.',
     steps: ['Value: sum(지표) 하나'],

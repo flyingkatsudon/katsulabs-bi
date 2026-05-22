@@ -11,7 +11,6 @@ const GEO_LOOKUP: Record<string, [number, number]> = {
   spain: [-3.7, 40.4],
   italy: [12.5, 41.9],
   brazil: [-51.9, -14.2],
-  china: [104.2, 35.9],
   japan: [138.2, 36.2],
   india: [78.9, 21.9],
   australia: [133.8, -25.3],
@@ -28,17 +27,6 @@ const GEO_LOOKUP: Record<string, [number, number]> = {
   bahamas: [-77.4, 25],
 }
 
-/** 중국 지도형 차트용 성·직할시 (이름 일부 매칭) */
-const CHINA_LOOKUP: Record<string, [number, number]> = {
-  北京: [116.4, 39.9],
-  上海: [121.5, 31.2],
-  广东: [113.3, 23.1],
-  浙江: [120.2, 30.3],
-  江苏: [118.8, 32],
-  四川: [104.1, 30.7],
-  湖北: [114.3, 30.6],
-}
-
 function hashCoord(name: string): [number, number] {
   let h = 0
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0
@@ -47,18 +35,10 @@ function hashCoord(name: string): [number, number] {
   return [lng, lat]
 }
 
-export function resolveGeoCoord(
-  name: string,
-  preferChina = false,
-): [number, number] | null {
+export function resolveGeoCoord(name: string): [number, number] | null {
   const raw = name.trim()
   if (!raw) return null
   const lower = raw.toLowerCase()
-  if (preferChina) {
-    for (const [key, coord] of Object.entries(CHINA_LOOKUP)) {
-      if (raw.includes(key)) return coord
-    }
-  }
   if (GEO_LOOKUP[lower]) return GEO_LOOKUP[lower]
   for (const [key, coord] of Object.entries(GEO_LOOKUP)) {
     if (lower.includes(key)) return coord
