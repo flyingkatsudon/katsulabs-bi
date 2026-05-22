@@ -6,7 +6,10 @@ import type { DatasourceDetail, DatasourceSummary, ServiceResult } from '../../a
 import { ConfigListActions } from '../../components/config/ConfigListActions'
 import { ConfigWorkbench } from '../../components/config/ConfigWorkbench'
 import { LegacyEditorFrame, LegacyEditorLink } from '../../components/config/LegacyEditorLink'
+import { ConfigEditorPane, type ConfigLoadIssue } from '../../components/config/ConfigEditorPane'
 import { FormAlerts } from '../../components/FormAlerts'
+import { parseConfigResourceId } from '../../utils/parseConfigResourceId'
+import { resolveConfigLoadError } from '../../utils/configResourceLoad'
 import {
   buildJdbcConfig,
   DEFAULT_JDBC,
@@ -15,10 +18,10 @@ import {
 } from '../../utils/jdbcConfig'
 
 type DatasourceWorkbenchPageProps = {
-  onUnauthorized: () => void
+  onSessionExpired: () => void
 }
 
-export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchPageProps) {
+export function DatasourceWorkbenchPage({ onSessionExpired }: DatasourceWorkbenchPageProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedId = searchParams.get('id')
 
@@ -33,8 +36,10 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
   const [loading, setLoading] = useState(true)
   const [showLegacyFrame, setShowLegacyFrame] = useState(false)
 
-  const isNew = selectedId === 'new'
-  const numericId = selectedId && selectedId !== 'new' ? Number(selectedId) : null
+  const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
+  const resource = parseConfigResourceId(selectedId)
+  const isNew = resource.kind === 'new'
+  const numericId = resource.kind === 'edit' ? resource.id : null
 
   const loadList = useCallback(async () => {
     setList(await api.get<DatasourceSummary[]>('/api/v1/datasources'))
@@ -54,6 +59,12 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
 
   useEffect(() => {
     void (async () => {
+      if (resource.kind === 'invalid') {
+        setLoadIssue('invalid_id')
+        setLoading(false)
+        return
+      }
+      setLoadIssue(null)
       setLoading(true)
       setError(null)
       try {
@@ -63,21 +74,27 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
           setType('jdbc')
           setJdbc({ ...DEFAULT_JDBC })
           setConfigJson(buildJdbcConfig(DEFAULT_JDBC))
-        } else if (numericId != null && Number.isFinite(numericId)) {
-          await loadDetail(numericId)
+        } else if (resource.kind === 'edit') {
+          await loadDetail(resource.id)
         }
       } catch (e) {
-        if (e instanceof ApiError && e.status === 401) onUnauthorized()
-        else setError(e instanceof Error ? e.message : '로드 실패')
+        const resolved = resolveConfigLoadError(e, onSessionExpired)
+        if (resolved === 'not_found' || resolved === 'invalid_id') {
+          setLoadIssue(resolved)
+          setError(null)
+        } else if (resolved === 'error') {
+          setError(e instanceof Error ? e.message : '로드 실패')
+        }
       } finally {
         setLoading(false)
       }
     })()
-  }, [isNew, numericId, loadDetail, loadList, onUnauthorized])
+  }, [resource, isNew, loadDetail, loadList, onSessionExpired])
 
   function selectItem(id: string | null) {
     setMessage(null)
     setError(null)
+    setLoadIssue(null)
     if (id) setSearchParams({ id })
     else setSearchParams({})
   }
@@ -96,7 +113,7 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
       if (result.status === '1') setMessage(result.message)
       else setError(result.message)
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) onUnauthorized()
+      if (err instanceof ApiError && err.status === 401) onSessionExpired()
       else setError(err instanceof Error ? err.message : '테스트 실패')
     }
   }
@@ -121,7 +138,7 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
         if (newId != null) selectItem(String(newId))
       } else setError(result.message)
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) onUnauthorized()
+      if (err instanceof ApiError && err.status === 401) onSessionExpired()
       else setError(err instanceof Error ? err.message : '저장 실패')
     }
   }
@@ -136,7 +153,6 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
     } else setError(result.message)
   }
 
-  const editorOpen = isNew || numericId != null
   const legacyHash =
     isNew ? '/config/datasource/' : numericId != null ? `/config/datasource/${numericId}` : ''
 
@@ -188,15 +204,15 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
         </>
       }
     >
-      {loading && <p>로딩 중…</p>}
-      {!loading && !editorOpen && (
-        <div className="box box-default">
-          <div className="box-body">
-            <p>왼쪽 목록에서 데이터소스를 선택하거나 <button type="button" className="btn btn-link" onClick={() => selectItem('new')}>새로 만듭니다</button>.</p>
-          </div>
-        </div>
-      )}
-      {editorOpen && (
+      <ConfigEditorPane
+        loading={loading}
+        resource={resource}
+        loadIssue={loadIssue}
+        resourceLabel="데이터소스"
+        listPath="/datasources"
+        idleHint="왼쪽 목록에서 데이터소스를 선택하거나 새로 만듭니다."
+        onBackToList={() => selectItem(null)}
+      >
         <div className="box box-primary">
           <div className="box-header with-border">
             <h3 className="box-title">{isNew ? '새 데이터소스' : name}</h3>
@@ -345,7 +361,7 @@ export function DatasourceWorkbenchPage({ onUnauthorized }: DatasourceWorkbenchP
             </div>
           </form>
         </div>
-      )}
+      </ConfigEditorPane>
       {showLegacyFrame && legacyHash && <LegacyEditorFrame hashPath={legacyHash} />}
     </ConfigWorkbench>
   )

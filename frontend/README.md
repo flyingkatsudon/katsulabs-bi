@@ -32,8 +32,16 @@ Vite는 `/api` 를 `http://localhost:8081` 로 프록시합니다.
 
 ## 정적 자산
 
-AdminLTE·플러그인은 `public/insightboard/` 에 포함됩니다. 외부 CBoard 배포본에서 갱신할 때:
+AdminLTE·플러그인은 `public/insightboard/` 에 포함됩니다 (`dist/` = 레이아웃 CSS·스킨·아바타).
+
+`dist/` 가 없으면 화면이 겹쳐 보입니다. 복구:
 
 ```bash
-bash frontend/scripts/sync-cboard-assets.sh /path/to/webapp/cboard
+bash frontend/scripts/restore-adminlte-dist.sh
+```
+
+외부 CBoard 배포본에서 전체 동기화:
+
+```bash
+bash frontend/scripts/sync-insightboard-assets.sh /path/to/webapp/cboard
 ```

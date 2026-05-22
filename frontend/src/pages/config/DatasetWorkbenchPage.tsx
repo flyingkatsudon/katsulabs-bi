@@ -12,7 +12,10 @@ import type {
 import { ConfigJsTree } from '../../components/config/ConfigJsTree'
 import { DatasetSchemaPanel } from '../../components/dataset/DatasetSchemaPanel'
 import { ConfigWorkbench } from '../../components/config/ConfigWorkbench'
+import { ConfigEditorPane, type ConfigLoadIssue } from '../../components/config/ConfigEditorPane'
 import { FormAlerts } from '../../components/FormAlerts'
+import { parseConfigResourceId } from '../../utils/parseConfigResourceId'
+import { resolveConfigLoadError } from '../../utils/configResourceLoad'
 import {
   type DatasetData,
   emptyDatasetData,
@@ -23,10 +26,10 @@ import {
 import { buildCategoryTreeData, filterTreeList, type TreeListItem } from '../../utils/configTreeData'
 
 type DatasetWorkbenchPageProps = {
-  onUnauthorized: () => void
+  onSessionExpired: () => void
 }
 
-export function DatasetWorkbenchPage({ onUnauthorized }: DatasetWorkbenchPageProps) {
+export function DatasetWorkbenchPage({ onSessionExpired }: DatasetWorkbenchPageProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedId = searchParams.get('id')
   const [keywords, setKeywords] = useState('')
@@ -41,9 +44,10 @@ export function DatasetWorkbenchPage({ onUnauthorized }: DatasetWorkbenchPagePro
   const [loading, setLoading] = useState(true)
   const [loadDataBusy, setLoadDataBusy] = useState(false)
 
-  const isNew = selectedId === 'new'
-  const numericId = selectedId && selectedId !== 'new' ? Number(selectedId) : null
-  const editorOpen = isNew || numericId != null
+  const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
+  const resource = parseConfigResourceId(selectedId)
+  const isNew = resource.kind === 'new'
+  const numericId = resource.kind === 'edit' ? resource.id : null
 
   const categoryHints = useMemo(() => {
     const set = new Set(list.map((d) => d.categoryName ?? 'Default Category'))
@@ -86,6 +90,12 @@ export function DatasetWorkbenchPage({ onUnauthorized }: DatasetWorkbenchPagePro
 
   useEffect(() => {
     void (async () => {
+      if (resource.kind === 'invalid') {
+        setLoadIssue('invalid_id')
+        setLoading(false)
+        return
+      }
+      setLoadIssue(null)
       setLoading(true)
       setError(null)
       try {
@@ -100,23 +110,29 @@ export function DatasetWorkbenchPage({ onUnauthorized }: DatasetWorkbenchPagePro
           setDisplayName('Default Category/new_dataset')
           setDatasetData(emptyDatasetData(dsId, 'SELECT * FROM sales_fact_sample_flat'))
           setPreview(null)
-        } else if (numericId != null && Number.isFinite(numericId)) {
-          await loadDetail(numericId)
+        } else if (resource.kind === 'edit') {
+          await loadDetail(resource.id)
           setPreview(null)
         }
       } catch (e) {
-        if (e instanceof ApiError && e.status === 401) onUnauthorized()
-        else setError(e instanceof Error ? e.message : '로드 실패')
+        const resolved = resolveConfigLoadError(e, onSessionExpired)
+        if (resolved === 'not_found' || resolved === 'invalid_id') {
+          setLoadIssue(resolved)
+          setError(null)
+        } else if (resolved === 'error') {
+          setError(e instanceof Error ? e.message : '로드 실패')
+        }
       } finally {
         setLoading(false)
       }
     })()
-  }, [isNew, loadDetail, numericId, onUnauthorized])
+  }, [resource, isNew, loadDetail, onSessionExpired])
 
   function selectItem(id: string | null) {
     setPreview(null)
     setMessage(null)
     setError(null)
+    setLoadIssue(null)
     if (id) setSearchParams({ id })
     else setSearchParams({})
   }
@@ -165,7 +181,7 @@ export function DatasetWorkbenchPage({ onUnauthorized }: DatasetWorkbenchPagePro
         if (result.id != null) selectItem(String(result.id))
       } else setError(result.message)
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) onUnauthorized()
+      if (err instanceof ApiError && err.status === 401) onSessionExpired()
       else setError(err instanceof Error ? err.message : '저장 실패')
     }
   }
@@ -259,15 +275,15 @@ export function DatasetWorkbenchPage({ onUnauthorized }: DatasetWorkbenchPagePro
         </>
       }
     >
-      {loading && <p>로딩 중…</p>}
-      {!loading && !editorOpen && (
-        <div className="box box-default">
-          <div className="box-body">
-            <p>왼쪽 트리에서 데이터셋을 선택하거나 툴바에서 New 를 누르세요.</p>
-          </div>
-        </div>
-      )}
-      {!loading && editorOpen && (
+      <ConfigEditorPane
+        loading={loading}
+        resource={resource}
+        loadIssue={loadIssue}
+        resourceLabel="데이터셋"
+        listPath="/datasets"
+        idleHint="왼쪽 트리에서 데이터셋을 선택하거나 툴바에서 New 를 누르세요."
+        onBackToList={() => selectItem(null)}
+      >
         <div className="box" style={{ position: 'relative' }}>
           <div className="box-header with-border">
             <h3 className="box-title">{displayName || 'Dataset'}</h3>
@@ -431,7 +447,7 @@ export function DatasetWorkbenchPage({ onUnauthorized }: DatasetWorkbenchPagePro
             </div>
           )}
         </div>
-      )}
+      </ConfigEditorPane>
     </ConfigWorkbench>
   )
 }

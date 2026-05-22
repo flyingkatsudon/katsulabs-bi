@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useOutletContext, useParams } from 'react-router-dom'
-import { api, ApiError } from '../api/client'
-import type { AuthOutletContext } from '../auth/AuthOutletContext'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { api } from '../api/client'
 import type { BoardDetail } from '../api/types'
+import { ResourceErrorView } from '../components/ResourceErrorView'
 import { DashboardWidgetBox } from '../components/board/DashboardWidgetBox'
 import { FormAlerts } from '../components/FormAlerts'
+import { useAuthOutletContext } from '../hooks/useAuthOutletContext'
+import { handleApiError } from '../utils/handleApiError'
 import type { ExtraAggregateFilter } from '../utils/aggregateApi'
 import {
   FREE_LAYOUT_GRID,
@@ -15,45 +17,60 @@ import {
 } from '../utils/boardModel'
 
 type BoardViewPageProps = {
-  onUnauthorized: () => void
+  onSessionExpired: () => void
 }
+
+type BoardViewError = 'invalid_id' | 'not_found' | null
 
 function rowHeight(row: BoardRow): number {
   const h = row.height ? Number.parseInt(String(row.height), 10) : 300
   return Number.isFinite(h) ? h : 300
 }
 
-export function BoardViewPage({ onUnauthorized }: BoardViewPageProps) {
-  const { canWriteDashboard, bootstrapped } = useOutletContext<AuthOutletContext>()
+export function BoardViewPage({ onSessionExpired }: BoardViewPageProps) {
+  const navigate = useNavigate()
+  const { canWriteDashboard, bootstrapped } = useAuthOutletContext()
   const { id } = useParams()
   const boardId = id ? Number(id) : NaN
   const [board, setBoard] = useState<BoardDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [viewError, setViewError] = useState<BoardViewError>(null)
   const [loading, setLoading] = useState(true)
   const [paramValues, setParamValues] = useState<Record<string, string>>({})
   const [syncAllToken, setSyncAllToken] = useState(0)
 
   const load = useCallback(async () => {
     if (!Number.isFinite(boardId)) {
-      setError('잘못된 보드 ID 입니다.')
+      setViewError('invalid_id')
+      setError(null)
+      setBoard(null)
       setLoading(false)
       return
     }
     setLoading(true)
     setError(null)
+    setViewError(null)
     try {
       setBoard(await api.get<BoardDetail>(`/api/v1/boards/${boardId}`))
     } catch (e) {
-      if (e instanceof ApiError && e.status === 401) {
-        onUnauthorized()
+      if (
+        handleApiError(e, {
+          onSessionExpired,
+          onNotFound: () => {
+            setViewError('not_found')
+            setBoard(null)
+          },
+          setError,
+          fallbackMessage: '보드 로드 실패',
+        })
+      ) {
         return
       }
-      setError(e instanceof Error ? e.message : '보드 로드 실패')
       setBoard(null)
     } finally {
       setLoading(false)
     }
-  }, [boardId, onUnauthorized])
+  }, [boardId, onSessionExpired])
 
   useEffect(() => {
     if (!bootstrapped) return
@@ -112,6 +129,34 @@ export function BoardViewPage({ onUnauthorized }: BoardViewPageProps) {
     })
     setParamsReady(true)
   }, [allParams])
+
+  if (viewError === 'invalid_id') {
+    return (
+      <ResourceErrorView
+        title="잘못된 주소입니다"
+        message="보드 주소가 올바르지 않습니다."
+        primaryLabel="홈으로"
+        onPrimary={() => navigate('/', { replace: true })}
+      />
+    )
+  }
+
+  if (viewError === 'not_found') {
+    return (
+      <ResourceErrorView
+        title="보드를 찾을 수 없습니다"
+        message={
+          Number.isFinite(boardId)
+            ? `ID ${boardId}인 보드가 없거나 삭제되었습니다.`
+            : '요청한 보드를 찾을 수 없습니다.'
+        }
+        primaryLabel="대시보드 목록"
+        onPrimary={() => navigate('/boards', { replace: true })}
+        secondaryLabel="홈으로"
+        secondaryTo="/"
+      />
+    )
+  }
 
   return (
     <>

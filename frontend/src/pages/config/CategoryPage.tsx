@@ -5,10 +5,10 @@ import type { CategoryItem, ServiceResult } from '../../api/types'
 import { FormAlerts } from '../../components/FormAlerts'
 
 type CategoryPageProps = {
-  onUnauthorized: () => void
+  onSessionExpired: () => void
 }
 
-export function CategoryPage({ onUnauthorized }: CategoryPageProps) {
+export function CategoryPage({ onSessionExpired }: CategoryPageProps) {
   const [list, setList] = useState<CategoryItem[]>([])
   const [name, setName] = useState('')
   const [editId, setEditId] = useState<number | null>(null)
@@ -21,10 +21,10 @@ export function CategoryPage({ onUnauthorized }: CategoryPageProps) {
 
   useEffect(() => {
     void load().catch((e) => {
-      if (e instanceof ApiError && e.status === 401) onUnauthorized()
+      if (e instanceof ApiError && e.status === 401) onSessionExpired()
       else setError(e instanceof Error ? e.message : '로드 실패')
     })
-  }, [load, onUnauthorized])
+  }, [load, onSessionExpired])
 
   function startNew() {
     setEditId(null)
@@ -59,7 +59,7 @@ export function CategoryPage({ onUnauthorized }: CategoryPageProps) {
       startNew()
       await load()
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) onUnauthorized()
+      if (err instanceof ApiError && err.status === 401) onSessionExpired()
       else setError(err instanceof Error ? err.message : '저장 실패')
     }
   }
@@ -77,7 +77,7 @@ export function CategoryPage({ onUnauthorized }: CategoryPageProps) {
       if (editId === id) startNew()
       await load()
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) onUnauthorized()
+      if (err instanceof ApiError && err.status === 401) onSessionExpired()
       else setError(err instanceof Error ? err.message : '삭제 실패')
     }
   }

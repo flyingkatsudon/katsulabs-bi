@@ -11,7 +11,10 @@ import type {
 } from '../../api/types'
 import { FreeLayoutEditor } from '../../components/board/FreeLayoutEditor'
 import { ConfigJsTree } from '../../components/config/ConfigJsTree'
+import { ConfigEditorPane, type ConfigLoadIssue } from '../../components/config/ConfigEditorPane'
 import { FormAlerts } from '../../components/FormAlerts'
+import { parseConfigResourceId } from '../../utils/parseConfigResourceId'
+import { resolveConfigLoadError } from '../../utils/configResourceLoad'
 import { buildCategoryTreeData } from '../../utils/configTreeData'
 import {
   emptyFreeLayout,
@@ -27,12 +30,12 @@ import {
 } from '../../utils/boardModel'
 
 type BoardWorkbenchPageProps = {
-  onUnauthorized: () => void
+  onSessionExpired: () => void
   boards: BoardSummary[]
   onBoardsChange: () => void
 }
 
-export function BoardWorkbenchPage({ onUnauthorized, boards, onBoardsChange }: BoardWorkbenchPageProps) {
+export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }: BoardWorkbenchPageProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedId = searchParams.get('id')
   const newType = searchParams.get('type')
@@ -46,10 +49,12 @@ export function BoardWorkbenchPage({ onUnauthorized, boards, onBoardsChange }: B
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [showNewMenu, setShowNewMenu] = useState(false)
+  const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
 
-  const isNew = selectedId === 'new'
-  const numericId = selectedId && selectedId !== 'new' ? Number(selectedId) : null
-  const editorOpen = isNew || numericId != null
+  const resource = parseConfigResourceId(selectedId)
+  const isNew = resource.kind === 'new'
+  const numericId = resource.kind === 'edit' ? resource.id : null
+  const editorOpen = resource.kind === 'new' || resource.kind === 'edit'
 
   const treeData = useMemo(
     () =>
@@ -85,6 +90,16 @@ export function BoardWorkbenchPage({ onUnauthorized, boards, onBoardsChange }: B
   }, [loadMeta])
 
   useEffect(() => {
+    if (resource.kind === 'invalid') {
+      setLoadIssue('invalid_id')
+      setLoading(false)
+      return
+    }
+    setLoadIssue(null)
+    if (resource.kind === 'none') {
+      setLoading(false)
+      return
+    }
     if (isNew) {
       setName('new_board')
       setLayout(
@@ -95,22 +110,30 @@ export function BoardWorkbenchPage({ onUnauthorized, boards, onBoardsChange }: B
             : emptyGridLayout(),
       )
       setShowNewMenu(false)
+      setLoading(false)
       return
     }
-    if (numericId != null && Number.isFinite(numericId)) {
+    if (resource.kind === 'edit') {
       setLoading(true)
-      void loadDetail(numericId)
+      setError(null)
+      void loadDetail(resource.id)
         .catch((e) => {
-          if (e instanceof ApiError && e.status === 401) onUnauthorized()
-          else setError(e instanceof Error ? e.message : '로드 실패')
+          const resolved = resolveConfigLoadError(e, onSessionExpired)
+          if (resolved === 'not_found' || resolved === 'invalid_id') {
+            setLoadIssue(resolved)
+            setError(null)
+          } else if (resolved === 'error') {
+            setError(e instanceof Error ? e.message : '로드 실패')
+          }
         })
         .finally(() => setLoading(false))
     }
-  }, [isNew, newType, numericId, loadDetail, onUnauthorized])
+  }, [resource, isNew, newType, loadDetail, onSessionExpired])
 
   function selectItem(id: string | null, type?: string) {
     setMessage(null)
     setError(null)
+    setLoadIssue(null)
     if (id) {
       const params: Record<string, string> = { id }
       if (type) params.type = type
@@ -140,7 +163,7 @@ export function BoardWorkbenchPage({ onUnauthorized, boards, onBoardsChange }: B
         if (result.id != null) selectItem(String(result.id))
       } else setError(result.message)
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) onUnauthorized()
+      if (err instanceof ApiError && err.status === 401) onSessionExpired()
       else setError(err instanceof Error ? err.message : '저장 실패')
     }
   }
@@ -273,15 +296,15 @@ export function BoardWorkbenchPage({ onUnauthorized, boards, onBoardsChange }: B
           </div>
         </div>
         <div className="col-md-9">
-          {loading && <p>로딩 중…</p>}
-          {!loading && !editorOpen && (
-            <div className="box box-default">
-              <div className="box-body">
-                <p>트리에서 보드를 선택하거나 + 로 새 보드를 만듭니다.</p>
-              </div>
-            </div>
-          )}
-          {!loading && editorOpen && (
+          <ConfigEditorPane
+            loading={loading}
+            resource={resource}
+            loadIssue={loadIssue}
+            resourceLabel="대시보드"
+            listPath="/boards"
+            idleHint="트리에서 보드를 선택하거나 + 로 새 보드를 만듭니다."
+            onBackToList={() => selectItem(null)}
+          >
             <div className="box">
               <div className="box-header with-border">
                 <h3 className="box-title">{name}</h3>
@@ -366,7 +389,7 @@ export function BoardWorkbenchPage({ onUnauthorized, boards, onBoardsChange }: B
                 </form>
               </div>
             </div>
-          )}
+          </ConfigEditorPane>
         </div>
       </div>
     </div>

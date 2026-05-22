@@ -8,7 +8,7 @@ type ProtectedLayoutProps = {
   isRestoringSession: boolean
   user: LoginResponse | null
   onLogout: () => void
-  outletContext?: AuthOutletContext
+  outletContext: AuthOutletContext
 }
 
 const PLACEHOLDER_USER: LoginResponse = {

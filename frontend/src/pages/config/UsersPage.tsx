@@ -11,10 +11,10 @@ const ROLES = [
 ]
 
 type UsersPageProps = {
-  onUnauthorized: () => void
+  onSessionExpired: () => void
 }
 
-export function UsersPage({ onUnauthorized }: UsersPageProps) {
+export function UsersPage({ onSessionExpired }: UsersPageProps) {
   const [users, setUsers] = useState<UserSummary[]>([])
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -35,14 +35,14 @@ export function UsersPage({ onUnauthorized }: UsersPageProps) {
       setUsers(await api.get<UserSummary[]>('/api/v1/users'))
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
-        onUnauthorized()
+        onSessionExpired()
         return
       }
       setError(e instanceof Error ? e.message : '사용자 목록 조회 실패')
     } finally {
       setLoading(false)
     }
-  }, [onUnauthorized])
+  }, [onSessionExpired])
 
   useEffect(() => {
     void load()
@@ -97,7 +97,7 @@ export function UsersPage({ onUnauthorized }: UsersPageProps) {
       if (!editing) startCreate()
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        onUnauthorized()
+        onSessionExpired()
         return
       }
       setError(err instanceof Error ? err.message : '저장 실패')
@@ -114,7 +114,7 @@ export function UsersPage({ onUnauthorized }: UsersPageProps) {
       if (editing?.userId === userId) startCreate()
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        onUnauthorized()
+        onSessionExpired()
         return
       }
       setError(err instanceof Error ? err.message : '삭제 실패')

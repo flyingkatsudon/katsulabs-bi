@@ -1,6 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
+import { ContentLoading } from './components/ContentLoading'
 import { api, ApiError } from './api/client'
+import type { AuthOutletContext } from './auth/AuthOutletContext'
+import { DEFAULT_AUTH_OUTLET_CONTEXT } from './auth/defaultAuthOutletContext'
 import { clearSessionId, getSessionId } from './auth/sessionCookie'
 import type { BoardSummary, LoginResponse } from './api/types'
 import {
@@ -11,9 +22,11 @@ import {
 import { useAuthSession } from './auth/useAuthSession'
 import { CboardBodyClassSync } from './legacy/CboardBodyClassSync'
 import { RouteErrorBoundary } from './components/RouteErrorBoundary'
+import { SessionExpiredDialog } from './components/SessionExpiredDialog'
 import { ProtectedLayout } from './layout/ProtectedLayout'
 import { HomeRedirect } from './components/HomeRedirect'
 import { BoardViewPage } from './pages/BoardViewPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 import { BoardWorkbenchPage } from './pages/config/BoardWorkbenchPage'
 import { CategoryPage } from './pages/config/CategoryPage'
 import { DatasetWorkbenchPage } from './pages/config/DatasetWorkbenchPage'
@@ -28,18 +41,27 @@ function RedirectConfigId({ base }: { base: string }) {
 }
 
 function AppRoutes() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const { status, user, bootstrapped, isRestoringSession, setAuthenticated, clearAuth } =
     useAuthSession()
   const [boards, setBoards] = useState<BoardSummary[]>([])
   const [, setBoardsLoading] = useState(false)
   const [, setBoardsError] = useState<string | null>(null)
+  const [sessionExpiredOpen, setSessionExpiredOpen] = useState(false)
 
-  const handleUnauthorized = useCallback(() => {
+  const handleSessionExpired = useCallback(() => {
     if (!bootstrapped) return
     clearSessionId()
+    setSessionExpiredOpen(true)
+  }, [bootstrapped])
+
+  const confirmSessionExpired = useCallback(() => {
+    setSessionExpiredOpen(false)
     clearAuth()
     setBoards([])
-  }, [bootstrapped, clearAuth])
+    navigate('/login', { replace: true })
+  }, [clearAuth, navigate])
 
   const loadBoards = useCallback(async () => {
     setBoardsLoading(true)
@@ -48,14 +70,14 @@ function AppRoutes() {
       setBoards(await api.get<BoardSummary[]>('/api/v1/boards'))
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
-        handleUnauthorized()
+        handleSessionExpired()
         return
       }
       setBoardsError(e instanceof Error ? e.message : '목록 조회 실패')
     } finally {
       setBoardsLoading(false)
     }
-  }, [handleUnauthorized])
+  }, [handleSessionExpired])
 
   const handleLogin = useCallback(
     async (auth: LoginResponse) => {
@@ -82,7 +104,7 @@ function AppRoutes() {
     }
   }, [status, user, loadBoards])
 
-  const outletContext =
+  const outletContext: AuthOutletContext =
     user && status === 'authenticated'
       ? {
           roleId: user.roleId,
@@ -91,13 +113,12 @@ function AppRoutes() {
           canManageUsers: canManageUsers(user.roleId),
           bootstrapped,
         }
-      : bootstrapped
-        ? { roleId: '2', canWriteDashboard: false, canWriteDatasource: false, canManageUsers: false, bootstrapped }
-        : undefined
+      : { ...DEFAULT_AUTH_OUTLET_CONTEXT, bootstrapped }
 
   return (
     <>
       <CboardBodyClassSync />
+      <SessionExpiredDialog open={sessionExpiredOpen} onConfirm={confirmSessionExpired} />
       <Routes>
         <Route
           path="/login"
@@ -117,7 +138,10 @@ function AppRoutes() {
         />
         <Route
           element={
-            <RouteErrorBoundary>
+            <RouteErrorBoundary
+              resetKey={location.pathname}
+              onGoHome={() => navigate('/', { replace: true })}
+            >
               <ProtectedLayout
                 bootstrapped={bootstrapped}
                 isRestoringSession={isRestoringSession}
@@ -131,35 +155,41 @@ function AppRoutes() {
           <Route
             index
             element={
-              !bootstrapped ? null : status === 'authenticated' && user ? (
-                <HomeRedirect userId={user.userId} />
+              !bootstrapped ? (
+                <ContentLoading message="세션 확인 중…" />
+              ) : status === 'authenticated' && user ? (
+                <HomeRedirect userId={user.userId} onSessionExpired={handleSessionExpired} />
               ) : (
                 <Navigate to="/login" replace />
               )
             }
           />
-          <Route path="/mine/:id" element={<BoardViewPage onUnauthorized={handleUnauthorized} />} />
+          <Route path="/mine/:id" element={<BoardViewPage onSessionExpired={handleSessionExpired} />} />
           <Route
             path="/boards"
             element={
               <BoardWorkbenchPage
                 boards={boards}
-                onUnauthorized={handleUnauthorized}
+                onSessionExpired={handleSessionExpired}
                 onBoardsChange={() => void loadBoards()}
               />
             }
           />
           <Route path="/boards/:id" element={<RedirectConfigId base="/boards" />} />
-          <Route path="/datasources" element={<DatasourceWorkbenchPage onUnauthorized={handleUnauthorized} />} />
+          <Route path="/datasources" element={<DatasourceWorkbenchPage onSessionExpired={handleSessionExpired} />} />
           <Route path="/datasources/:id" element={<RedirectConfigId base="/datasources" />} />
-          <Route path="/datasets" element={<DatasetWorkbenchPage onUnauthorized={handleUnauthorized} />} />
+          <Route path="/datasets" element={<DatasetWorkbenchPage onSessionExpired={handleSessionExpired} />} />
           <Route path="/datasets/:id" element={<RedirectConfigId base="/datasets" />} />
-          <Route path="/widgets" element={<WidgetWorkbenchPage onUnauthorized={handleUnauthorized} />} />
+          <Route path="/widgets" element={<WidgetWorkbenchPage onSessionExpired={handleSessionExpired} />} />
           <Route path="/widgets/:id" element={<RedirectConfigId base="/widgets" />} />
-          <Route path="/categories" element={<CategoryPage onUnauthorized={handleUnauthorized} />} />
-          <Route path="/users" element={<UsersPage onUnauthorized={handleUnauthorized} />} />
+          <Route path="/categories" element={<CategoryPage onSessionExpired={handleSessionExpired} />} />
+          <Route path="/users" element={<UsersPage onSessionExpired={handleSessionExpired} />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={bootstrapped && status === 'authenticated' ? <Navigate to="/" replace /> : <Navigate to="/login" replace />}
+        />
       </Routes>
     </>
   )

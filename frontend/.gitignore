@@ -8,7 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
+# Vite build output only (do not ignore public/insightboard/dist — AdminLTE)
+/dist
 dist-ssr
 *.local
 

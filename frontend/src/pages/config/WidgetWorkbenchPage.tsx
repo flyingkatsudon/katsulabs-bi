@@ -4,7 +4,10 @@ import { useSearchParams } from 'react-router-dom'
 import { api, ApiError } from '../../api/client'
 import type { DatasetDetail, DatasetSummary, ServiceResult, WidgetDetail, WidgetSummary } from '../../api/types'
 import { ConfigJsTree } from '../../components/config/ConfigJsTree'
+import { ConfigEditorPane, type ConfigLoadIssue } from '../../components/config/ConfigEditorPane'
 import { FormAlerts } from '../../components/FormAlerts'
+import { parseConfigResourceId } from '../../utils/parseConfigResourceId'
+import { resolveConfigLoadError } from '../../utils/configResourceLoad'
 import { WidgetChartView } from '../../components/widget/WidgetChartView'
 import { WidgetSchemaPanel } from '../../components/widget/WidgetSchemaPanel'
 import { ChartConfigGuide } from '../../components/widget/ChartConfigGuide'
@@ -31,10 +34,10 @@ import {
 } from '../../utils/widgetModel'
 
 type WidgetWorkbenchPageProps = {
-  onUnauthorized: () => void
+  onSessionExpired: () => void
 }
 
-export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps) {
+export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPageProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedId = searchParams.get('id')
   const [keywords, setKeywords] = useState('')
@@ -55,9 +58,10 @@ export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps
   const [schemaPickTarget, setSchemaPickTarget] = useState<'row' | 'column' | 'value'>('row')
   const lastDatasetIdRef = useRef<number | null>(null)
 
-  const isNew = selectedId === 'new'
-  const numericId = selectedId && selectedId !== 'new' ? Number(selectedId) : null
-  const editorOpen = isNew || numericId != null
+  const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
+  const resource = parseConfigResourceId(selectedId)
+  const isNew = resource.kind === 'new'
+  const numericId = resource.kind === 'edit' ? resource.id : null
 
   const treeData = useMemo(
     () =>
@@ -102,7 +106,14 @@ export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps
 
   useEffect(() => {
     void (async () => {
+      if (resource.kind === 'invalid') {
+        setLoadIssue('invalid_id')
+        setLoading(false)
+        return
+      }
+      setLoadIssue(null)
       setLoading(true)
+      setError(null)
       try {
         await loadList()
         if (isNew) {
@@ -110,17 +121,22 @@ export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps
           lastDatasetIdRef.current = null
           setModel(defaultWidgetData(1, 'line'))
           await loadDatasetSchema(1)
-        } else if (numericId != null && Number.isFinite(numericId)) {
-          await loadDetail(numericId)
+        } else if (resource.kind === 'edit') {
+          await loadDetail(resource.id)
         }
       } catch (e) {
-        if (e instanceof ApiError && e.status === 401) onUnauthorized()
-        else setError(e instanceof Error ? e.message : '로드 실패')
+        const resolved = resolveConfigLoadError(e, onSessionExpired)
+        if (resolved === 'not_found' || resolved === 'invalid_id') {
+          setLoadIssue(resolved)
+          setError(null)
+        } else if (resolved === 'error') {
+          setError(e instanceof Error ? e.message : '로드 실패')
+        }
       } finally {
         setLoading(false)
       }
     })()
-  }, [isNew, loadDetail, loadList, loadDatasetSchema, numericId, onUnauthorized])
+  }, [resource, isNew, loadDetail, loadList, loadDatasetSchema, onSessionExpired])
 
   useEffect(() => {
     if (model.datasetId) void loadDatasetSchema(model.datasetId)
@@ -144,6 +160,7 @@ export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps
   function selectItem(id: string | null) {
     setMessage(null)
     setError(null)
+    setLoadIssue(null)
     if (id) setSearchParams({ id })
     else setSearchParams({})
   }
@@ -167,7 +184,7 @@ export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps
         if (result.id != null) selectItem(String(result.id))
       } else setError(result.message)
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) onUnauthorized()
+      if (err instanceof ApiError && err.status === 401) onSessionExpired()
       else setError(err instanceof Error ? err.message : '저장 실패')
     }
   }
@@ -395,8 +412,15 @@ export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps
           )}
         </div>
         <div className={rightCol} style={{ paddingLeft: 0 }}>
-          {loading && <p>로딩 중…</p>}
-          {!loading && editorOpen && (
+          <ConfigEditorPane
+            loading={loading}
+            resource={resource}
+            loadIssue={loadIssue}
+            resourceLabel="위젯"
+            listPath="/widgets"
+            idleHint="트리에서 위젯을 선택하거나 + 로 새 위젯을 만듭니다."
+            onBackToList={() => selectItem(null)}
+          >
             <div className="box">
               <div className="box-header with-border">
                 <div className="user-block">
@@ -590,7 +614,7 @@ export function WidgetWorkbenchPage({ onUnauthorized }: WidgetWorkbenchPageProps
                 </form>
               </div>
             </div>
-          )}
+          </ConfigEditorPane>
         </div>
       </div>
     </div>
