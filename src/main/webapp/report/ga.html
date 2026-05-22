@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+	<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- D3.css -->
+		<link rel="stylesheet" href="css/d3-force-2.1.2.css" type="text/css" />
+		
+		<link rel="stylesheet" href="css/loading.css" type="text/css" />
+
+		<!-- Custom CSS -->
+    <link rel="stylesheet" href="css/ga.css" />
+    <title>Insight Report - 일반분석</title>
+
+     <script type="text/javascript">
+
+    	var paths   = location.pathname.split("/");
+    	var isDev   = paths[1].toLowerCase() == "report";
+    	var docBase = isDev ? "/report" : "/bdp";
+    	var pathUrl = docBase + "/cus";
+    	
+    	window.SDII = {
+    		Url    : isDev ? "/report" : "/bdp",
+    		Chart  : {}, 
+  			Globals: {
+    			Func: {},
+    			Vars: {
+    				groupCd: "U", //"CM",
+    				reqParam : {
+	    				searchPattern: "",
+	    				startDate: "",
+	    				endDate: "",
+	    				categoryCode: "",
+	    				searchData: 2,
+	    				section: "100,101,102,103",
+	    				analyticsCode: ""
+	    			}
+    			}
+    		}
+    	};
+    	var sf  = SDII.Globals.Func;
+    	var sv  = SDII.Globals.Vars;
+    </script>
+  </head>
+  <body>  	  
+		<div class="container-fluid navibar">
+  		<div class="row search_box_wrap justify-content-between align-items-center">
+  			<div class="d-flex align-items-center">
+  				<!--
+  				<span><a href=""><img class="navibar_menu" src="/bdp/report/img/icon/menu.gif" /></a></span>
+	  			-->	
+  				<img class="navibar_brand" src="/bdp/report/img/icon/brand.gif" />
+  				<div class="d-flex align-items-center">
+  					<span class="navibar_group_title">일반분석</span>
+  				</div>
+  			</div>
+
+  			<div class="navibar_title">General Analytics</div>
+				
+  			<!--<div class="header_title">키워드 검색</div>-->
+  			<div class="search_box_group d-flex align-items-center">
+  				<div class="btn_insight_report"><i class="fa fa-line-chart" aria-hidden="true"></i></div>
+  				<div class="navibar_menu go_starter_btn"><i class="fa fa-bar-chart" aria-hidden="true"></i></div>
+  			</div>
+  		</div>
+  	</div>
+	  <div class="search_container box_shadow mt15">
+	  	<div class="title_main">원문검색</div>
+	  	<div class="title_border"></div>
+	  	<br/>
+	  	<div class="d-flex search_title_wrap">
+	  		<div class="search_title">검색</div>
+	  		<div class="search_input ga_input">
+	  			<input type="text" name="search_kwd" value="" placeholder="상세검색 키워드를 입력해주세요" />
+	  			<!-- (부동산)^(유가,동향,환율)^(#금시세) -->
+	  		</div>
+	  		<div class="search_detl_btn btn_search_simple_btn">검색</div>
+	  		<div class="search_detl_btn btn_detl_opt_open"> <i class="fa fa-cog" area-hidden="true"></i></div>
+	  	</div>
+	  	<div class="d-flex search_input_opts_wrap">
+		  	<div class="search_title"></div>
+		  	<div class="d-flex search_input mt-5">
+					<div class="search_ctrl_btn sch_opts"  	   sch-opts=0>AND</div>
+					<div class="search_ctrl_btn sch_opts ml5" sch-opts=1>OR</div>
+					<div class="search_ctrl_btn sch_opts ml5" sch-opts=2>NOT</div>
+				</div>
+			</div>
+			<!--
+	  	<div class="d-flex search_title_wrap">
+	  			<div class="search_title"></div>
+	  			<div class="search_input search_help" style="padding: none;">※ 검색어를 패턴으로도 입력가능 AND='^' / OR=',' / NOT=# / Grouping: ( ) / 예) (부동산)^(유가,동향,환율)^(#금시세)</div>
+  		</div>
+  		-->
+	  	<!--
+	  	<div class="d-flex search_title_wrap ctrl_sub_row_wrap mt-15">
+	  		
+	  		<div class="search_title"></div>
+	  		<div class="d-flex search_input">
+	  			<select>
+	  				<option>AND</option>
+	  				<option>OP</option>
+	  				<option>NOT</option>
+					</select>
+					<input class="ml10" type="text" name="search_kwd1" value="" placeholder="키워드를 입력해주세요" />
+	  		</div>
+			</div>
+
+			<div class="d-flex search_title_wrap justify-content-end ctrl_sub_wrap">
+					<div class="d-flex sch_help_wrap "></div>
+	  			<div class="search_ctrl_btn sch_mode"      ctrl-mod=0>초기화</div>
+	  			<div class="search_ctrl_btn sch_mode ml10" ctrl-mod=1>추가</div>
+	  			<div class="search_ctrl_btn sch_mode ml10" ctrl-mod=2>삭제</div>
+			</div>
+			-->
+			<div class="detl_wrap">
+				<!--
+					<div class="search_detl_btn btn_search_close_btn ml10">닫기</div>
+				-->
+				<div class="search_title btn_detl_opt">[세부옵션접기]</div>
+		  	<div class="d-flex search_title_wrap">
+		  		<div class="d-flex search_title">검색범위</div>
+		  		<div class="d-flex search_input">
+		  			<div class="search_ctrl_btn sch_part" ctrl-part=2>제목과본문</div>
+		  			<div class="search_ctrl_btn sch_part" ctrl-part=0>제목에서만</div>
+		  			<div class="search_ctrl_btn sch_part" ctrl-part=1>본문에서만</div>
+		  		</div>
+		  	</div>
+
+		  	<div class="d-flex search_title_wrap">
+		  		<div class="search_title">검색기간</div>
+		  		<div class="d-flex search_input align-items-center">
+		  			<div class="search_ctrl_btn sch_range" ctrl-range='week'>최근1주</div>
+		  			<div class="search_ctrl_btn sch_range" ctrl-range='mon'>최근1개월</div>
+		  			<div class="search_ctrl_btn sch_range" ctrl-range='mon3'>최근3개월</div>
+		  			<div class="search_ctrl_btn sch_range" ctrl-range='mon6'>최근6개월</div>
+		  			<div class="search_ctrl_btn sch_range" ctrl-range='year'>최근1년</div>
+
+						<div class="d-flex calendar_wrap">
+			  			<div class="input-group align-items-center flatpickr detl_pickr">
+			  				<span class="input-group-addon bg-white border-left-0"><i class="fa fa-calendar"></i></span>
+			  				<input class="cal_inp" type="text" name="date_from_dtl" data-input/>
+							</div>
+							<span class="tilde"> ~ </span>
+							<div class="input-group align-items-center flatpickr detl_pickr">
+			  				<span class="input-group-addon bg-white border-left-0"><i class="fa fa-calendar"></i></span>
+			  				<input class="cal_inp" type="text" name="date_to_dtl" data-input/>
+							</div>
+						</div>
+		  		</div>
+		  	</div>
+
+				<div class="title_main">출처</div>
+		  	<div class="title_border"></div>
+		  	<!--
+		  	<div class="d-flex search_title_wrap">
+		  		<div class="d-flex cate_wrap">
+		  			<div class="search_ctrl_btn cate_box" ctrl-cate="NEWS">뉴스</div>
+		  			<div class="search_ctrl_btn cate_box" ctrl-cate="SNS">SNS</div>
+		  			<div class="search_ctrl_btn cate_box" ctrl-cate="PUBLIC">공공데이터</div>
+		  		</div>
+		  	</div>
+				-->
+				<br/>
+		  	<div class="d-flex search_title_wrap">
+		  		<div class="cate_news_all_btn"></div>
+		  		<div class="search_title_sm"><span class="nsrc"></span>대 주요뉴스</div>
+		  	</div>
+
+		  	<div class="d-inline-block search_title_wrap cate_news_wrap">
+		  	</div>
+
+		  	<div class="d-flex search_title_wrap mt15">
+		  		<div class="cate_sns_all_btn"></div>
+		  		<div class="search_title_sm">SNS 전체</div>
+		  	</div>
+
+		  	<div class="d-inline-block search_title_wrap cate_sns_wrap">
+		  		<div class="float-left cate_sns_box" cate-code="0820201000000000">트위터</div>
+		  		<div class="float-left cate_sns_box" cate-code="0820202000000000">인스타</div>
+		  		<div class="float-left cate_sns_box" cate-code="0820301000000000">커뮤니티</div>
+		  		<div class="float-left cate_sns_box" cate-code="0820401000000000">블로그</div>
+		  	</div>
+		  	<br/>
+		  </div>
+	  	<div class="d-flex justify-content-center search_detl_btn_wrap">
+	  		<div class="search_detl_btn btn_search_detl_btn">검색</div>
+	  		<div class="search_detl_btn btn_search_init_btn ml10">초기화</div>
+	  		<div class="search_detl_btn btn_search_close_btn ml10">닫기</div>
+	  	</div>
+	  </div>
+
+	  <div class="docs_list_conatiner box_shadow mt15">
+	  	<div class="d-flex justify-content-between">
+	  		<div class="title_main">검색결과</div>	
+	  	</div>
+	  	<br/>
+	  	<div class="doc_list_wrap"></div>
+	  </div>
+	  
+  	  <div class="analytics_container box_shadow mt15">
+	  	<div class="d-flex justify-content-between">
+	  		<div class="title_main analytics_title">분석결과</div>	
+	  	</div>
+	  	<br/>
+	  	<div class="analytics_list_wrap"></div>
+	  </div>
+
+	  <div class="search_container api_container box_shadow mt15">
+	  	<br/>
+			<div class="d-inline-block search_title_wrap cate_api_wrap">
+				<!-- 
+					<div class="float-left cate_api_box" api-code="A001">패턴검색</div>
+				-->
+	  		<div class="float-left cate_api_box" api-code="A002">형태소 분석</div>
+	  		<div class="float-left cate_api_box" api-code="A003">키워드 빈도</div>
+	  		<div class="float-left cate_api_box" api-code="A004">키워드 네트워크 분석</div>
+	  		<div class="float-left cate_api_box" api-code="A005">연관어 분석</div>
+	  		<div class="float-left cate_api_box" api-code="A006">토픽 분석</div>
+	  		<div class="float-left cate_api_box" api-code="A007">택소노미 분류</div>
+	  		<div class="float-left cate_api_box" api-code="A008">감정어 추출</div>
+	  		<div class="float-left cate_api_box" api-code="A009">개체명 인식</div>
+	  		<div class="float-left cate_api_box" api-code="A010">구문구조 분석</div>
+			</div>
+			
+			<div class="d-flex justify-content-center search_detl_btn_wrap">
+	  		<div class="search_detl_btn btn_start_analytics">분석하기</div>
+	  	</div>
+		</div>
+
+		<form id="download_form" method="POST" action="">
+			<input type="hidden" name="analyticsCode" value=""/>
+			<input type="hidden" name="businessCode"  value=""/>
+			<input type="hidden" name="categoryCode"  value=""/>
+			<input type="hidden" name="startDate"     value=""/>
+			<input type="hidden" name="endDate"       value=""/>
+			<input type="hidden" name="searchData"    value=""/>
+			<input type="hidden" name="searchPattern" value=""/>
+			<input type="hidden" name="currentPage"   value=""/>
+			<input type="hidden" name="limitCnt"      value=""/>
+			<input type="hidden" name="pageCnt"       value=""/>
+			<input type="hidden" name="section"       value="100,101,102,103"/>
+		</form>
+
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+		<script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/locale/ko.js"></script>
+		<script src="https://www.gstatic.com/charts/loader.js"></script>
+		<script src="js/lib/d3-3.5.6.min.js"></script>
+		<script src="js/lib/d3-force-2.1.2.min.js"></script>
+		<script src="js/lib/loading.js"></script>
+
+		<!-- CUS 외부 라이브러리 임포트 -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts.min.js"></script>
+	
+		<script src="https://d3js.org/d3.v4.js"></script>
+		
+		<!-- CUS 차트스크립트 임포트 -->
+		<script src="js/ga.js"></script>
+		
+  </body>
+</html>
+
+
+
+

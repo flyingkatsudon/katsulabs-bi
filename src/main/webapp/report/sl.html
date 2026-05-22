@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+	<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <title>Insight Report</title>
+    <style type="text/css">
+		.ctrl_combo_box_sub_wrap {
+			width: 190px !important;
+		}
+		.tmp {
+		    border: 1px solid #00B3F9;
+		    background: #00bef9;
+		    color: #ffffff;
+		    font-size: 14px;
+		    font-weight: bold;
+		    width: 50px;
+		    height: 35px;
+		    margin-left: 20px;
+		    border-radius: 10px;
+		    text-align: center;
+		    line-height: 35px;
+		    cursor: pointer;
+		    opacity: 0.6;
+		}
+		.tmp:hover{
+			color: #fff;
+			font-weight: bold;
+			background-color: gray;
+		}
+  	</style>
+    <script type="text/javascript">
+
+    	var paths   = location.pathname.split("/");
+    	var isDev   = paths[1].toLowerCase() == "report";
+    	var docBase = isDev ? "/report" : "/bdp";
+    	var pathUrl = docBase + "/report";
+
+    	window.SDII = {
+        	//Url    : isDev ? "http://13.209.38.43:8080/report" : "http://13.209.38.43:8080/bdp",
+     		Url    : isDev ? "/report" : "/bdp",
+    		Chart  : {}, 
+  			Globals: {
+    			Func: {},
+    			Vars: {
+    				groupCd      : "SL",
+    				period       : "day",
+    				category     : "1",
+    				cmpyListType : "1",
+    				reqAbsCds    : "BDPC04040101,BDPC04040201,BDPC04040401,BDPC04040501",
+    				reqMap : {
+
+    					"1" : { // 뉴스브리핑
+    						smmry   : "BDPC04040102",
+    						trend   : "BDPC04040103",
+    						chnl    : "BDPC04040303",
+    						assoKwd : "BDPC04040103",
+    						posneg  : "BDPC04040110",
+    						kwd     : "BDPC04040103",
+    						doc     : "BDPC04040105"
+    					},
+    					
+    					"6" : { // 상품 브리핑
+    						smmry   : "BDPC04040202",
+    						trend   : "BDPC04040203",
+    						chnl    : "BDPC04040203",
+    						kwd     : "BDPC04040203",
+    						posneg  : "BDPC04040210",
+    						doc     : "BDPC04040205"
+    					},
+
+  						"7" : { // 건강 브리핑
+    						smmry   : "BDPC04040402",
+  							//trend   : "BDPC04040403",
+    						trend   : "BDPC04040403",
+    						chnl    : "BDPC04040403",
+    						kwd     : "BDPC04040403",
+    						posneg  : "BDPC04040410",
+    						doc     : "BDPC04040405"
+    					},
+
+  						"8" : { // 질병 브리핑
+    						smmry   : "BDPC04040502",
+    						//trend   : "BDPC04040503",
+    						trend   : "BDPC04040503",
+    						chnl    : "BDPC04040503",
+    						kwd     : "BDPC04040503",
+    						posneg  : "BDPC04040510",
+    						doc     : "BDPC04040505"
+    					}
+
+    				}
+
+    			}
+    		}
+    	};
+
+    	var sf = SDII.Globals.Func;
+    	var sv = SDII.Globals.Vars;
+
+    	var cssRes = ["/css/d3-force-2.1.2.css", "/css/main.css", "/css/loading.css"]
+    	for (var i = 0; i < cssRes.length; i++) {
+    		var lnk = document.createElement("link");	
+    		lnk.rel  = "stylesheet";
+    		lnk.type = "text/css";
+    		lnk.href = pathUrl + cssRes[i];
+    		document.head.appendChild(lnk);
+    	}
+    </script>
+  </head>
+  <body>
+  	<div class="container-fluid navibar">
+  		<div class="row search_box_wrap justify-content-between align-items-center">
+  			<div class="d-flex align-items-center cpny_btns">
+  				<img class="navibar_brand" src="/bdp/report/img/icon/brand.gif" />
+					<span class="navibar_group_title" link-target="sh">신한은행</span>
+  				<span class="navibar_group_title">&nbsp;|&nbsp;</span>
+  				<span class="navibar_group_title" link-target="lc">신한카드</span>
+  				<span class="navibar_group_title">&nbsp;|&nbsp;</span>
+  				<span class="navibar_group_title" link-target="gs">신한금투</span>
+  				<span class="navibar_group_title">&nbsp;|&nbsp;</span>
+  				<span class="navibar_group_title navibar_hl" link-target="sl">신한생명</span>
+  			</div>
+  			<div class="navibar_title">INSIGHT REPORT</div>
+  			<div class="search_box_group d-flex align-items-center">
+  				<div class="trend_report_btn"><i class="fa fa-search" aria-hidden="true"></i></div>
+  				<div class="navibar_menu go_starter_btn"><i class="fa fa-bar-chart" aria-hidden="true"></i></div>
+  			</div>
+  		</div>
+  	</div>
+
+  	<div class="container-fluid no_sd_pd bg_gray d-flex">
+  		<div class="d-flex">
+	  		<div class="side_container" isOpen=1>
+	  			<div class="side_card">
+	  				<div class="title" card-cate-value=1>뉴스브리핑</div>
+	  				<div class="title_bdr"></div>
+	  				<div class="content" card-data-type="1">
+	  					<a>데이터가 없습니다.</a><br/>
+	  				</div>
+					</div>
+	  			<div class="side_card">
+	  				<div class="title" card-cate-value=6>상품브리핑</div>
+	  				<div class="title_bdr"></div>
+	  				<div class="content" card-data-type="6">
+	  					<a>데이터가 없습니다.</a><br/>
+	  				</div>
+				</div>
+				<div class="side_card">
+	  				<div class="title" card-cate-value=7>건강 브리핑</div>
+	  				<div class="title_bdr"></div>
+	  				<div class="content" card-data-type="7">
+	  					<a>데이터가 없습니다.</a><br/>
+	  				</div>
+				</div>
+				<div class="side_card">
+	  				<div class="title" card-cate-value=8>질병 브리핑</div>
+	  				<div class="title_bdr"></div>
+	  				<div class="content" card-data-type="8">
+	  					<a>데이터가 없습니다.</a><br/>
+	  				</div>
+	  				<div class="d-flex justify-content-start align-items-center mg_t_10px jsch_wrap">
+						<!-- <div>질병검색</div>&nbsp; -->
+						<div class=""><input type="text" class="inp_jsch" style="width:100px; height:35px;padding:5px" value="" placeholder="연관어입력" /></div>
+						<div class="btn_jsch mg_l_5px">검색하기</div>
+					</div>
+				</div>
+			</div>
+			<div class="side_container_btn_wrap">
+				<br/><br/>
+				<div class="side_container_btn"><</div>
+			</div>
+		</div>
+
+  		<div class="main_container mx-auto bg_gray" isOpen=1>
+  			<div class="control_bar_wrap d-flex justify-content-center align-items-center box_shadow">
+  				<div class="control_bar_title"></div>
+	  			<div class="range_wrap d-flex">
+	  				<div class="btn_range" data-value="year">년</div>
+	  				<div class="btn_range" data-value="quarter">분기</div>
+	  				<div class="btn_range" data-value="mon">월</div>
+	  				<div class="btn_range" data-value="week">주</div>
+	  				<div class="btn_range btn_range_click" data-value="day">일</div>
+	  			</div>
+	  			<div class="calendar_wrap d-flex">
+		  			<div class="input-group align-items-center flatpickr">
+		  				<span class="input-group-addon bg-white border-left-0"><i class="fa fa-calendar"></i></span>
+		  				<input class="cal_inp" type="text" name="date_from" data-input/>
+						</div>
+						<span class="tilde"> ~ </span>
+						<div class="input-group align-items-center flatpickr">
+		  				<span class="input-group-addon bg-white border-left-0"><i class="fa fa-calendar"></i></span>
+		  				<input class="cal_inp" type="text" name="date_to" data-input/>
+					</div>
+				</div>
+				<div class="control_search_btn">조회</div>
+  			</div>
+
+  			<div class="news_wrap">
+  				<div class="dashboard_trend_title">뉴스브리핑</div>
+			    <div id="dashboard_trend" class="dashboard_trend box_shadow">
+			    	<div class="chart_trend_menu">
+			    		<div>
+			    			<select class="chart_trend_select">
+			    				<option value=1>생명社별 보기</option>
+			    				<option value=2>손보社별 보기</option>
+			    			</select>
+			    		</div>
+			    	</div>
+			      <div id="chart_trend" class="chart_trend">NEWS 트렌드 로딩중</div>
+			      <div id="ctrl_trend" class="ctrl_trend"></div>
+		       	<div class="chart_trend_combo_wrap">
+		       		<div class="combo_wrap_open_btn">경쟁사 더보기</div>
+		       		<div class="combo_list_show_wrap">
+		       			<div id="chart_trend_combo" class="d-inline-block"></div>
+		       		</div>
+			    	</div>
+
+			      <div class="chart_trend_tooltip">
+				    <div class="chart_trend_tooltip_wrap">
+				      <div id="chart_trend_top3"       class="chart_trend_top3"></div>
+				      <hr style="width: 80%; border-color: #bbbbbb;" />
+				      <div id="chart_trend_abs"        class="chart_trend_abs"></div>
+				      <div id="chart_trend_piewrap"    class="chart_trend_piewrap">
+				      <div id="chart_trend_piechart" class="chart_trend_piechart"></div>	
+				      <!--<div id="chart_trend_pietitle" class="chart_trend_pietitle"></div>-->
+				      </div>
+				      <div id="chart_trend_ctrl"     class="chart_trend_ctrl d-flex"></div>
+			      	</div>
+			      </div>
+			    </div>
+
+			    <div class="chart_trend_sub_wrap box_shadow">
+			    	<div class="chart_trend_sub_close d-flex justify-content-end">[닫기]</div>
+			    	<div id="chart_trend_sub"></div>
+			    </div>
+
+					<div class="chart_network_wrap d-flex">
+						<div id="chart_network" class="chart_network box_shadow">로딩중</div>
+						<div class="chart_doc_list box_shadow"></div>
+					</div>	
+				</div>
+
+				<div class="docs_smmry_wrap">
+					<div class="docs_extv">
+						<div class="docs_extv_result"></div>
+						<hr/>
+						<div class="docs_extv_cont"></div>
+					</div>
+				</div>				
+			</div> <!-- container -->
+		</div>
+
+		<div class="footer_container">
+			<div class="footer_title">COPYRIGHT (C) SHINHAN ALL RIGHT RESERVED.</div>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+		<script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+		
+		<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/locale/ko.js"></script>
+
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts.min.js"></script>
+
+		<script>
+			var jsRes = [
+				"/js/lib/loading.js", 
+				"/js/lib/d3-3.5.6.min.js",
+				"/js/lib/d3-force-2.1.2.min.js", 
+				"/js/report_base.js",
+				"/js/report_sl.js",
+				"/js/chart/trend_sl.js",
+				"/js/chart/kwdNetwork.js",
+				"/js/chart/kwdAssoTime.js",
+				"/js/chart/posNegAssoChart.js"
+			];
+			for (var i = 0; i < jsRes.length; i++) {
+    		var scr = document.createElement("script");	
+    		scr.type = "text/javascript";
+    		scr.src = pathUrl + jsRes[i];
+    		document.body.appendChild(scr);
+			}
+		</script>
+  </body>
+</html>
