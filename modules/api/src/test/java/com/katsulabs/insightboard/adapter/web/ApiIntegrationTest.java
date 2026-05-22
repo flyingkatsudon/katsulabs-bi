@@ -182,6 +182,31 @@ class ApiIntegrationTest {
                 .andExpect(jsonPath("$[?(@.name == 'economic_indicators')]").exists());
     }
 
+    @DisplayName("부동산·경제 지표 샘플 보드에 위젯이 배치된다")
+    @Test
+    void loginThenRealEstateAndEconomicBoardsHaveWidgets() throws Exception {
+        MockHttpSession session = loginAsAdmin();
+        MvcResult boards =
+                mockMvc.perform(get("/api/v1/boards").session(session))
+                        .andExpect(status().isOk())
+                        .andReturn();
+        long realEstateId = boardIdByName(boards, "Real Estate Sample Dashboard");
+        long economicId = boardIdByName(boards, "Economic Indicators Sample Dashboard");
+        org.junit.jupiter.api.Assumptions.assumeTrue(realEstateId > 0 && economicId > 0);
+
+        mockMvc.perform(get("/api/v1/boards/" + realEstateId).session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.layoutJson")
+                        .value(org.hamcrest.Matchers.containsString("re_price_line")))
+                .andExpect(jsonPath("$.publishedToViewers").value(true));
+
+        mockMvc.perform(get("/api/v1/boards/" + economicId).session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.layoutJson")
+                        .value(org.hamcrest.Matchers.containsString("eco_indicator_line")))
+                .andExpect(jsonPath("$.publishedToViewers").value(true));
+    }
+
     @DisplayName("Chart Gallery 위젯 집계 새로고침(reload)이 동작한다")
     @Test
     void loginThenChartGalleryWidgetReload() throws Exception {
@@ -335,6 +360,16 @@ class ApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.userId == 'viewer01')]").exists())
                 .andExpect(jsonPath("$[?(@.userId == 'manager01')]").exists());
+    }
+
+    private static long boardIdByName(MvcResult boards, String name) throws Exception {
+        var arr = JsonMapper.mapper().readTree(boards.getResponse().getContentAsString());
+        for (var node : arr) {
+            if (name.equals(node.path("name").asText())) {
+                return node.path("id").asLong(-1L);
+            }
+        }
+        return -1L;
     }
 
     private MockHttpSession loginAsAdmin() throws Exception {
