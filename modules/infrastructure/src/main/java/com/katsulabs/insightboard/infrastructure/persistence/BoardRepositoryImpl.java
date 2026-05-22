@@ -6,17 +6,21 @@ import java.util.Optional;
 import com.katsulabs.insightboard.domain.board.BoardDetail;
 import com.katsulabs.insightboard.domain.board.BoardRepository;
 import com.katsulabs.insightboard.domain.board.BoardSummary;
+import com.katsulabs.insightboard.infrastructure.persistence.compat.BoardLayoutSync;
 import com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardMapper;
 import com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow;
+import com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardWidgetMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class BoardRepositoryImpl implements BoardRepository {
 
     private final BoardMapper boardMapper;
+    private final BoardWidgetMapper boardWidgetMapper;
 
-    public BoardRepositoryImpl(BoardMapper boardMapper) {
+    public BoardRepositoryImpl(BoardMapper boardMapper, BoardWidgetMapper boardWidgetMapper) {
         this.boardMapper = boardMapper;
+        this.boardWidgetMapper = boardWidgetMapper;
     }
 
     @Override
@@ -29,7 +33,12 @@ public class BoardRepositoryImpl implements BoardRepository {
     @Override
     public Optional<BoardDetail> findById(long boardId) {
         BoardRow row = boardMapper.findById(boardId);
-        return row == null ? Optional.empty() : Optional.of(toDetail(row));
+        if (row == null) {
+            return Optional.empty();
+        }
+        var placements = boardWidgetMapper.findByBoardId(boardId);
+        String layout = BoardLayoutSync.resolveLayoutJson(row.getLayout(), placements);
+        return Optional.of(toDetail(row, layout));
     }
 
     private static BoardSummary toSummary(BoardRow row) {
@@ -45,14 +54,14 @@ public class BoardRepositoryImpl implements BoardRepository {
                 PersistenceMapperSupport.toInstant(row.getUpdateTime()));
     }
 
-    private static BoardDetail toDetail(BoardRow row) {
+    private static BoardDetail toDetail(BoardRow row, String layoutJson) {
         return new BoardDetail(
                 row.getId(),
                 row.getName(),
                 row.getUserId(),
                 row.getUserName(),
                 row.getCategoryId(),
-                row.getLayout(),
+                layoutJson,
                 Boolean.TRUE.equals(row.getPublishedToViewers()),
                 PersistenceMapperSupport.toInstant(row.getCreateTime()),
                 PersistenceMapperSupport.toInstant(row.getUpdateTime()));
@@ -78,7 +87,9 @@ public class BoardRepositoryImpl implements BoardRepository {
         row.setLayout(layoutJson);
         applyPublish(row, publishedToViewers, publishedByUserId);
         boardMapper.insert(row);
-        return row.getId();
+        long boardId = row.getId();
+        BoardLayoutSync.syncFromLayoutJson(boardWidgetMapper, boardId, layoutJson);
+        return boardId;
     }
 
     @Override
@@ -96,10 +107,12 @@ public class BoardRepositoryImpl implements BoardRepository {
         row.setLayout(layoutJson);
         applyPublish(row, publishedToViewers, publishedByUserId);
         boardMapper.update(row);
+        BoardLayoutSync.syncFromLayoutJson(boardWidgetMapper, id, layoutJson);
     }
 
     @Override
     public void delete(long id) {
+        boardWidgetMapper.deleteByBoardId(id);
         boardMapper.delete(id);
     }
 

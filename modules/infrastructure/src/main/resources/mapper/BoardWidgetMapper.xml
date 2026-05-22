@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardWidgetMapper">
+
+    <select id="findByBoardId" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardWidgetRow">
+        SELECT bw.board_id     AS boardId,
+               bw.widget_id    AS widgetId,
+               w.name          AS widgetName,
+               bw.row_index    AS rowIndex,
+               bw.column_index AS columnIndex,
+               bw.width_cols   AS widthCols,
+               bw.height_px    AS heightPx,
+               bw.pos_x        AS posX,
+               bw.pos_y        AS posY,
+               bw.pos_ex       AS posEx,
+               bw.pos_ey       AS posEy,
+               bw.sort_order   AS sortOrder
+          FROM ib_board_widget bw
+          LEFT JOIN ib_widget w ON w.widget_id = bw.widget_id
+         WHERE bw.board_id = #{boardId}
+         ORDER BY bw.sort_order, bw.row_index, bw.column_index
+    </select>
+
+    <delete id="deleteByBoardId">
+        DELETE FROM ib_board_widget WHERE board_id = #{boardId}
+    </delete>
+
+    <insert id="insert">
+        INSERT INTO ib_board_widget (
+            board_id, widget_id, row_index, column_index, width_cols,
+            height_px, pos_x, pos_y, pos_ex, pos_ey, sort_order
+        )
+        VALUES (
+            #{boardId}, #{widgetId}, #{rowIndex}, #{columnIndex}, #{widthCols},
+            #{heightPx}, #{posX}, #{posY}, #{posEx}, #{posEy}, #{sortOrder}
+        )
+    </insert>
+</mapper>

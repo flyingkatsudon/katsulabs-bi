@@ -82,7 +82,7 @@ erDiagram
 - [x] V11 Flyway
 - [x] MyBatis → `ib_*` 테이블
 - [x] Dataset/Widget Repository + JSON 브릿지
-- [ ] Board layout ↔ `ib_board_widget` 양방향 (현재 layout_json 중심)
+- [x] Board layout ↔ `ib_board_widget` (저장 시 sync, 조회 시 layout 비어 있으면 복원)
 - [x] API `ListBoards` Viewer 필터 (`published_to_viewers`)
 - [x] API `GetBoard` Viewer 미게시 보드 404
 - [x] Board 저장 `publishedToViewers` + 세션 `defaultBoardId`
