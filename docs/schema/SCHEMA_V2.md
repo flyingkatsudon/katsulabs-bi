@@ -87,6 +87,7 @@ erDiagram
 - [x] API `GetBoard` Viewer 미게시 보드 404
 - [x] Board 저장 `publishedToViewers` + 세션 `defaultBoardId`
 - [x] 프론트: Viewer 홈/사이드바, Manager 게시 체크박스, 설정 라우트 가드
+- [x] V12 Chart Gallery `layout_json` + demo 위젯 시드
 - [ ] 프론트 구조화 API (`/api/v2/...`) — 선택
 
 ## 로컬 DB 재적용
