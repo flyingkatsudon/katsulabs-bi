@@ -1,8 +1,8 @@
 let jsTreeLoadPromise: Promise<void> | null = null
 
-const JQUERY_SRC = '/insightboard/plugins/jQuery/jquery-2.2.3.min.js'
-const JSTREE_SRC = '/insightboard/plugins/jstree.min.js'
-const JSTREE_CSS = '/insightboard/plugins/ngJsTree/style.css'
+const JQUERY_SRC = '/katsulabs-bi/plugins/jQuery/jquery-2.2.3.min.js'
+const JSTREE_SRC = '/katsulabs-bi/plugins/jstree.min.js'
+const JSTREE_CSS = '/katsulabs-bi/plugins/ngJsTree/style.css'
 
 function loadStylesheet(href: string) {
   if (document.querySelector(`link[href="${href}"]`)) return

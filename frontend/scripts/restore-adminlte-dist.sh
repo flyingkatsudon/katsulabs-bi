@@ -4,7 +4,7 @@
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DEST="$ROOT/frontend/public/insightboard/dist"
+DEST="$ROOT/frontend/public/katsulabs-bi/dist"
 REF="${1:-621d16f}"
 
 if git -C "$ROOT" cat-file -e "$REF^{commit}" 2>/dev/null; then

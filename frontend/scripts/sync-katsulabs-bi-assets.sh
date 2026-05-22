@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# AdminLTE 정적 자산은 frontend/public/insightboard 에 유지합니다.
+# AdminLTE 정적 자산은 frontend/public/katsulabs-bi 에 유지합니다.
 # (외부 CBoard 배포본에서 복사할 때만 이 스크립트 사용)
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DEST="$ROOT/frontend/public/insightboard"
+DEST="$ROOT/frontend/public/katsulabs-bi"
 SRC="${1:-}"
 
 if [[ -z "$SRC" ]]; then
@@ -30,8 +30,8 @@ rsync -a --delete \
   --exclude='plugins/input-mask/' \
   "$SRC/" "$DEST/"
 
-if [[ -f "$DEST/css/cboard.css" && ! -f "$DEST/css/insightboard.css" ]]; then
-  mv "$DEST/css/cboard.css" "$DEST/css/insightboard.css"
+if [[ -f "$DEST/css/cboard.css" && ! -f "$DEST/css/katsulabs-bi.css" ]]; then
+  mv "$DEST/css/cboard.css" "$DEST/css/katsulabs-bi.css"
 fi
 
 echo "Synced into $DEST"

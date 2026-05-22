@@ -1,5 +1,5 @@
 /** Vite dev: Set-Cookie 미저장 + fetch 에서 Cookie 헤더 설정 불가 → 커스텀 헤더로 세션 ID 전달 */
-const STORAGE_KEY = 'insightboard.jsessionid'
+const STORAGE_KEY = 'katsulabs-bi.jsessionid'
 
 /** @see SessionHeaderRegistry.SESSION_HEADER (backend) */
 export const SESSION_HEADER = 'X-Insightboard-Session'

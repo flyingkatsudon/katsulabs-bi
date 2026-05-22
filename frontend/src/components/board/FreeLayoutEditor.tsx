@@ -23,7 +23,7 @@ export function FreeLayoutEditor({ widgets, catalog, onChange }: FreeLayoutEdito
     e.preventDefault()
     const panel = panelRef.current
     if (!panel) return
-    const raw = e.dataTransfer.getData('application/x-insightboard-widget')
+    const raw = e.dataTransfer.getData('application/x-katsulabs-bi-widget')
     if (!raw) return
     const item = JSON.parse(raw) as { id: number; name: string }
     const rect = panel.getBoundingClientRect()
@@ -86,7 +86,7 @@ export function FreeLayoutEditor({ widgets, catalog, onChange }: FreeLayoutEdito
                     style={{ cursor: 'grab', display: 'inline-block' }}
                     onDragStart={(ev) => {
                       ev.dataTransfer.setData(
-                        'application/x-insightboard-widget',
+                        'application/x-katsulabs-bi-widget',
                         JSON.stringify({ id: w.id, name: w.name }),
                       )
                     }}

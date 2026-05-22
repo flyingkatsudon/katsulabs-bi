@@ -30,7 +30,7 @@ export function WidgetSchemaPanel({ dataset, onPickDimension, onPickMeasure }: W
       <ul style={{ paddingLeft: 5, listStyle: 'none' }}>
         <li className="parent_li">
           <span>
-            <img src="/insightboard/imgs/schema/dimension.gif" alt="" />
+            <img src="/katsulabs-bi/imgs/schema/dimension.gif" alt="" />
             <b> Dimension</b>
           </span>
           <ul style={{ paddingLeft: 8, listStyle: 'none' }}>
@@ -43,14 +43,14 @@ export function WidgetSchemaPanel({ dataset, onPickDimension, onPickMeasure }: W
       <ul style={{ paddingLeft: 5, listStyle: 'none' }}>
         <li className="parent_li">
           <span>
-            <img src="/insightboard/imgs/schema/measure.gif" alt="" />
+            <img src="/katsulabs-bi/imgs/schema/measure.gif" alt="" />
             <b> Measure</b>
           </span>
           <ul style={{ paddingLeft: 8, listStyle: 'none' }}>
             {dataset.schema.measure.map((o) => (
               <li key={o.id}>
                 <button type="button" className="btn btn-link btn-xs" onClick={() => onPickMeasure(o.column, o.alias)}>
-                  <img src="/insightboard/imgs/schema/bullet_red.png" alt="" /> {colLabel(o)}
+                  <img src="/katsulabs-bi/imgs/schema/bullet_red.png" alt="" /> {colLabel(o)}
                 </button>
               </li>
             ))}
@@ -67,7 +67,7 @@ export function WidgetSchemaPanel({ dataset, onPickDimension, onPickMeasure }: W
               {dataset.selects.map((c) => (
                 <li key={c}>
                   <button type="button" className="btn btn-link btn-xs" onClick={() => onPickDimension(c)}>
-                    <img src="/insightboard/imgs/schema/bullet_red.png" alt="" /> {c}
+                    <img src="/katsulabs-bi/imgs/schema/bullet_red.png" alt="" /> {c}
                   </button>
                 </li>
               ))}
@@ -79,14 +79,14 @@ export function WidgetSchemaPanel({ dataset, onPickDimension, onPickMeasure }: W
         <ul style={{ paddingLeft: 5, listStyle: 'none' }}>
           <li className="parent_li">
             <span>
-              <img src="/insightboard/imgs/schema/measure.gif" alt="" />
+              <img src="/katsulabs-bi/imgs/schema/measure.gif" alt="" />
               <b> Expression</b>
             </span>
             <ul style={{ paddingLeft: 8, listStyle: 'none' }}>
               {dataset.expressions.map((e) => (
                 <li key={e.id}>
                   <button type="button" className="btn btn-link btn-xs" onClick={() => onPickMeasure(e.alias, e.alias)}>
-                    <img src="/insightboard/imgs/schema/bullet_red.png" alt="" /> {e.alias}
+                    <img src="/katsulabs-bi/imgs/schema/bullet_red.png" alt="" /> {e.alias}
                   </button>
                 </li>
               ))}
@@ -111,7 +111,7 @@ function SchemaDimensionNode({
   return (
     <li>
       <button type="button" className="btn btn-link btn-xs" onClick={() => onPick(node.column, node.alias)}>
-        <img src="/insightboard/imgs/schema/bullet_blue.png" alt="" /> {colLabel(node)}
+        <img src="/katsulabs-bi/imgs/schema/bullet_blue.png" alt="" /> {colLabel(node)}
       </button>
     </li>
   )
@@ -122,13 +122,13 @@ function LevelNodeView({ node, onPick }: { node: LevelNode; onPick: (col: string
     <li>
       <span>
         <i className="fa fa-caret-down" />
-        <img src="/insightboard/imgs/schema/hierarchy.gif" alt="" /> {node.alias}
+        <img src="/katsulabs-bi/imgs/schema/hierarchy.gif" alt="" /> {node.alias}
       </span>
       <ul style={{ paddingLeft: 8, listStyle: 'none' }}>
         {node.columns.map((c) => (
           <li key={c.id}>
             <button type="button" className="btn btn-link btn-xs" onClick={() => onPick(c.column, c.alias)}>
-              <img src="/insightboard/imgs/schema/bullet_blue.png" alt="" /> {colLabel(c)}
+              <img src="/katsulabs-bi/imgs/schema/bullet_blue.png" alt="" /> {colLabel(c)}
             </button>
           </li>
         ))}

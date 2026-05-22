@@ -76,7 +76,7 @@ export function AppSidebar({ user, dimmed = false }: AppSidebarProps) {
       <section className="sidebar">
         <div className="user-panel">
           <div className="pull-left image">
-            <img src="/insightboard/dist/img/user2-160x160.jpg" className="img-circle" alt="" />
+            <img src="/katsulabs-bi/dist/img/user2-160x160.jpg" className="img-circle" alt="" />
           </div>
           <div className="pull-left info">
             <p>{user.userId}</p>

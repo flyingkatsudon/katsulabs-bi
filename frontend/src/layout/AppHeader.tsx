@@ -54,12 +54,12 @@ export function AppHeader({ userId, roleName, onLogout, isRestoringSession = fal
                 style={{ background: 'none', border: 'none', padding: '15px 12px' }}
                 onClick={() => setUserMenuOpen((o) => !o)}
               >
-                <img src="/insightboard/dist/img/user2-160x160.jpg" className="user-image" alt="" />
+                <img src="/katsulabs-bi/dist/img/user2-160x160.jpg" className="user-image" alt="" />
                 <span className="hidden-xs">{userId}</span>
               </button>
               <ul className="dropdown-menu">
                 <li className="user-header">
-                  <img src="/insightboard/dist/img/user2-160x160.jpg" className="img-circle" alt="" />
+                  <img src="/katsulabs-bi/dist/img/user2-160x160.jpg" className="img-circle" alt="" />
                   <p>
                     {userId}
                     {roleName ? <small> — {roleName}</small> : null}

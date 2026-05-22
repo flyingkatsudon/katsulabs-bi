@@ -10,7 +10,7 @@ export type JdbcConfigFields = {
 const DEFAULT_JDBC: JdbcConfigFields = {
   driver: 'org.h2.Driver',
   jdbcurl:
-    'jdbc:h2:mem:insight-board;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE',
+    'jdbc:h2:mem:katsulabs-bi;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE',
   username: 'sa',
   password: '',
   pooled: true,

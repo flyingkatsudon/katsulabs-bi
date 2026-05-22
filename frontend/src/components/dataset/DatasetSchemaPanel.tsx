@@ -230,11 +230,11 @@ function DimensionTree({
     <ul style={{ paddingLeft: 5, listStyle: 'none' }}>
       <li className="parent_li">
         <span>
-          <img src="/insightboard/imgs/schema/dimension.gif" alt="" />
+          <img src="/katsulabs-bi/imgs/schema/dimension.gif" alt="" />
           <b> Dimension</b>
         </span>
         <img
-          src="/insightboard/imgs/schema/hierarchy_add.png"
+          src="/katsulabs-bi/imgs/schema/hierarchy_add.png"
           alt=""
           style={{ cursor: 'pointer', marginLeft: 4 }}
           onClick={onAddHierarchy}
@@ -252,13 +252,13 @@ function DimensionTree({
               >
                 <span>
                   <i className="fa fa-caret-down" />
-                  <img src="/insightboard/imgs/schema/hierarchy.gif" alt="" /> {o.alias}
+                  <img src="/katsulabs-bi/imgs/schema/hierarchy.gif" alt="" /> {o.alias}
                 </span>
                 <i className="fa fa-trash-o" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onRemoveDimension(i)} />
                 <ul style={{ paddingLeft: 12, listStyle: 'none' }}>
                   {o.columns.map((c, ci) => (
                     <li key={c.id}>
-                      <img src="/insightboard/imgs/schema/bullet_blue.png" alt="" /> {columnLabel(c)}
+                      <img src="/katsulabs-bi/imgs/schema/bullet_blue.png" alt="" /> {columnLabel(c)}
                       <i className="fa fa-edit" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onEditAlias(c)} />
                       <i
                         className="fa fa-trash-o"
@@ -276,7 +276,7 @@ function DimensionTree({
               </li>
             ) : (
               <li key={o.id}>
-                <img src="/insightboard/imgs/schema/bullet_blue.png" alt="" /> {columnLabel(o)}
+                <img src="/katsulabs-bi/imgs/schema/bullet_blue.png" alt="" /> {columnLabel(o)}
                 <i className="fa fa-edit" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onEditAlias(o)} />
                 <i className="fa fa-trash-o" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onRemoveDimension(i)} />
                 <i
@@ -308,13 +308,13 @@ function MeasureTree({
     <ul style={{ paddingLeft: 5, listStyle: 'none' }}>
       <li className="parent_li">
         <span>
-          <img src="/insightboard/imgs/schema/measure.gif" alt="" />
+          <img src="/katsulabs-bi/imgs/schema/measure.gif" alt="" />
           <b> Measure</b>
         </span>
         <ul style={{ paddingLeft: 12, listStyle: 'none' }}>
           {data.schema.measure.map((o, i) => (
             <li key={o.id}>
-              <img src="/insightboard/imgs/schema/bullet_red.png" alt="" /> {columnLabel(o)}
+              <img src="/katsulabs-bi/imgs/schema/bullet_red.png" alt="" /> {columnLabel(o)}
               <i className="fa fa-edit" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onEditAlias(o)} />
               <i className="fa fa-trash-o" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onRemove(i)} />
               <i
@@ -345,14 +345,14 @@ function ExpressionTree({
     <ul style={{ paddingLeft: 5, listStyle: 'none' }}>
       <li className="parent_li">
         <span>
-          <img src="/insightboard/imgs/schema/measure.gif" alt="" />
+          <img src="/katsulabs-bi/imgs/schema/measure.gif" alt="" />
           <b> Custom Expression</b>
         </span>
         <i className="glyphicon glyphicon-plus" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={onAdd} />
         <ul style={{ paddingLeft: 12, listStyle: 'none' }}>
           {expressions.map((o, i) => (
             <li key={o.id}>
-              <img src="/insightboard/imgs/schema/bullet_red.png" alt="" /> {o.alias}
+              <img src="/katsulabs-bi/imgs/schema/bullet_red.png" alt="" /> {o.alias}
               <i className="fa fa-edit" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onEdit(o)} />
               <i className="fa fa-trash-o" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onDelete(i)} />
             </li>
@@ -378,14 +378,14 @@ function FilterTree({
     <ul style={{ paddingLeft: 5, listStyle: 'none' }}>
       <li className="parent_li">
         <span>
-          <img src="/insightboard/imgs/schema/filter.png" alt="" />
+          <img src="/katsulabs-bi/imgs/schema/filter.png" alt="" />
           <b> Filter Group</b>
         </span>
         <i className="glyphicon glyphicon-plus" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={onAdd} />
         <ul style={{ paddingLeft: 12, listStyle: 'none' }}>
           {filters.map((o, i) => (
             <li key={o.id}>
-              <img src="/insightboard/imgs/schema/bullet_green.png" alt="" /> {o.group}
+              <img src="/katsulabs-bi/imgs/schema/bullet_green.png" alt="" /> {o.group}
               <i className="fa fa-edit" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onEdit(o)} />
               <i className="fa fa-trash-o" style={{ cursor: 'pointer', marginLeft: 4 }} onClick={() => onDelete(i)} />
             </li>
