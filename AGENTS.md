@@ -57,6 +57,16 @@ docker compose -f docker-compose.postgres.yml up -d
 cd frontend && npm run build
 ```
 
+## Single JAR (UI embedded)
+
+```bash
+./scripts/run-prod-jar.sh
+# or: cd frontend && npm ci && npm run build && ./gradlew :modules:api:bootJar
+#     java -jar modules/api/build/libs/insight-board.jar --spring.profiles.active=local-h2,prod
+```
+
+Open `http://localhost:8081/`. Details: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
 ## MyBatis
 
 Required mapper XML: `modules/infrastructure/src/main/resources/mapper/*.xml` — see [docs/migration/MYBATIS-XML.md](docs/migration/MYBATIS-XML.md).
