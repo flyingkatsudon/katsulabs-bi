@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.cboard.dao.UserDao">
 
     <update id="save">
@@ -101,10 +101,10 @@
     		, u.login_name, u.user_name userName
     		, CONCAT(u.business_code, u.user_id) uniqueHash
     		, u.rbac_policy rbacPolicy, u.user_state_info userStateInfo
-			, ur.role_id roleId
+			, (SELECT MIN(ur.role_id) FROM dashboard_user_role ur
+			   WHERE ur.user_id = u.user_id AND ur.business_code = u.business_code) roleId
 			, u.del_cd delCd
 		FROM dashboard_user u
-		INNER JOIN dashboard_user_role ur ON u.user_id = ur.user_id AND u.business_code = ur.business_code
 		where u.user_id=#{param.userId} and u.business_code=#{param.businessCode}
     </select>
     
@@ -116,12 +116,12 @@
     </select>
 
     <update id="updatePwd" parameterType="org.cboard.dto.User">
-		UPDATE cboard_demo.dashboard_user u SET u.user_password = #{param.userPassword}
+		UPDATE dashboard_user u SET u.user_password = #{param.userPassword}
 		WHERE u.user_id=#{param.userId} and u.business_code = #{param.businessCode} AND u.user_password = #{param.oldUserPassword}
     </update>
     
     <update id="updateLoginCnt" parameterType="org.cboard.dto.User">
-		UPDATE cboard_demo.dashboard_user u SET u.rbac_policy = #{param.rbacPolicy}, u.user_state_info = #{param.userStateInfo}, u.user_last_date = now()
+		UPDATE dashboard_user u SET u.rbac_policy = #{param.rbacPolicy}, u.user_state_info = #{param.userStateInfo}, u.user_last_date = CURRENT_TIMESTAMP
 		WHERE u.user_id=#{param.userId} and u.business_code = #{param.businessCode}
     </update>
     

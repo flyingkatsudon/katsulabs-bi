@@ -1,0 +1,19 @@
+# Optional local MySQL when H2 is not sufficient.
+# Usage: docker compose -f docker-compose.yml up -d
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cboard_demo
+      MYSQL_USER: cboard
+      MYSQL_PASSWORD: cboard
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql/mysql/mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

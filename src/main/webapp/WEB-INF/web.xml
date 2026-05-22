@@ -8,7 +8,7 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
             classpath:spring-datasource.xml,classpath:spring.xml,classpath:spring-mvc.xml,classpath:spring-mybatis.xml,classpath:spring-security.xml,
-            classpath:spring-mybatis-config.xml, classpath:application-config.xml
+            classpath:application-config.xml
         </param-value>
 	</context-param>
 	<servlet>
@@ -71,12 +71,8 @@
 		<servlet-name>dispatcherServlet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
-			<param-name>contextClass</param-name>
-			<param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
-		</init-param>
-		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>org.cboard.controller.WebConfig</param-value>
+			<param-value>classpath:spring-mvc.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>

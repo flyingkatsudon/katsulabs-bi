@@ -18,12 +18,34 @@ mvn clean package -DskipTests
 ```
 
 ### Known gotchas
-- **Owlnest stub JAR**: The `com.owlnest` package is a proprietary library not available publicly. A stub JAR (`lib/owlnest-stub.jar`) is provided for compilation. The `pom.xml` has a system-scope dependency pointing to it. Without this, the Shinhan GA module (`GeneralAnalyticsBizImpl`, `DocTableImpl`) will not compile.
 - **Jackson / Avatica conflict**: `avatica-1.8.0.jar` (transitive from `kylin-jdbc`) bundles an old `com.fasterxml.jackson.annotation.JsonFormat` that lacks the `empty()` method. After building and deploying the WAR, you must strip the `com/fasterxml/` directory from `avatica-1.8.0.jar` inside the deployed WAR's `WEB-INF/lib/`. The deploy script below handles this.
 - **Maven HTTP repository blocker**: Maven 3.8+ blocks HTTP repositories. A `~/.m2/settings.xml` that disables the default HTTP blocker is needed (the update script sets this up). The `pom.xml` references `http://maven.aliyun.com` which requires this.
 - **sqljdbc4 not in Maven Central**: `com.microsoft.sqlserver:sqljdbc4:4.0` is in `lib/sqljdbc4-4.0.jar`. It must be installed to the local Maven repo before build.
 
-### Running the application
+### H2 local profile (no MySQL)
+
+Use embedded H2 instead of MySQL by setting the Maven `env` property:
+
+```bash
+# IntelliJ Maven goal: add -Denv=local  (or -Denv=h2)
+mvn clean package tomcat7:run -Denv=local
+
+# optional shell wrapper:
+export BDP_ENV=local
+mvn clean package tomcat7:run -Denv=${BDP_ENV}
+```
+
+`package` is required so JDBC drivers (PostgreSQL, MySQL, etc.) are packaged into `WEB-INF/lib`. Without it, datasource **Test** may fail with `ERROR:org.postgresql.Driver`.
+
+- Metadata DB: `jdbc:h2:file:./target/h2-local/metadata` (H2 1.4.x; isolated from `~/H2Data`)
+- Login: business code **SH**, user **admin01**, password **admin123**
+- On first start, `h2-demo/h2.sql` + `h2-demo/demo_seed.sql` seed schema, admin user, and demo DataSource/dataset (`demo_source` / `foodmart_sample`)
+- Demo guide: [docs/LOCAL_DEMO_DATA.md](docs/LOCAL_DEMO_DATA.md)
+- Reset DB: `rm -rf target/h2-local` then restart Tomcat
+- JDK 17+ for `tomcat7:run`: `.mvn/jvm.config` supplies `--add-opens` (not used on JDK 8)
+- If you previously used `~/H2Data` with a newer H2 client, delete that folder or ignore it — this project no longer uses that path for `-Denv=local`
+
+### Running the application (MySQL)
 ```bash
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
@@ -88,5 +110,5 @@ The password hash is `SHA-256("admin123").toUpperCase()`.
 ### Avatica fix requires sudo
 Tomcat deploys the WAR as root. Use `sudo cp` when copying the avatica JAR from the exploded WAR, and `$JAVA_HOME/bin/jar` (not system `jar`) for JDK 8 compatibility.
 
-### PostgreSQL / external services
-The Shinhan analytics module (`com.shinhan`) connects to an external PostgreSQL database and the `com.owlnest` analytics API. These are unavailable in the dev environment, so Insight Report and General Analysis endpoints will fail at runtime, but the core CBoard dashboard functionality works.
+### Removed Shinhan module
+The legacy `com.shinhan` Insight Report / General Analytics backend has been removed from this fork. Static files under `src/main/webapp/report/` may remain but `/report/*` API endpoints are no longer served. Use the core CBoard dashboard (`/bdp/cboard/starter.jsp`) after login.

@@ -20,7 +20,6 @@
         <h2.version>1.4.196</h2.version>
 		<poi.version>3.16</poi.version>
 		<commons-io.version>2.5</commons-io.version>
-        <lombok.version>1.16.16</lombok.version>
     </properties>
  
     <repositories>
@@ -35,6 +34,22 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
+        </dependency>
+        <!-- JDK 9+ removed JAXB; EhCache 2.x needs it at runtime -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -110,7 +125,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.5</version>
+            <version>${commons-io.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -198,11 +213,11 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.29</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>sqljdbc4</artifactId>
             <version>4.0</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -216,7 +231,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.3-1104-jdbc41</version>
+            <version>42.7.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -303,12 +318,17 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.16</version>
+            <version>${poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.16</version>
+            <version>${poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-schemas</artifactId>
+            <version>${poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -377,30 +397,6 @@
             <version>5.0.0</version>
         </dependency> -->
         
-        <dependency>
-        	<groupId>org.apache.poi</groupId>
-        	<artifactId>poi</artifactId>
-        	<version>${poi.version}</version>
-        </dependency>
-        
-        <dependency>
-        	<groupId>org.apache.poi</groupId>
-        	<artifactId>poi-ooxml</artifactId>
-        	<version>${poi.version}</version>
-        </dependency>
-        
-        <dependency>
-        	<groupId>org.apache.poi</groupId>
-        	<artifactId>poi-ooxml-schemas</artifactId>
-        	<version>${poi.version}</version>
-        </dependency>
-        
-        <dependency>
-        	<groupId>commons-io</groupId>
-        	<artifactId>commons-io</artifactId>
-        	<version>${commons-io.version}</version>
-        </dependency> 
-
 	    <!-- <dependency>
 	        <groupId>commons-fileupload</groupId>
 	        <artifactId>commons-fileupload</artifactId>
@@ -414,25 +410,12 @@
 		    <version>20180130</version>
 		</dependency>
 		
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-        </dependency>
-        
          <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt-spring31</artifactId>
             <version>1.9.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.owlnest</groupId>
-            <artifactId>owlnest-api</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/owlnest-stub.jar</systemPath>
-        </dependency>
     </dependencies>
 
     <build>
@@ -454,9 +437,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
+                <version>3.4.0</version>
                 <configuration>
-                    <warName>${project.artifactId}</warName>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webResources>
                         <resource>
                             <directory>lib/</directory>
@@ -469,6 +452,22 @@
                 </configuration>
             </plugin>
             
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <path>/bdp</path>
+                    <port>8080</port>
+                    <uriEncoding>UTF-8</uriEncoding>
+                    <!-- Use packaged WAR so JDBC drivers (PostgreSQL, etc.) are in WEB-INF/lib -->
+                    <warFile>${project.build.directory}/${project.build.finalName}.war</warFile>
+                    <systemProperties>
+                        <javax.xml.accessExternalDTD>file,http,https</javax.xml.accessExternalDTD>
+                        <javax.xml.accessExternalSchema>file,http,https</javax.xml.accessExternalSchema>
+                    </systemProperties>
+                </configuration>
+            </plugin>
             <plugin>
 			    <groupId>org.codehaus.mojo</groupId>
 			    <artifactId>tomcat-maven-plugin</artifactId>
@@ -494,25 +493,24 @@
             </activation>
             <build>
                 <plugins>
+                    <!-- Flatten env overrides into target/classes (copy-resources kept local/ subdir) -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>2.6</version>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
-                                <id>copy-resources</id>
-                                <phase>validate</phase>
+                                <id>copy-env-overrides</id>
+                                <phase>process-classes</phase>
                                 <goals>
-                                    <goal>copy-resources</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>src/main/resources/${env}</directory>
-                                            <filtering>false</filtering>
-                                        </resource>
-                                    </resources>
+                                    <target>
+                                        <copy todir="${project.build.outputDirectory}" overwrite="true" flatten="true">
+                                            <fileset dir="${project.basedir}/src/main/resources/${env}"/>
+                                        </copy>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>

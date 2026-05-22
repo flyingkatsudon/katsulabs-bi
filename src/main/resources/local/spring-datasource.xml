@@ -12,6 +12,7 @@
 
     <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close" >
         <property name="driverClassName" value="org.h2.Driver" />
+        <!-- Use project-local files (H2 1.4.x). Do not reuse ~/H2Data created by newer H2 clients. -->
         <property name="url" value="jdbc:h2:file:./target/h2-local/metadata;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE" />
         <property name="username" value="sa" />
         <property name="password" value="" />
