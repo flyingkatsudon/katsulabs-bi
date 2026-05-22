@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, ApiError } from '../../api/client'
@@ -37,7 +37,7 @@ export function DatasourceWorkbenchPage({ onSessionExpired }: DatasourceWorkbenc
   const [showLegacyFrame, setShowLegacyFrame] = useState(false)
 
   const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
-  const resource = parseConfigResourceId(selectedId)
+  const resource = useMemo(() => parseConfigResourceId(selectedId), [selectedId])
   const isNew = resource.kind === 'new'
   const numericId = resource.kind === 'edit' ? resource.id : null
 
@@ -89,7 +89,7 @@ export function DatasourceWorkbenchPage({ onSessionExpired }: DatasourceWorkbenc
         setLoading(false)
       }
     })()
-  }, [resource, isNew, loadDetail, loadList, onSessionExpired])
+  }, [resource.kind, numericId, isNew, loadDetail, loadList, onSessionExpired])
 
   function selectItem(id: string | null) {
     setMessage(null)

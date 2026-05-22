@@ -26,6 +26,7 @@ export function ConfigJsTree({
   maxHeight = '45vh',
 }: ConfigJsTreeProps) {
   const mounted = useRef(false)
+  const syncingSelectionRef = useRef(false)
   const [jsTreeReady, setJsTreeReady] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
 
@@ -85,6 +86,7 @@ export function ConfigJsTree({
     })
 
     const onSelect = (_e: unknown, data: { node: { id: string; children: string[] } }) => {
+      if (syncingSelectionRef.current) return
       const node = data.node
       if (node.children.length > 0) {
         const tree = el.jstree(true) as unknown as {
@@ -128,8 +130,12 @@ export function ConfigJsTree({
         deselect_all: () => void
         select_node: (id: string) => void
       }
+      syncingSelectionRef.current = true
       tree.deselect_all()
       tree.select_node(selectedId)
+      window.setTimeout(() => {
+        syncingSelectionRef.current = false
+      }, 0)
     } catch {
       /* not ready */
     }

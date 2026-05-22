@@ -45,7 +45,7 @@ export function DatasetWorkbenchPage({ onSessionExpired }: DatasetWorkbenchPageP
   const [loadDataBusy, setLoadDataBusy] = useState(false)
 
   const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
-  const resource = parseConfigResourceId(selectedId)
+  const resource = useMemo(() => parseConfigResourceId(selectedId), [selectedId])
   const isNew = resource.kind === 'new'
   const numericId = resource.kind === 'edit' ? resource.id : null
 
@@ -126,7 +126,7 @@ export function DatasetWorkbenchPage({ onSessionExpired }: DatasetWorkbenchPageP
         setLoading(false)
       }
     })()
-  }, [resource, isNew, loadDetail, onSessionExpired])
+  }, [resource.kind, numericId, isNew, loadDetail, onSessionExpired])
 
   function selectItem(id: string | null) {
     setPreview(null)

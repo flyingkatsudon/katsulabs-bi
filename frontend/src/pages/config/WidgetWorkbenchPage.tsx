@@ -59,7 +59,7 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
   const lastDatasetIdRef = useRef<number | null>(null)
 
   const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
-  const resource = parseConfigResourceId(selectedId)
+  const resource = useMemo(() => parseConfigResourceId(selectedId), [selectedId])
   const isNew = resource.kind === 'new'
   const numericId = resource.kind === 'edit' ? resource.id : null
 
@@ -136,7 +136,7 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
         setLoading(false)
       }
     })()
-  }, [resource, isNew, loadDetail, loadList, loadDatasetSchema, onSessionExpired])
+  }, [resource.kind, numericId, isNew, loadDetail, loadList, loadDatasetSchema, onSessionExpired])
 
   useEffect(() => {
     if (model.datasetId) void loadDatasetSchema(model.datasetId)
