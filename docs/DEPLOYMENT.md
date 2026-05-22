@@ -27,7 +27,7 @@ java -jar modules/api/build/libs/insight-board.jar --spring.profiles.active=loca
 
 - UI·API: `http://localhost:8081/` (포트는 `application.yml`의 `server.port`)
 - 헬스: `http://localhost:8081/api/v1/health`
-- 로그인: business **SH**, **admin01** / **admin123** (기타 데모 사용자 동일 비밀번호)
+- 로그인: **admin01** / **admin123** (manager01, viewer01 동일 비밀번호)
 
 ## 프로필
 
