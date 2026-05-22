@@ -30,7 +30,7 @@ for port in "${PORTS[@]}"; do
   fi
 done
 
-pkill -f 'com.katsulabs.insightboard.InsightBoardApplication' 2>/dev/null || true
+pkill -f 'com.katsulabs.bi.KatsulabsBiApplication' 2>/dev/null || true
 pkill -f 'gradle.*:modules:api:bootRun' 2>/dev/null || true
 
 rm -f "$ROOT/.run/api.pid" "$ROOT/.run/api.port"

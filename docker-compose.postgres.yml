@@ -2,7 +2,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: insight-board-postgres
+    container_name: katsulabs-bi-postgres
     environment:
       POSTGRES_DB: cboard
       POSTGRES_USER: cboard

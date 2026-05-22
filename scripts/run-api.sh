@@ -13,7 +13,7 @@ mkdir -p "$ROOT/.run"
 echo "Building bootJar…"
 ./gradlew :modules:api:bootJar -q
 
-JAR="$(ls -t "$ROOT/modules/api/build/libs"/insight-board-*.jar 2>/dev/null | head -1)"
+JAR="$(ls -t "$ROOT/modules/api/build/libs"/katsulabs-bi*.jar 2>/dev/null | head -1)"
 if [[ -z "$JAR" || ! -f "$JAR" ]]; then
   echo "bootJar not found under modules/api/build/libs/" >&2
   exit 1

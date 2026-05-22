@@ -1,8 +1,8 @@
-# Insight Board — React 프론트
+# Katsulabs BI — React 프론트
 
 ## UI/UX 원칙
 
-**로직은 React**, **CSS·메뉴·화면 구성은 AdminLTE 스타일** (`frontend/public/insightboard/`). 브랜드: **Katsulabs | Insight Board**.
+**로직은 React**, **CSS·메뉴·화면 구성은 AdminLTE 스타일** (`frontend/public/katsulabs-bi/`). 브랜드: **Katsulabs BI**.
 
 - Shell: `AppLayout` / `AppHeader` / `AppSidebar`
 - Configuration: DataSource, Dataset, Widget, Board, Category workbench
@@ -32,7 +32,7 @@ Vite는 `/api` 를 `http://localhost:8081` 로 프록시합니다.
 
 ## 정적 자산
 
-AdminLTE·플러그인은 `public/insightboard/` 에 포함됩니다 (`dist/` = 레이아웃 CSS·스킨·아바타).
+AdminLTE·플러그인은 `public/katsulabs-bi/` 에 포함됩니다 (`dist/` = 레이아웃 CSS·스킨·아바타).
 
 `dist/` 가 없으면 화면이 겹쳐 보입니다. 복구:
 
@@ -43,5 +43,5 @@ bash frontend/scripts/restore-adminlte-dist.sh
 외부 CBoard 배포본에서 전체 동기화:
 
 ```bash
-bash frontend/scripts/sync-insightboard-assets.sh /path/to/webapp/cboard
+bash frontend/scripts/sync-katsulabs-bi-assets.sh /path/to/webapp/cboard
 ```

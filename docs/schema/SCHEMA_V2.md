@@ -1,7 +1,7 @@
-# Insight Board — DB Schema v2 (전면 리뉴얼)
+# Katsulabs BI — DB Schema v2 (전면 리뉴얼)
 
 > Flyway: `V11__schema_v2_renewal.sql`  
-> 레거시 `dashboard_*` 제거 → `ib_*` (Insight Board) 메타 스키마
+> 레거시 `dashboard_*` 제거 → `ib_*` (Katsulabs BI) 메타 스키마
 
 ## 설계 원칙
 

@@ -11,12 +11,12 @@ cd frontend && npm ci && npm run build
 ```
 
 `frontend/dist`가 있으면 `copyFrontendDist`가 `classpath:/static/`에 복사합니다.  
-산출물: `modules/api/build/libs/insight-board.jar`
+산출물: `modules/api/build/libs/katsulabs-bi.jar`
 
 ## 실행 (H2 데모 + SPA)
 
 ```bash
-java -jar modules/api/build/libs/insight-board.jar --spring.profiles.active=local-h2,prod
+java -jar modules/api/build/libs/katsulabs-bi.jar --spring.profiles.active=local-h2,prod
 ```
 
 또는:
@@ -35,7 +35,7 @@ java -jar modules/api/build/libs/insight-board.jar --spring.profiles.active=loca
 |--------|------|
 | `local-h2` | 파일 없는 임베디드 H2 + Flyway 시드 |
 | `local-postgres` | Docker Postgres (`docker-compose.postgres.yml`) |
-| `prod` | `insightboard.spa.enabled=true` — React 정적 파일 + SPA 폴백 |
+| `prod` | `katsulabs.bi.spa.enabled=true` — React 정적 파일 + SPA 폴백 |
 
 DB 프로필과 `prod`를 함께 켭니다. 예: `local-h2,prod`, `local-postgres,prod`.
 
@@ -51,7 +51,7 @@ DB 프로필과 `prod`를 함께 켭니다. 예: `local-h2,prod`, `local-postgre
 docker compose -f docker-compose.postgres.yml up -d
 cd frontend && npm ci && npm run build
 ./gradlew :modules:api:bootJar
-java -jar modules/api/build/libs/insight-board.jar \
+java -jar modules/api/build/libs/katsulabs-bi.jar \
   --spring.profiles.active=local-postgres,prod
 ```
 

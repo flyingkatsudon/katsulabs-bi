@@ -5,7 +5,7 @@
 | 계층 | 방향 |
 |------|------|
 | **로직·상태** | React + Spring Boot `/api/v1/*` |
-| **스타일** | 레거시 `cboard/` CSS (AdminLTE, `insightboard.css`, 플러그인) — `index.html` + `sync-cboard-assets.sh` |
+| **스타일** | 레거시 `cboard/` CSS (AdminLTE, `katsulabs-bi.css`, 플러그인) — `index.html` + `sync-katsulabs-bi-assets.sh` |
 | **메뉴·레이아웃** | `starter.jsp` / `main-sidebar.html` / `main-header.html` 과 동일한 AdminLTE shell |
 | **상세 화면 UX** | `org/insightboard/view/config/*.html` 패턴을 React 컴포넌트로 **재현** (코드 복사 X) |
 
@@ -33,6 +33,6 @@ config/category      → CategoryPage (목록)
 
 ## 정적 UI 자산
 
-AdminLTE·Font Awesome·플러그인은 **`frontend/public/insightboard/`** 에 vendored 되어 있으며, 앱은 `/insightboard/...` URL로 로드합니다 (레거시 WAR `webapp` 제거 후 이 경로가 단일 소스).
+AdminLTE·Font Awesome·플러그인은 **`frontend/public/katsulabs-bi/`** 에 vendored 되어 있으며, 앱은 `/katsulabs-bi/...` URL로 로드합니다 (레거시 WAR `webapp` 제거 후 이 경로가 단일 소스).
 
-별도 「동기화」는 로컬 개발에 **필수가 아닙니다**. upstream CBoard에서 CSS/JS를 다시 받아와야 할 때만 `sync-cboard-assets.sh` 같은 스크립트를 추가하면 됩니다 (현재 저장소에는 없음).
+별도 「동기화」는 로컬 개발에 **필수가 아닙니다**. upstream CBoard에서 CSS/JS를 다시 받아와야 할 때만 `sync-katsulabs-bi-assets.sh` 를 사용합니다.

@@ -2,9 +2,9 @@
 
 ## Project overview
 
-Insight Board (CBoard fork) — **Java 21 / Gradle / Spring Boot 4** API (`modules/`), **React + Vite** UI (`frontend/`). Package: `com.katsulabs.insightboard`.
+Katsulabs BI (CBoard fork) — **Java 21 / Gradle / Spring Boot 4** API (`modules/`), **React + Vite** UI (`frontend/`). Package: `com.katsulabs.bi`, main class: `KatsulabsBiApplication`.
 
-Legacy Maven WAR (`pom.xml`, `src/main/`, Tomcat) has been **removed**. UI styles load from `frontend/public/insightboard/` (AdminLTE assets, URL `/insightboard/`).
+Legacy Maven WAR (`pom.xml`, `src/main/`, Tomcat) has been **removed**. UI styles load from `frontend/public/katsulabs-bi/` (AdminLTE assets, URL `/katsulabs-bi/`).
 
 ## Prerequisites
 
@@ -62,7 +62,7 @@ cd frontend && npm run build
 ```bash
 ./scripts/run-prod-jar.sh
 # or: cd frontend && npm ci && npm run build && ./gradlew :modules:api:bootJar
-#     java -jar modules/api/build/libs/insight-board.jar --spring.profiles.active=local-h2,prod
+#     java -jar modules/api/build/libs/katsulabs-bi.jar --spring.profiles.active=local-h2,prod
 ```
 
 Open `http://localhost:8081/`. Details: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
@@ -78,6 +78,6 @@ Required mapper XML: `modules/infrastructure/src/main/resources/mapper/*.xml` �
 ## Supply chain (dependencies)
 
 - **Backend**: Gradle resolves **Maven Central only** (`build.gradle.kts`). No Aliyun HTTP mirrors, Kylin/Druid/Fastjson, or legacy `pom.xml`.
-- **Frontend**: npm packages from the public registry (`package-lock.json`). No runtime CDN scripts; static AdminLTE assets are vendored under `frontend/public/insightboard/`.
+- **Frontend**: npm packages from the public registry (`package-lock.json`). No runtime CDN scripts; static AdminLTE assets are vendored under `frontend/public/katsulabs-bi/`.
 - **Removed**: China map / Baidu chart types (`chinaMap`, `chinaMapBmap`), legacy Tomcat CBoard iframe editor (`VITE_LEGACY_*`).
 - **Optional**: `./gradlew dependencyCheckAnalyze` when OWASP dependency-check plugin is added (see migration docs).

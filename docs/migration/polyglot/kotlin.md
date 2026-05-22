@@ -11,14 +11,14 @@
 ```
 modules/
   domain/                        # Java (유지)
-  insight-board-kotlin-batch/    # 신규 Kotlin 모듈
+  katsulabs-bi-kotlin-batch/    # 신규 Kotlin 모듈
     src/main/kotlin/.../jobs/
 ```
 
 `settings.gradle.kts`:
 
 ```kotlin
-include("modules:insight-board-kotlin-batch")
+include("modules:katsulabs-bi-kotlin-batch")
 ```
 
 ## Boot 4 + Kotlin

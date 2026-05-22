@@ -15,7 +15,7 @@ echo "==> npm ci + build (frontend)"
 echo "==> bootJar (embed frontend/dist when present)"
 ./gradlew :modules:api:bootJar --no-daemon
 
-JAR="$ROOT/modules/api/build/libs/insight-board.jar"
+JAR="$ROOT/modules/api/build/libs/katsulabs-bi.jar"
 if [[ ! -f "$JAR" ]]; then
   echo "JAR not found: $JAR" >&2
   exit 1

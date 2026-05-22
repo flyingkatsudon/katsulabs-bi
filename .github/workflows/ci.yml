@@ -86,5 +86,5 @@ jobs:
 
       - name: Verify embedded static assets
         run: |
-          jar tf modules/api/build/libs/insight-board.jar | grep -q 'BOOT-INF/classes/static/index.html'
-          jar tf modules/api/build/libs/insight-board.jar | grep -q 'BOOT-INF/classes/static/assets/'
+          jar tf modules/api/build/libs/katsulabs-bi.jar | grep -q 'BOOT-INF/classes/static/index.html'
+          jar tf modules/api/build/libs/katsulabs-bi.jar | grep -q 'BOOT-INF/classes/static/assets/'
