@@ -20,7 +20,7 @@ export function useAuthSession() {
   const [user, setUser] = useState<LoginResponse | null>(null)
 
   const restoreSession = useCallback(async () => {
-    const session = await fetchSession()
+    const session = await fetchSession<LoginResponse>()
     if (session) {
       setUser(normalizeLogin(session))
       setStatus('authenticated')

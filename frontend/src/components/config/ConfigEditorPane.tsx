@@ -21,7 +21,7 @@ export function ConfigEditorPane({
   resource,
   loadIssue,
   resourceLabel,
-  listPath,
+  listPath: _listPath,
   idleHint,
   onBackToList,
   children,

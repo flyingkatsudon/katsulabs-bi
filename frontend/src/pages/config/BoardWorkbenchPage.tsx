@@ -59,8 +59,6 @@ export function BoardWorkbenchPage({ onSessionExpired, boards, onBoardsChange }:
   const resource = useMemo(() => parseConfigResourceId(selectedId), [selectedId])
   const isNew = resource.kind === 'new'
   const numericId = resource.kind === 'edit' ? resource.id : null
-  const editorOpen = resource.kind === 'new' || resource.kind === 'edit'
-
   const treeData = useMemo(
     () =>
       buildCategoryTreeData(

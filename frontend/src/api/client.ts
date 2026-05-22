@@ -1,4 +1,4 @@
-import { clearSessionId, saveSessionId, sessionAuthHeaders } from '../auth/sessionCookie'
+import { saveSessionId, sessionAuthHeaders } from '../auth/sessionCookie'
 
 export class ApiError extends Error {
   status: number
