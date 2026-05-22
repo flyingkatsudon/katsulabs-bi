@@ -6,7 +6,9 @@ import java.util.Optional;
 import com.katsulabs.insightboard.domain.board.BoardDetail;
 import com.katsulabs.insightboard.domain.board.BoardRepository;
 import com.katsulabs.insightboard.domain.board.BoardSummary;
+import com.katsulabs.insightboard.infrastructure.persistence.compat.BoardFilterSync;
 import com.katsulabs.insightboard.infrastructure.persistence.compat.BoardLayoutSync;
+import com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardFilterMapper;
 import com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardMapper;
 import com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow;
 import com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardWidgetMapper;
@@ -17,10 +19,15 @@ public class BoardRepositoryImpl implements BoardRepository {
 
     private final BoardMapper boardMapper;
     private final BoardWidgetMapper boardWidgetMapper;
+    private final BoardFilterMapper boardFilterMapper;
 
-    public BoardRepositoryImpl(BoardMapper boardMapper, BoardWidgetMapper boardWidgetMapper) {
+    public BoardRepositoryImpl(
+            BoardMapper boardMapper,
+            BoardWidgetMapper boardWidgetMapper,
+            BoardFilterMapper boardFilterMapper) {
         this.boardMapper = boardMapper;
         this.boardWidgetMapper = boardWidgetMapper;
+        this.boardFilterMapper = boardFilterMapper;
     }
 
     @Override
@@ -37,7 +44,9 @@ public class BoardRepositoryImpl implements BoardRepository {
             return Optional.empty();
         }
         var placements = boardWidgetMapper.findByBoardId(boardId);
+        var filters = BoardFilterSync.loadFilters(boardFilterMapper, boardId);
         String layout = BoardLayoutSync.resolveLayoutJson(row.getLayout(), placements);
+        layout = BoardFilterSync.resolveLayoutJson(layout, filters);
         return Optional.of(toDetail(row, layout));
     }
 
@@ -88,7 +97,7 @@ public class BoardRepositoryImpl implements BoardRepository {
         applyPublish(row, publishedToViewers, publishedByUserId);
         boardMapper.insert(row);
         long boardId = row.getId();
-        BoardLayoutSync.syncFromLayoutJson(boardWidgetMapper, boardId, layoutJson);
+        syncLayoutAndFilters(boardId, layoutJson);
         return boardId;
     }
 
@@ -107,13 +116,20 @@ public class BoardRepositoryImpl implements BoardRepository {
         row.setLayout(layoutJson);
         applyPublish(row, publishedToViewers, publishedByUserId);
         boardMapper.update(row);
-        BoardLayoutSync.syncFromLayoutJson(boardWidgetMapper, id, layoutJson);
+        syncLayoutAndFilters(id, layoutJson);
     }
 
     @Override
     public void delete(long id) {
+        boardFilterMapper.deleteOptionsByBoardId(id);
+        boardFilterMapper.deleteByBoardId(id);
         boardWidgetMapper.deleteByBoardId(id);
         boardMapper.delete(id);
+    }
+
+    private void syncLayoutAndFilters(long boardId, String layoutJson) {
+        BoardLayoutSync.syncFromLayoutJson(boardWidgetMapper, boardId, layoutJson);
+        BoardFilterSync.syncFromLayoutJson(boardFilterMapper, boardId, layoutJson);
     }
 
     private static void applyPublish(BoardRow row, boolean publishedToViewers, String publishedByUserId) {

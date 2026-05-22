@@ -288,7 +288,9 @@ class ApiIntegrationTest {
         MockHttpSession session = login("viewer01", "admin123");
         mockMvc.perform(get("/api/v1/boards/1").session(session))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.publishedToViewers").value(true));
+                .andExpect(jsonPath("$.publishedToViewers").value(true))
+                .andExpect(jsonPath("$.layoutJson").value(org.hamcrest.Matchers.containsString("\"type\":\"param\"")))
+                .andExpect(jsonPath("$.layoutJson").value(org.hamcrest.Matchers.containsString("the_year")));
     }
 
     @DisplayName("Viewer 세션에 defaultBoardId 가 포함된다")

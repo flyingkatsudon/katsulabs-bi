@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardFilterMapper">
+
+    <select id="findByBoardId" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardFilterRow">
+        SELECT filter_id     AS filterId,
+               board_id      AS boardId,
+               column_name   AS columnName,
+               label         AS label,
+               default_value AS defaultValue,
+               sort_order    AS sortOrder
+          FROM ib_board_filter
+         WHERE board_id = #{boardId}
+         ORDER BY sort_order, filter_id
+    </select>
+
+    <select id="findOptionValuesByFilterId" resultType="string">
+        SELECT option_value
+          FROM ib_board_filter_option
+         WHERE filter_id = #{filterId}
+         ORDER BY option_value
+    </select>
+
+    <delete id="deleteOptionsByBoardId">
+        DELETE FROM ib_board_filter_option
+         WHERE filter_id IN (SELECT filter_id FROM ib_board_filter WHERE board_id = #{boardId})
+    </delete>
+
+    <delete id="deleteByBoardId">
+        DELETE FROM ib_board_filter WHERE board_id = #{boardId}
+    </delete>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="filterId">
+        INSERT INTO ib_board_filter (board_id, column_name, label, default_value, sort_order)
+        VALUES (#{boardId}, #{columnName}, #{label}, #{defaultValue}, #{sortOrder})
+    </insert>
+
+    <insert id="insertOption">
+        INSERT INTO ib_board_filter_option (filter_id, option_value)
+        VALUES (#{filterId}, #{optionValue})
+    </insert>
+</mapper>
