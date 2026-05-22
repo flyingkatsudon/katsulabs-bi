@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.CategoryMapper">
+<mapper namespace="com.katsulabs.bi.infrastructure.persistence.mybatis.CategoryMapper">
 
-    <select id="findAll" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.CategoryRow">
+    <select id="findAll" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.CategoryRow">
         SELECT category_id AS id,
                name,
                owner_user_id AS userId
@@ -11,7 +11,7 @@
          ORDER BY name
     </select>
 
-    <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.CategoryRow">
+    <select id="findById" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.CategoryRow">
         SELECT category_id AS id,
                name,
                owner_user_id AS userId

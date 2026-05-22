@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardMapper">
+<mapper namespace="com.katsulabs.bi.infrastructure.persistence.mybatis.BoardMapper">
 
     <sql id="boardSelect">
         SELECT b.board_id      AS id,
@@ -19,7 +19,7 @@
           LEFT JOIN ib_category c ON c.category_id = b.category_id
     </sql>
 
-    <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow">
+    <select id="findAllSummaries" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.BoardRow">
         <include refid="boardSelect"/>
         <where>
             <if test="publishedOnly">
@@ -29,7 +29,7 @@
          ORDER BY b.name
     </select>
 
-    <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow">
+    <select id="findById" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.BoardRow">
         <include refid="boardSelect"/>
          WHERE b.board_id = #{boardId}
     </select>

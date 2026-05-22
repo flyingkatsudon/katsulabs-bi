@@ -1,4 +1,4 @@
 # Single-process deploy: API + embedded React build (classpath:/static/)
-insightboard:
+katsulabs.bi:
   spa:
     enabled: true

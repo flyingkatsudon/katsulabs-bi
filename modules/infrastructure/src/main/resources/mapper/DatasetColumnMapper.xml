@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetColumnMapper">
+<mapper namespace="com.katsulabs.bi.infrastructure.persistence.mybatis.DatasetColumnMapper">
 
-    <select id="findByDatasetId" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetColumnRow">
+    <select id="findByDatasetId" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.DatasetColumnRow">
         SELECT column_id   AS id,
                dataset_id  AS datasetId,
                column_name AS columnName,

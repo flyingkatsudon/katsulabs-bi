@@ -11,7 +11,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "insight-board"
+rootProject.name = "katsulabs-bi"
 
 include(
     "modules:domain",

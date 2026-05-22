@@ -4,7 +4,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.katsulabs.insightboard"
+    group = "com.katsulabs.bi"
     version = "0.1.0-SNAPSHOT"
 
     repositories {

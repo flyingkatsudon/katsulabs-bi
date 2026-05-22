@@ -50,12 +50,12 @@ tasks.named<ProcessResources>("processResources") {
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    archiveFileName.set("insight-board.jar")
+    archiveFileName.set("katsulabs-bi.jar")
     dependsOn("copyFrontendDist")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
-    mainClass.set("com.katsulabs.insightboard.InsightBoardApplication")
+    mainClass.set("com.katsulabs.bi.KatsulabsBiApplication")
     systemProperty("spring.main.register-shutdown-hook", "true")
     jvmArgs("-XX:+ExitOnOutOfMemoryError")
 }
