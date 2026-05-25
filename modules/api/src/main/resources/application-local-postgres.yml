@@ -1,0 +1,13 @@
+# 로컬 개발: PostgreSQL (docker-compose.postgres.yml)
+server:
+  shutdown: immediate
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cboard
+    username: cboard
+    password: cboard
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: never

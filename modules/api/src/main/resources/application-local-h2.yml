@@ -1,0 +1,14 @@
+# dev: 긴 aggregate 요청 중 Ctrl+C 시 graceful 대기로 Gradle 이 멈춘 것처럼 보이는 문제 방지
+server:
+  shutdown: immediate
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:insight-board;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

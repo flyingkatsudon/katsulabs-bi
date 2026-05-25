@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasourceMapper">
+
+    <sql id="datasourceSelect">
+        SELECT s.datasource_id AS id,
+               s.user_id       AS userId,
+               s.source_name   AS name,
+               s.source_type   AS type,
+               s.config        AS config,
+               u.user_name     AS userName,
+               s.create_time   AS createTime,
+               s.update_time   AS updateTime
+          FROM dashboard_datasource s
+          LEFT JOIN dashboard_user u
+            ON u.user_id = s.user_id
+    </sql>
+
+    <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasourceRow">
+        <include refid="datasourceSelect"/>
+         ORDER BY s.source_name
+    </select>
+
+    <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasourceRow">
+        <include refid="datasourceSelect"/>
+         WHERE s.datasource_id = #{datasourceId}
+    </select>
+
+    <select id="countByName" resultType="long">
+        SELECT COUNT(1) FROM dashboard_datasource
+         WHERE user_id = #{userId} AND source_name = #{name}
+        <if test="excludeId != null">
+           AND datasource_id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="datasource_id">
+        INSERT INTO dashboard_datasource (user_id, source_name, source_type, config)
+        VALUES (#{userId}, #{name}, #{type}, #{config})
+    </insert>
+
+    <update id="update">
+        UPDATE dashboard_datasource
+           SET source_name = #{name}, config = #{config}, update_time = CURRENT_TIMESTAMP
+         WHERE datasource_id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM dashboard_datasource WHERE datasource_id = #{datasourceId}
+    </delete>
+</mapper>

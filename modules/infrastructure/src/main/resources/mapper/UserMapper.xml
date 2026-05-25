@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.UserMapper">
+
+    <select id="findByUserId" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.UserRow">
+        SELECT u.user_id           AS userId,
+               u.login_name        AS loginName,
+               u.user_name         AS userName,
+               u.user_password     AS userPassword,
+               u.rbac_policy       AS rbacPolicy,
+               u.user_state_info   AS userStateInfo,
+               u.del_cd            AS delCd,
+               (SELECT MIN(ur.role_id)
+                  FROM dashboard_user_role ur
+                 WHERE ur.user_id = u.user_id) AS roleId
+          FROM dashboard_user u
+         WHERE u.user_id = #{userId}
+    </select>
+
+    <select id="findResourceTypesByRoleId" resultType="long">
+        SELECT CAST(res_type AS BIGINT) AS resType
+          FROM dashboard_role_res rr
+         WHERE rr.role_id = #{roleId}
+           AND (rr.del_cd IS NULL OR UPPER(rr.del_cd) != 'X')
+         ORDER BY resType ASC
+    </select>
+
+    <update id="updateLoginFailure">
+        UPDATE dashboard_user
+           SET rbac_policy = #{rbacPolicy},
+               user_state_info = #{userStateInfo},
+               user_last_date = CURRENT_TIMESTAMP
+         WHERE user_id = #{userId}
+    </update>
+
+    <update id="resetLoginFailure">
+        UPDATE dashboard_user
+           SET rbac_policy = 0,
+               user_state_info = '0',
+               user_last_date = CURRENT_TIMESTAMP
+         WHERE user_id = #{userId}
+    </update>
+
+    <select id="findRoleName" resultType="string">
+        SELECT role_name FROM dashboard_role WHERE role_id = #{roleId}
+    </select>
+
+    <select id="findAll" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.UserSummaryRow">
+        SELECT u.user_id       AS userId,
+               u.login_name    AS loginName,
+               u.user_name     AS userName,
+               (SELECT MIN(ur.role_id)
+                  FROM dashboard_user_role ur
+                 WHERE ur.user_id = u.user_id) AS roleId,
+               (SELECT r.role_name
+                  FROM dashboard_role r
+                 WHERE r.role_id = (SELECT MIN(ur.role_id)
+                                      FROM dashboard_user_role ur
+                                     WHERE ur.user_id = u.user_id)) AS roleName,
+               u.user_status   AS userStatus,
+               u.del_cd        AS delCd
+          FROM dashboard_user u
+         WHERE (u.del_cd IS NULL OR UPPER(u.del_cd) != 'Y')
+         ORDER BY u.user_id
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO dashboard_user (
+            user_id, login_name, user_name, user_password,
+            user_status, rbac_policy, user_state_info, del_cd
+        ) VALUES (
+            #{userId}, #{loginName}, #{userName}, #{passwordHash},
+            'active', 0, '0', 'N'
+        )
+    </insert>
+
+    <insert id="insertUserRole">
+        INSERT INTO dashboard_user_role (user_id, role_id)
+        VALUES (#{userId}, #{roleId})
+    </insert>
+
+    <update id="updateUser">
+        UPDATE dashboard_user
+           SET login_name = #{loginName},
+               user_name = #{userName},
+               <if test="passwordHash != null">
+               user_password = #{passwordHash},
+               </if>
+               user_last_date = CURRENT_TIMESTAMP
+         WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateUserRole">
+        UPDATE dashboard_user_role
+           SET role_id = #{roleId}
+         WHERE user_id = #{userId}
+    </update>
+
+    <update id="softDeleteUser">
+        UPDATE dashboard_user
+           SET del_cd = 'Y',
+               user_status = 'inactive',
+               user_last_date = CURRENT_TIMESTAMP
+         WHERE user_id = #{userId}
+    </update>
+</mapper>

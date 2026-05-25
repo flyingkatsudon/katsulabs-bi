@@ -1,0 +1,81 @@
+package org.cboard.application.auth;
+
+import org.cboard.domain.user.UserAccount;
+import org.cboard.domain.user.UserRepository;
+
+/**
+ * 레거시 CboardAuthenticationProvider 규칙을 유스케이스로 이전.
+ */
+public class LoginUseCase {
+
+    private static final String INVALID_CREDENTIALS = "사용자 ID 또는 비밀번호가 일치하지 않습니다.";
+
+    private final UserRepository userRepository;
+    private final PasswordHasher passwordHasher;
+    private final ResourceTypeLoader resourceTypeLoader;
+
+    public LoginUseCase(
+            UserRepository userRepository,
+            PasswordHasher passwordHasher,
+            ResourceTypeLoader resourceTypeLoader) {
+        this.userRepository = userRepository;
+        this.passwordHasher = passwordHasher;
+        this.resourceTypeLoader = resourceTypeLoader;
+    }
+
+    public AuthenticatedUser login(LoginCommand command) {
+        validate(command);
+
+        UserAccount account = userRepository
+                .findByUserIdAndBusinessCode(command.userId(), command.businessCode())
+                .orElseThrow(() -> new LoginException(INVALID_CREDENTIALS));
+
+        if (account.isDeleted()) {
+            throw new LoginException(INVALID_CREDENTIALS);
+        }
+
+        if (account.isLocked()) {
+            userRepository.updateLoginFailure(account, 5, "1");
+            throw new LoginException("비밀번호가 5회 이상 일치하지 않았습니다. 시스템 관리자에게 문의하세요.");
+        }
+
+        String hashed = passwordHasher.hash(command.plainPassword());
+        if (!hashed.equalsIgnoreCase(account.passwordHash())) {
+            int failCount = account.failedLoginCount() + 1;
+            String state = failCount >= 5 ? "1" : "0";
+            userRepository.updateLoginFailure(account, failCount, state);
+            if (failCount >= 5) {
+                throw new LoginException("비밀번호가 5회 이상 일치하지 않았습니다. 시스템 관리자에게 문의하세요.");
+            }
+            throw new LoginException("비밀번호가 " + failCount + "회 일치하지 않았습니다.");
+        }
+
+        userRepository.resetLoginFailure(command.userId(), command.businessCode());
+
+        return new AuthenticatedUser(
+                account.userId(),
+                account.businessCode(),
+                account.loginName(),
+                account.displayName(),
+                account.roleId(),
+                resourceTypeLoader.loadByRoleId(account.roleId()));
+    }
+
+    private static void validate(LoginCommand command) {
+        if (command.userId() == null || command.userId().isBlank()) {
+            throw new LoginException("사용자 ID를 입력해주세요.");
+        }
+        if (command.userId().length() < 6 || command.userId().length() > 10) {
+            throw new LoginException("사용자 ID는 6~10자여야 합니다.");
+        }
+        if (command.userId().contains(" ")) {
+            throw new LoginException("사용자 ID에 공백을 포함할 수 없습니다.");
+        }
+        if (command.plainPassword() == null || command.plainPassword().isBlank()) {
+            throw new LoginException("비밀번호를 입력해주세요.");
+        }
+        if (command.businessCode() == null || command.businessCode().isBlank()) {
+            throw new LoginException("businessCode가 필요합니다.");
+        }
+    }
+}

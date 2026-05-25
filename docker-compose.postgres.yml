@@ -1,0 +1,16 @@
+# Boot 4 로컬 프로필 local-postgres 용
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: insight-board-postgres
+    environment:
+      POSTGRES_DB: cboard
+      POSTGRES_USER: cboard
+      POSTGRES_PASSWORD: cboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - insight_board_pg_data:/var/lib/postgresql/data
+
+volumes:
+  insight_board_pg_data:

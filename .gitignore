@@ -6,6 +6,13 @@
 # User-specific stuff:
 .idea/*
 target
+.run/
+mycache/
+.gradle/
+build/
+modules/**/build/
+frontend/node_modules/
+frontend/dist/
 **/*.iml
 
 ## File-based project format:

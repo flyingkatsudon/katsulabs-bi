@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.CategoryMapper">
+
+    <select id="findAll" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.CategoryRow">
+        SELECT category_id   AS id,
+               category_name AS name,
+               user_id       AS userId
+          FROM dashboard_category
+         ORDER BY category_name
+    </select>
+
+    <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.CategoryRow">
+        SELECT category_id   AS id,
+               category_name AS name,
+               user_id       AS userId
+          FROM dashboard_category
+         WHERE category_id = #{id}
+    </select>
+
+    <select id="countByName" resultType="int">
+        SELECT COUNT(*)
+          FROM dashboard_category
+         WHERE category_name = #{name}
+        <if test="excludeId != null">
+           AND category_id != #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="category_id">
+        INSERT INTO dashboard_category (category_name, user_id)
+        VALUES (#{name}, #{userId})
+    </insert>
+
+    <update id="update">
+        UPDATE dashboard_category
+           SET category_name = #{name},
+               user_id = #{userId}
+         WHERE category_id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM dashboard_category WHERE category_id = #{id}
+    </delete>
+</mapper>

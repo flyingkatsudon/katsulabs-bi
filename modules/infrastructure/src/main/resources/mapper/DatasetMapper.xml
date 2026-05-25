@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetMapper">
+
+    <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetRow">
+        SELECT d.dataset_id    AS id,
+               d.user_id       AS userId,
+               d.dataset_name  AS name,
+               d.category_name AS categoryName,
+               u.user_name     AS userName,
+               d.create_time   AS createTime,
+               d.update_time   AS updateTime
+          FROM dashboard_dataset d
+          LEFT JOIN dashboard_user u
+            ON u.user_id = d.user_id
+         ORDER BY d.dataset_name
+    </select>
+
+    <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.DatasetRow">
+        SELECT d.dataset_id    AS id,
+               d.user_id       AS userId,
+               d.dataset_name  AS name,
+               d.data_json     AS data,
+               d.category_name AS categoryName,
+               u.user_name     AS userName,
+               d.create_time   AS createTime,
+               d.update_time   AS updateTime
+          FROM dashboard_dataset d
+          LEFT JOIN dashboard_user u
+            ON u.user_id = d.user_id
+         WHERE d.dataset_id = #{datasetId}
+    </select>
+
+    <select id="countByName" resultType="long">
+        SELECT COUNT(1) FROM dashboard_dataset
+         WHERE dataset_name = #{name} AND category_name = #{categoryName}
+        <if test="excludeId != null">
+           AND dataset_id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="dataset_id">
+        INSERT INTO dashboard_dataset (user_id, dataset_name, data_json, category_name)
+        VALUES (#{userId}, #{name}, #{data}, #{categoryName})
+    </insert>
+
+    <update id="update">
+        UPDATE dashboard_dataset
+           SET dataset_name = #{name}, data_json = #{data}, category_name = #{categoryName},
+               update_time = CURRENT_TIMESTAMP
+         WHERE dataset_id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM dashboard_dataset WHERE dataset_id = #{datasetId}
+    </delete>
+</mapper>

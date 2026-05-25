@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.WidgetMapper">
+
+    <sql id="widgetSelect">
+        SELECT w.widget_id     AS id,
+               w.user_id       AS userId,
+               w.widget_name   AS name,
+               w.data_json     AS data,
+               w.category_name AS categoryName,
+               u.user_name     AS userName,
+               w.create_time   AS createTime,
+               w.update_time   AS updateTime
+          FROM dashboard_widget w
+          LEFT JOIN dashboard_user u
+            ON u.user_id = w.user_id
+    </sql>
+
+    <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.WidgetRow">
+        <include refid="widgetSelect"/>
+         ORDER BY w.widget_name
+    </select>
+
+    <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.WidgetRow">
+        <include refid="widgetSelect"/>
+         WHERE w.widget_id = #{widgetId}
+    </select>
+
+    <select id="countByName" resultType="long">
+        SELECT COUNT(1) FROM dashboard_widget
+         WHERE widget_name = #{name} AND category_name = #{categoryName}
+        <if test="excludeId != null">
+           AND widget_id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="widget_id">
+        INSERT INTO dashboard_widget (user_id, widget_name, data_json, category_name)
+        VALUES (#{userId}, #{name}, #{data}, #{categoryName})
+    </insert>
+
+    <update id="update">
+        UPDATE dashboard_widget
+           SET widget_name = #{name}, data_json = #{data}, category_name = #{categoryName},
+               update_time = CURRENT_TIMESTAMP
+         WHERE widget_id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM dashboard_widget WHERE widget_id = #{widgetId}
+    </delete>
+</mapper>

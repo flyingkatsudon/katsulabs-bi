@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardMapper">
+
+    <sql id="boardSelect">
+        SELECT b.board_id      AS id,
+               b.user_id       AS userId,
+               b.board_name    AS name,
+               b.layout_json   AS layout,
+               b.category_id   AS categoryId,
+               c.category_name AS categoryName,
+               u.user_name     AS userName,
+               b.create_time   AS createTime,
+               b.update_time   AS updateTime
+          FROM dashboard_board b
+          LEFT JOIN dashboard_user u
+            ON u.user_id = b.user_id
+          LEFT JOIN dashboard_category c ON c.category_id = b.category_id
+    </sql>
+
+    <select id="findAllSummaries" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow">
+        <include refid="boardSelect"/>
+         ORDER BY b.board_name
+    </select>
+
+    <select id="findById" resultType="com.katsulabs.insightboard.infrastructure.persistence.mybatis.BoardRow">
+        <include refid="boardSelect"/>
+         WHERE b.board_id = #{boardId}
+    </select>
+
+    <select id="countByName" resultType="long">
+        SELECT COUNT(1) FROM dashboard_board
+         WHERE user_id = #{userId} AND board_name = #{name}
+        <if test="excludeId != null">
+           AND board_id &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="board_id">
+        INSERT INTO dashboard_board (user_id, board_name, layout_json, category_id)
+        VALUES (#{userId}, #{name}, #{layout}, #{categoryId})
+    </insert>
+
+    <update id="update">
+        UPDATE dashboard_board
+           SET board_name = #{name}, layout_json = #{layout}, category_id = #{categoryId},
+               update_time = CURRENT_TIMESTAMP
+         WHERE board_id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM dashboard_board WHERE board_id = #{boardId}
+    </delete>
+</mapper>
