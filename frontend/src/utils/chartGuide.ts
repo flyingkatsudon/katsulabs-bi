@@ -96,8 +96,40 @@ const GUIDES: Record<string, ChartGuide> = {
     steps: ['Row: the_year', 'Column: sales_country', 'Value: sum(store_sales)'],
   },
   googleMap: {
-    summary: 'React 뷰어 미지원 — 레거시 편집기 또는 표만 표시됩니다.',
-    steps: ['Row/Value 설정 후 표 확인', '지도는 레거시 위젯 편집기 사용'],
+    summary: '국가·지역명을 경위도로 매핑해 버블 지도처럼 표시합니다 (데모 좌표).',
+    steps: ['Row: sales_country 등 지역 차원', 'Value: sum(금액)'],
+  },
+  map: {
+    summary: 'googleMap 과 동일 — 지역명 기준 산점도 지도.',
+    steps: ['Row: 지역 차원', 'Value: 집계값 1개'],
+  },
+  areaMap: {
+    summary: '지역별 값을 큰 원 크기로 표시합니다.',
+    steps: ['Row: 지역', 'Value: sum(금액)'],
+  },
+  chinaMap: {
+    summary: '중국 지역명이 포함되면 해당 좌표를 우선 사용합니다.',
+    steps: ['Row: 성·도시 이름', 'Value: 집계값'],
+  },
+  liquidFill: {
+    summary: '단일 지표 합계를 수면(liquid fill) 게이지로 표시합니다.',
+    steps: ['Value: sum(지표) 하나'],
+  },
+  heatMapCalendar: {
+    summary: '날짜(연·월)별 값을 달력 히트맵으로 표시합니다.',
+    steps: ['Row: the_year (또는 YYYY-MM-DD)', 'Column: month_of_year (선택)', 'Value: sum(금액)'],
+  },
+  relation: {
+    summary: '관계 그래프(노드·링크)로 연결을 표시합니다.',
+    steps: ['Row: 출발 노드', 'Column: 도착 노드', 'Value: 가중치'],
+  },
+  wordBubble: {
+    summary: '단어 크기를 원 크기로 표현합니다 (word cloud 변형).',
+    steps: ['Row: 라벨 차원', 'Value: sum(금액)'],
+  },
+  fusionganttcharts: {
+    summary: '작업별 막대 길이로 간트를 근사합니다.',
+    steps: ['Row: 작업/카테고리', 'Value: 기간(1개) 또는 시작·종료(2개)'],
   },
 }
 

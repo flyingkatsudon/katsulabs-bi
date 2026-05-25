@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { echarts } from '../../legacy/echartsSetup'
 import { aggregateToTableHtml, type AggregateResult } from '../../utils/aggregateApi'
-import {
-  buildEchartsOption,
-  CHART_LEGACY_ONLY,
-  chartTypeLabel,
-  legacyWidgetEditorUrl,
-} from '../../utils/chartRender'
+import { buildEchartsOption, chartTypeLabel } from '../../utils/chartRender'
 import type { WidgetDataModel } from '../../utils/widgetModel'
 
 type WidgetChartViewProps = {
@@ -20,7 +15,7 @@ type WidgetChartViewProps = {
   emptyMessage?: string
 }
 
-type ViewMode = 'loading' | 'error' | 'empty' | 'table' | 'legacy' | 'fallback-table' | 'chart'
+type ViewMode = 'loading' | 'error' | 'empty' | 'table' | 'fallback-table' | 'chart'
 
 function disposeChart(instanceRef: { current: echarts.ECharts | null }) {
   const inst = instanceRef.current
@@ -34,7 +29,7 @@ export function WidgetChartView({
   chartType,
   result,
   widgetConfig,
-  widgetId,
+  widgetId: _widgetId,
   loading,
   error,
   height = 280,
@@ -49,14 +44,12 @@ export function WidgetChartView({
     if (error) return 'error'
     if (!result?.data.length) return 'empty'
     if (chartType === 'table') return 'table'
-    if (CHART_LEGACY_ONLY.has(chartType)) return 'legacy'
     const option = buildEchartsOption(chartType, result, widgetConfig)
     if (!option) return 'fallback-table'
     return 'chart'
   }, [loading, error, result, chartType, widgetConfig])
 
-  const showTable =
-    viewMode === 'table' || viewMode === 'legacy' || viewMode === 'fallback-table'
+  const showTable = viewMode === 'table' || viewMode === 'fallback-table'
 
   useEffect(() => {
     const el = chartHostRef.current
@@ -117,22 +110,6 @@ export function WidgetChartView({
       {viewMode === 'error' && <p className="text-danger">{error}</p>}
       {viewMode === 'empty' && <p className="text-muted">{emptyMessage}</p>}
 
-      {viewMode === 'legacy' && (
-        <p className="text-warning" style={{ marginBottom: 8 }}>
-          「{chartTypeLabel(chartType)}」은 지도·외부 라이브러리 차트로, React 뷰어에서는 표만
-          표시합니다. Configuration → Widget 에서 설정하세요.
-        </p>
-      )}
-      {viewMode === 'legacy' && widgetId != null && (
-        <a
-          href={legacyWidgetEditorUrl(widgetId)}
-          target="_blank"
-          rel="noreferrer"
-          className="btn btn-default btn-sm"
-        >
-          위젯 편집 화면 열기
-        </a>
-      )}
       {viewMode === 'fallback-table' && (
         <p className="text-warning" style={{ marginBottom: 8 }}>
           「{chartTypeLabel(chartType)}」은 React 뷰어에서 아직 전용 차트로 그리지 않습니다. 표로
@@ -154,7 +131,7 @@ export function WidgetChartView({
         className="table-responsive"
         style={{
           display: showTable ? 'block' : 'none',
-          marginTop: viewMode === 'legacy' || viewMode === 'fallback-table' ? 12 : 0,
+          marginTop: viewMode === 'fallback-table' ? 12 : 0,
         }}
       />
     </div>

@@ -1,24 +1,11 @@
 import type { EChartsOption } from 'echarts'
-import type { AggregateColumn, AggregateResult } from './aggregateApi'
+import type { AggregateResult } from './aggregateApi'
+import { cell, dimLabel, num, splitColumns } from './chartAggregateHelpers'
+import { buildLegacyEchartsOption, LEGACY_ECHARTS_CHART_TYPES } from './legacyChartEcharts'
 import type { WidgetDataModel } from './widgetModel'
 
-/** 지도·Fusion 등 — React 미지원, 레거시 편집기 안내 */
-export const CHART_LEGACY_ONLY = new Set([
-  'googleMap',
-  'wordBubble',
-  'fusionganttcharts',
-  'heatMapCalendar',
-  'relation',
-  'liquidFill',
-  'areaMap',
-  'chinaMap',
-  'chinaMapBmap',
-  'map',
-])
-
-export function legacyWidgetEditorUrl(widgetId?: number): string {
-  return widgetId ? `/widgets?id=${widgetId}` : '/widgets?id=new'
-}
+/** @deprecated 레거시 차트도 ECharts 로 렌더 — 빈 Set 유지(하위 호환) */
+export const CHART_LEGACY_ONLY = new Set<string>()
 
 /** React 뷰어/미리보기에서 ECharts 로 그릴 수 있는 유형 */
 /** 레거시 widgetCtrl configRule: 0=숨김, 그 외=표시 */
@@ -83,30 +70,8 @@ export const CHART_REACT_RENDER = new Set([
   'pyramid',
   'pareto',
   'heatMapTable',
+  ...LEGACY_ECHARTS_CHART_TYPES,
 ])
-
-function splitColumns(columnList: AggregateColumn[]) {
-  const dimIdx: number[] = []
-  const measureIdx: number[] = []
-  columnList.forEach((c, i) => {
-    if (c.aggType) measureIdx.push(i)
-    else dimIdx.push(i)
-  })
-  return { dimIdx, measureIdx }
-}
-
-function cell(row: string[], idx: number): string {
-  return row[idx] ?? ''
-}
-
-function num(row: string[], idx: number): number {
-  const n = Number(row[idx])
-  return Number.isFinite(n) ? n : 0
-}
-
-function dimLabel(row: string[], dimIdx: number[]): string {
-  return dimIdx.map((i) => cell(row, i)).join('-')
-}
 
 function lineBarSeriesType(seriesType: string | undefined): {
   type: 'line' | 'bar'
@@ -138,8 +103,11 @@ export function buildEchartsOption(
   result: AggregateResult,
   widgetConfig?: WidgetDataModel['config'],
 ): EChartsOption | null {
-  if (CHART_LEGACY_ONLY.has(chartType)) return null
   if (!result.data.length || !result.columnList.length) return null
+
+  const legacyOpt = buildLegacyEchartsOption(chartType, result)
+  if (legacyOpt !== undefined) return legacyOpt
+
   const { dimIdx, measureIdx } = splitColumns(result.columnList)
   if (!measureIdx.length && chartType !== 'table') return null
 

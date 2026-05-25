@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('echarts-wordcloud', () => ({}))
+vi.mock('echarts-liquidfill', () => ({}))
 
 import App from './App'
 
