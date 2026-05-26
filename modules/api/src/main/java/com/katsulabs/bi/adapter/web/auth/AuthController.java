@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.auth;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import com.katsulabs.bi.application.auth.AuthenticatedUser;
@@ -24,15 +26,12 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/api/v1/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class AuthController {
 
     private final LoginUseCase loginUseCase;
     private final SessionHeaderRegistry sessionHeaderRegistry;
 
-    public AuthController(LoginUseCase loginUseCase, SessionHeaderRegistry sessionHeaderRegistry) {
-        this.loginUseCase = loginUseCase;
-        this.sessionHeaderRegistry = sessionHeaderRegistry;
-    }
 
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {

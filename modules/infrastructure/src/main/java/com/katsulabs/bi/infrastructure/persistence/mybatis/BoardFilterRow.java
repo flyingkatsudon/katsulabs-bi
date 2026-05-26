@@ -3,6 +3,11 @@ package com.katsulabs.bi.infrastructure.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class BoardFilterRow {
 
     private Long filterId;
@@ -13,58 +18,7 @@ public class BoardFilterRow {
     private int sortOrder;
     private List<String> optionValues = new ArrayList<>();
 
-    public Long getFilterId() {
-        return filterId;
-    }
-
-    public void setFilterId(Long filterId) {
-        this.filterId = filterId;
-    }
-
-    public Long getBoardId() {
-        return boardId;
-    }
-
-    public void setBoardId(Long boardId) {
-        this.boardId = boardId;
-    }
-
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public int getSortOrder() {
-        return sortOrder;
-    }
-
-    public void setSortOrder(int sortOrder) {
-        this.sortOrder = sortOrder;
-    }
-
-    public List<String> getOptionValues() {
-        return optionValues;
-    }
-
+    // MyBatis join aggregation 시 null 방지용 커스텀 setter
     public void setOptionValues(List<String> optionValues) {
         this.optionValues = optionValues != null ? optionValues : new ArrayList<>();
     }

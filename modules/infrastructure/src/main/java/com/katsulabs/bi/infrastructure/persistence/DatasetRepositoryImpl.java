@@ -1,5 +1,7 @@
 package com.katsulabs.bi.infrastructure.persistence;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,15 +15,12 @@ import com.katsulabs.bi.infrastructure.persistence.mybatis.DatasetRow;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class DatasetRepositoryImpl implements DatasetRepository {
 
     private final DatasetMapper datasetMapper;
     private final DatasetColumnMapper datasetColumnMapper;
 
-    public DatasetRepositoryImpl(DatasetMapper datasetMapper, DatasetColumnMapper datasetColumnMapper) {
-        this.datasetMapper = datasetMapper;
-        this.datasetColumnMapper = datasetColumnMapper;
-    }
 
     @Override
     public List<DatasetSummary> findAllSummaries() {

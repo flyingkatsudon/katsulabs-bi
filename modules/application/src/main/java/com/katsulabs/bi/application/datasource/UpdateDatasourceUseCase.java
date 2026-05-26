@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.datasource;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.datasource.DatasourceRepository;
 
+@RequiredArgsConstructor
 public class UpdateDatasourceUseCase {
 
     private final DatasourceRepository datasourceRepository;
 
-    public UpdateDatasourceUseCase(DatasourceRepository datasourceRepository) {
-        this.datasourceRepository = datasourceRepository;
-    }
 
     public ServiceResult execute(String userId, long id, DatasourceWriteCommand command) {
         if (datasourceRepository.findById(id).isEmpty()) {

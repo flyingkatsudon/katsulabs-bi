@@ -1,5 +1,7 @@
 package com.katsulabs.bi.infrastructure.persistence;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,15 +15,12 @@ import com.katsulabs.bi.infrastructure.persistence.mybatis.WidgetRow;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class WidgetRepositoryImpl implements WidgetRepository {
 
     private final WidgetMapper widgetMapper;
     private final WidgetBindingMapper widgetBindingMapper;
 
-    public WidgetRepositoryImpl(WidgetMapper widgetMapper, WidgetBindingMapper widgetBindingMapper) {
-        this.widgetMapper = widgetMapper;
-        this.widgetBindingMapper = widgetBindingMapper;
-    }
 
     @Override
     public List<WidgetSummary> findAllSummaries() {

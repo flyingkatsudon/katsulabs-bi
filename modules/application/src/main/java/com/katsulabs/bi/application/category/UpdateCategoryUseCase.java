@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.category;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.category.CategoryRepository;
 
+@RequiredArgsConstructor
 public class UpdateCategoryUseCase {
 
     private final CategoryRepository categoryRepository;
 
-    public UpdateCategoryUseCase(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     public ServiceResult execute(String userId, long id, CategoryWriteCommand command) {
         if (!categoryRepository.findById(id).isPresent()) {

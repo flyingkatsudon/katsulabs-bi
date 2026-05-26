@@ -1,5 +1,7 @@
 package com.katsulabs.bi.infrastructure.jdbc;
 
+import lombok.RequiredArgsConstructor;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
+@RequiredArgsConstructor
 public class DatasetSqlPreviewAdapter implements DatasetSqlPreviewPort {
 
     private static final TypeReference<Map<String, String>> MAP_TYPE = new TypeReference<>() {};
@@ -28,11 +31,6 @@ public class DatasetSqlPreviewAdapter implements DatasetSqlPreviewPort {
     private final DatasetRepository datasetRepository;
     private final DatasourceRepository datasourceRepository;
 
-    public DatasetSqlPreviewAdapter(
-            DatasetRepository datasetRepository, DatasourceRepository datasourceRepository) {
-        this.datasetRepository = datasetRepository;
-        this.datasourceRepository = datasourceRepository;
-    }
 
     @Override
     public DatasetPreviewResult preview(long datasetId, int maxRows) {

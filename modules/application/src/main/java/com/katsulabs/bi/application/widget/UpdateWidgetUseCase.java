@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.widget;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.widget.WidgetRepository;
 
+@RequiredArgsConstructor
 public class UpdateWidgetUseCase {
 
     private final WidgetRepository widgetRepository;
 
-    public UpdateWidgetUseCase(WidgetRepository widgetRepository) {
-        this.widgetRepository = widgetRepository;
-    }
 
     public ServiceResult execute(String userId, long id, WidgetWriteCommand command) {
         if (widgetRepository.findById(id).isEmpty()) {

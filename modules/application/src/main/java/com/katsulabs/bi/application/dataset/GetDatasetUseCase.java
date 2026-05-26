@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.dataset;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.domain.dataset.DatasetDetail;
 import com.katsulabs.bi.domain.dataset.DatasetRepository;
 
+@RequiredArgsConstructor
 public class GetDatasetUseCase {
 
     private final DatasetRepository datasetRepository;
 
-    public GetDatasetUseCase(DatasetRepository datasetRepository) {
-        this.datasetRepository = datasetRepository;
-    }
 
     public DatasetDetail execute(long id) {
         return datasetRepository.findById(id)

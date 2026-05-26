@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.user;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import com.katsulabs.bi.application.common.AccessControl;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class UserController {
 
     private final ListUsersUseCase listUsersUseCase;
@@ -30,18 +33,6 @@ public class UserController {
     private final DeleteUserUseCase deleteUserUseCase;
     private final AccessControl accessControl;
 
-    public UserController(
-            ListUsersUseCase listUsersUseCase,
-            SaveUserUseCase saveUserUseCase,
-            UpdateUserUseCase updateUserUseCase,
-            DeleteUserUseCase deleteUserUseCase,
-            AccessControl accessControl) {
-        this.listUsersUseCase = listUsersUseCase;
-        this.saveUserUseCase = saveUserUseCase;
-        this.updateUserUseCase = updateUserUseCase;
-        this.deleteUserUseCase = deleteUserUseCase;
-        this.accessControl = accessControl;
-    }
 
     @GetMapping
     public List<UserResponse> list() {

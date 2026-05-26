@@ -1,19 +1,18 @@
 package com.katsulabs.bi.application.user;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.auth.PasswordHasher;
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.user.UserRepository;
 import com.katsulabs.bi.domain.user.UserWriteCommand;
 
+@RequiredArgsConstructor
 public class UpdateUserUseCase {
 
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
 
-    public UpdateUserUseCase(UserRepository userRepository, PasswordHasher passwordHasher) {
-        this.userRepository = userRepository;
-        this.passwordHasher = passwordHasher;
-    }
 
     public ServiceResult execute(UserWriteCommand command) {
         SaveUserUseCase.validate(command, false);

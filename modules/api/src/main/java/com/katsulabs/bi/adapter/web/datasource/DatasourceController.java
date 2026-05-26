@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.datasource;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import com.katsulabs.bi.application.common.AccessControl;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1/datasources", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class DatasourceController {
 
     private final ListDatasourcesUseCase listDatasourcesUseCase;
@@ -37,24 +40,6 @@ public class DatasourceController {
     private final CurrentUserProvider currentUserProvider;
     private final AccessControl accessControl;
 
-    public DatasourceController(
-            ListDatasourcesUseCase listDatasourcesUseCase,
-            GetDatasourceUseCase getDatasourceUseCase,
-            SaveDatasourceUseCase saveDatasourceUseCase,
-            UpdateDatasourceUseCase updateDatasourceUseCase,
-            DeleteDatasourceUseCase deleteDatasourceUseCase,
-            TestDatasourceUseCase testDatasourceUseCase,
-            CurrentUserProvider currentUserProvider,
-            AccessControl accessControl) {
-        this.listDatasourcesUseCase = listDatasourcesUseCase;
-        this.getDatasourceUseCase = getDatasourceUseCase;
-        this.saveDatasourceUseCase = saveDatasourceUseCase;
-        this.updateDatasourceUseCase = updateDatasourceUseCase;
-        this.deleteDatasourceUseCase = deleteDatasourceUseCase;
-        this.testDatasourceUseCase = testDatasourceUseCase;
-        this.currentUserProvider = currentUserProvider;
-        this.accessControl = accessControl;
-    }
 
     @GetMapping
     public List<DatasourceResponse> list() {

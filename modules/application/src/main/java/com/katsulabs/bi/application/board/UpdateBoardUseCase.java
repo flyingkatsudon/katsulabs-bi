@@ -1,17 +1,17 @@
 package com.katsulabs.bi.application.board;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.auth.KatsulabsBiRole;
 import com.katsulabs.bi.application.common.AccessDeniedException;
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.board.BoardRepository;
 
+@RequiredArgsConstructor
 public class UpdateBoardUseCase {
 
     private final BoardRepository boardRepository;
 
-    public UpdateBoardUseCase(BoardRepository boardRepository) {
-        this.boardRepository = boardRepository;
-    }
 
     public ServiceResult execute(KatsulabsBiRole role, String userId, long id, BoardWriteCommand command) {
         var existing = boardRepository.findById(id);

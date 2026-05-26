@@ -1,18 +1,16 @@
 package com.katsulabs.bi.application.datasource;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.datasource.DatasourceRepository;
 
+@RequiredArgsConstructor
 public class TestDatasourceUseCase {
 
     private final DatasourceRepository datasourceRepository;
     private final DatasourceConnectionTestPort connectionTestPort;
 
-    public TestDatasourceUseCase(
-            DatasourceRepository datasourceRepository, DatasourceConnectionTestPort connectionTestPort) {
-        this.datasourceRepository = datasourceRepository;
-        this.connectionTestPort = connectionTestPort;
-    }
 
     public ServiceResult execute(long id) {
         var detail = datasourceRepository

@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.widget;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.widget.WidgetRepository;
 
+@RequiredArgsConstructor
 public class DeleteWidgetUseCase {
 
     private final WidgetRepository widgetRepository;
 
-    public DeleteWidgetUseCase(WidgetRepository widgetRepository) {
-        this.widgetRepository = widgetRepository;
-    }
 
     public ServiceResult execute(long id) {
         if (widgetRepository.findById(id).isEmpty()) {

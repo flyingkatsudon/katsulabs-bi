@@ -1,5 +1,7 @@
 package com.katsulabs.bi.security;
 
+import lombok.RequiredArgsConstructor;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -19,15 +21,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Component
+@RequiredArgsConstructor
 public class SessionAuthenticationFilter extends OncePerRequestFilter {
 
     public static final String SESSION_USER_KEY = "CBoard_USER";
 
     private final SessionHeaderRegistry sessionHeaderRegistry;
-
-    public SessionAuthenticationFilter(SessionHeaderRegistry sessionHeaderRegistry) {
-        this.sessionHeaderRegistry = sessionHeaderRegistry;
-    }
 
     @Override
     protected void doFilterInternal(

@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.Map;
 
 import com.katsulabs.bi.application.health.GetHealthUseCase;
@@ -11,13 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class HealthController {
 
     private final GetHealthUseCase getHealthUseCase;
 
-    public HealthController(GetHealthUseCase getHealthUseCase) {
-        this.getHealthUseCase = getHealthUseCase;
-    }
 
     @GetMapping("/health")
     public Map<String, String> health() {

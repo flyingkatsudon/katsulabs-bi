@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.aggregate;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.aggregate.AggregateQueryCommand;
 import com.katsulabs.bi.application.aggregate.AggregateResultDto;
 import com.katsulabs.bi.application.aggregate.QueryAggregateUseCase;
@@ -14,16 +16,12 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/api/v1/aggregate", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class AggregateController {
 
     private final QueryAggregateUseCase queryAggregateUseCase;
     private final ViewAggregateQueryUseCase viewAggregateQueryUseCase;
 
-    public AggregateController(
-            QueryAggregateUseCase queryAggregateUseCase, ViewAggregateQueryUseCase viewAggregateQueryUseCase) {
-        this.queryAggregateUseCase = queryAggregateUseCase;
-        this.viewAggregateQueryUseCase = viewAggregateQueryUseCase;
-    }
 
     @PostMapping
     public AggregateResultDto query(@Valid @RequestBody AggregateRequest request) {

@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.datasource;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.datasource.DatasourceRepository;
 
+@RequiredArgsConstructor
 public class DeleteDatasourceUseCase {
 
     private final DatasourceRepository datasourceRepository;
 
-    public DeleteDatasourceUseCase(DatasourceRepository datasourceRepository) {
-        this.datasourceRepository = datasourceRepository;
-    }
 
     public ServiceResult execute(long id) {
         if (datasourceRepository.findById(id).isEmpty()) {

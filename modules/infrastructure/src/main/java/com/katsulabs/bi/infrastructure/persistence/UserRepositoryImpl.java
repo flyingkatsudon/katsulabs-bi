@@ -1,5 +1,7 @@
 package com.katsulabs.bi.infrastructure.persistence;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,13 +15,11 @@ import com.katsulabs.bi.infrastructure.persistence.mybatis.UserSummaryRow;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
     private final UserMapper userMapper;
 
-    public UserRepositoryImpl(UserMapper userMapper) {
-        this.userMapper = userMapper;
-    }
 
     @Override
     public Optional<UserAccount> findByUserId(String userId) {

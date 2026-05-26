@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.dataset;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import com.katsulabs.bi.application.common.AccessControl;
@@ -30,6 +32,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/api/v1/datasets", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class DatasetController {
 
     private final ListDatasetsUseCase listDatasetsUseCase;
@@ -42,26 +45,6 @@ public class DatasetController {
     private final CurrentUserProvider currentUserProvider;
     private final AccessControl accessControl;
 
-    public DatasetController(
-            ListDatasetsUseCase listDatasetsUseCase,
-            GetDatasetUseCase getDatasetUseCase,
-            SaveDatasetUseCase saveDatasetUseCase,
-            UpdateDatasetUseCase updateDatasetUseCase,
-            DeleteDatasetUseCase deleteDatasetUseCase,
-            PreviewDatasetUseCase previewDatasetUseCase,
-            PreviewDatasetSqlUseCase previewDatasetSqlUseCase,
-            CurrentUserProvider currentUserProvider,
-            AccessControl accessControl) {
-        this.listDatasetsUseCase = listDatasetsUseCase;
-        this.getDatasetUseCase = getDatasetUseCase;
-        this.saveDatasetUseCase = saveDatasetUseCase;
-        this.updateDatasetUseCase = updateDatasetUseCase;
-        this.deleteDatasetUseCase = deleteDatasetUseCase;
-        this.previewDatasetUseCase = previewDatasetUseCase;
-        this.previewDatasetSqlUseCase = previewDatasetSqlUseCase;
-        this.currentUserProvider = currentUserProvider;
-        this.accessControl = accessControl;
-    }
 
     @GetMapping
     public List<DatasetResponse> list() {

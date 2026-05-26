@@ -1,5 +1,7 @@
 package com.katsulabs.bi.infrastructure.persistence;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -15,20 +17,13 @@ import com.katsulabs.bi.infrastructure.persistence.mybatis.BoardWidgetMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class BoardRepositoryImpl implements BoardRepository {
 
     private final BoardMapper boardMapper;
     private final BoardWidgetMapper boardWidgetMapper;
     private final BoardFilterMapper boardFilterMapper;
 
-    public BoardRepositoryImpl(
-            BoardMapper boardMapper,
-            BoardWidgetMapper boardWidgetMapper,
-            BoardFilterMapper boardFilterMapper) {
-        this.boardMapper = boardMapper;
-        this.boardWidgetMapper = boardWidgetMapper;
-        this.boardFilterMapper = boardFilterMapper;
-    }
 
     @Override
     public List<BoardSummary> findAllSummaries(boolean publishedOnly) {

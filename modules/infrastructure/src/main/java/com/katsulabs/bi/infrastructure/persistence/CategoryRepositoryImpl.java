@@ -1,5 +1,7 @@
 package com.katsulabs.bi.infrastructure.persistence;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -10,13 +12,11 @@ import com.katsulabs.bi.infrastructure.persistence.mybatis.CategoryRow;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class CategoryRepositoryImpl implements CategoryRepository {
 
     private final CategoryMapper categoryMapper;
 
-    public CategoryRepositoryImpl(CategoryMapper categoryMapper) {
-        this.categoryMapper = categoryMapper;
-    }
 
     @Override
     public List<CategorySummary> findAll() {

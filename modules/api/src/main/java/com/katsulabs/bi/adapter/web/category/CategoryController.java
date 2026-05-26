@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.category;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import com.katsulabs.bi.application.category.CategoryWriteCommand;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1/categories", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class CategoryController {
 
     private final ListCategoriesUseCase listCategoriesUseCase;
@@ -32,20 +35,6 @@ public class CategoryController {
     private final CurrentUserProvider currentUserProvider;
     private final AccessControl accessControl;
 
-    public CategoryController(
-            ListCategoriesUseCase listCategoriesUseCase,
-            SaveCategoryUseCase saveCategoryUseCase,
-            UpdateCategoryUseCase updateCategoryUseCase,
-            DeleteCategoryUseCase deleteCategoryUseCase,
-            CurrentUserProvider currentUserProvider,
-            AccessControl accessControl) {
-        this.listCategoriesUseCase = listCategoriesUseCase;
-        this.saveCategoryUseCase = saveCategoryUseCase;
-        this.updateCategoryUseCase = updateCategoryUseCase;
-        this.deleteCategoryUseCase = deleteCategoryUseCase;
-        this.currentUserProvider = currentUserProvider;
-        this.accessControl = accessControl;
-    }
 
     @GetMapping
     public List<CategoryResponse> list() {

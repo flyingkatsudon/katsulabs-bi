@@ -1,11 +1,14 @@
 package com.katsulabs.bi.application.auth;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.domain.user.UserAccount;
 import com.katsulabs.bi.domain.user.UserRepository;
 
 /**
  * 레거시 CboardAuthenticationProvider 규칙을 유스케이스로 이전.
  */
+@RequiredArgsConstructor
 public class LoginUseCase {
 
     private static final String INVALID_CREDENTIALS = "사용자 ID 또는 비밀번호가 일치하지 않습니다.";
@@ -14,14 +17,6 @@ public class LoginUseCase {
     private final PasswordHasher passwordHasher;
     private final ResourceTypeLoader resourceTypeLoader;
 
-    public LoginUseCase(
-            UserRepository userRepository,
-            PasswordHasher passwordHasher,
-            ResourceTypeLoader resourceTypeLoader) {
-        this.userRepository = userRepository;
-        this.passwordHasher = passwordHasher;
-        this.resourceTypeLoader = resourceTypeLoader;
-    }
 
     public AuthenticatedUser login(LoginCommand command) {
         validate(command);

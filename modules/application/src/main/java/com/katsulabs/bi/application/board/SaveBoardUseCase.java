@@ -1,17 +1,17 @@
 package com.katsulabs.bi.application.board;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.auth.KatsulabsBiRole;
 import com.katsulabs.bi.application.common.AccessDeniedException;
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.board.BoardRepository;
 
+@RequiredArgsConstructor
 public class SaveBoardUseCase {
 
     private final BoardRepository boardRepository;
 
-    public SaveBoardUseCase(BoardRepository boardRepository) {
-        this.boardRepository = boardRepository;
-    }
 
     public ServiceResult execute(KatsulabsBiRole role, String userId, BoardWriteCommand command) {
         boolean publish = command.publishedToViewers();

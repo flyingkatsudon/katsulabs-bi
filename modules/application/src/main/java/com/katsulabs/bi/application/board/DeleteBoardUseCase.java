@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.board;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.board.BoardRepository;
 
+@RequiredArgsConstructor
 public class DeleteBoardUseCase {
 
     private final BoardRepository boardRepository;
 
-    public DeleteBoardUseCase(BoardRepository boardRepository) {
-        this.boardRepository = boardRepository;
-    }
 
     public ServiceResult execute(long id) {
         if (boardRepository.findById(id).isEmpty()) {

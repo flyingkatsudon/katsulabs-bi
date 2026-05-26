@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.dataset;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.dataset.DatasetRepository;
 
+@RequiredArgsConstructor
 public class UpdateDatasetUseCase {
 
     private final DatasetRepository datasetRepository;
 
-    public UpdateDatasetUseCase(DatasetRepository datasetRepository) {
-        this.datasetRepository = datasetRepository;
-    }
 
     public ServiceResult execute(String userId, long id, DatasetWriteCommand command) {
         if (datasetRepository.findById(id).isEmpty()) {

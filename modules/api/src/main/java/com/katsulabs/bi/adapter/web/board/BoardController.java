@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.board;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import com.katsulabs.bi.application.board.BoardWriteCommand;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1/boards", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class BoardController {
 
     private final ListBoardsUseCase listBoardsUseCase;
@@ -35,22 +38,6 @@ public class BoardController {
     private final CurrentUserProvider currentUserProvider;
     private final AccessControl accessControl;
 
-    public BoardController(
-            ListBoardsUseCase listBoardsUseCase,
-            GetBoardUseCase getBoardUseCase,
-            SaveBoardUseCase saveBoardUseCase,
-            UpdateBoardUseCase updateBoardUseCase,
-            DeleteBoardUseCase deleteBoardUseCase,
-            CurrentUserProvider currentUserProvider,
-            AccessControl accessControl) {
-        this.listBoardsUseCase = listBoardsUseCase;
-        this.getBoardUseCase = getBoardUseCase;
-        this.saveBoardUseCase = saveBoardUseCase;
-        this.updateBoardUseCase = updateBoardUseCase;
-        this.deleteBoardUseCase = deleteBoardUseCase;
-        this.currentUserProvider = currentUserProvider;
-        this.accessControl = accessControl;
-    }
 
     @GetMapping
     public List<BoardResponse> list() {

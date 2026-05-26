@@ -1,5 +1,7 @@
 package com.katsulabs.bi.adapter.web.widget;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import com.katsulabs.bi.application.common.AccessControl;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/v1/widgets", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class WidgetController {
 
     private final ListWidgetsUseCase listWidgetsUseCase;
@@ -35,22 +38,6 @@ public class WidgetController {
     private final CurrentUserProvider currentUserProvider;
     private final AccessControl accessControl;
 
-    public WidgetController(
-            ListWidgetsUseCase listWidgetsUseCase,
-            GetWidgetUseCase getWidgetUseCase,
-            SaveWidgetUseCase saveWidgetUseCase,
-            UpdateWidgetUseCase updateWidgetUseCase,
-            DeleteWidgetUseCase deleteWidgetUseCase,
-            CurrentUserProvider currentUserProvider,
-            AccessControl accessControl) {
-        this.listWidgetsUseCase = listWidgetsUseCase;
-        this.getWidgetUseCase = getWidgetUseCase;
-        this.saveWidgetUseCase = saveWidgetUseCase;
-        this.updateWidgetUseCase = updateWidgetUseCase;
-        this.deleteWidgetUseCase = deleteWidgetUseCase;
-        this.currentUserProvider = currentUserProvider;
-        this.accessControl = accessControl;
-    }
 
     @GetMapping
     public List<WidgetResponse> list() {

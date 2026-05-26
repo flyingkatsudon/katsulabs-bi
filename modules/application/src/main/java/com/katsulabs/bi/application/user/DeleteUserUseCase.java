@@ -1,15 +1,15 @@
 package com.katsulabs.bi.application.user;
 
+import lombok.RequiredArgsConstructor;
+
 import com.katsulabs.bi.application.common.ServiceResult;
 import com.katsulabs.bi.domain.user.UserRepository;
 
+@RequiredArgsConstructor
 public class DeleteUserUseCase {
 
     private final UserRepository userRepository;
 
-    public DeleteUserUseCase(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public ServiceResult execute(String userId) {
         if (userRepository.findByUserId(userId).isEmpty()) {

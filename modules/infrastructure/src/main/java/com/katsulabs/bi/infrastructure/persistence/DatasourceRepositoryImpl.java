@@ -1,5 +1,7 @@
 package com.katsulabs.bi.infrastructure.persistence;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,13 +13,11 @@ import com.katsulabs.bi.infrastructure.persistence.mybatis.DatasourceRow;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class DatasourceRepositoryImpl implements DatasourceRepository {
 
     private final DatasourceMapper datasourceMapper;
 
-    public DatasourceRepositoryImpl(DatasourceMapper datasourceMapper) {
-        this.datasourceMapper = datasourceMapper;
-    }
 
     @Override
     public List<DatasourceSummary> findAllSummaries() {
