@@ -10,6 +10,7 @@ Gradle / Spring Boot 4 / React 스택으로 전환 완료. **레거시 Maven WAR
 | [01-취약점-및-기술-부채.md](./01-취약점-및-기술-부채.md) | CVE·구조 부채 |
 | [02-마이그레이션-로드맵.md](./02-마이그레이션-로드맵.md) | Phase별 계획 |
 | [03-목표-아키텍처.md](./03-목표-아키텍처.md) | Clean Architecture |
+| [04-legacy-layer-removal.md](./04-legacy-layer-removal.md) | Legacy 호환 레이어 제거 PR 계획 |
 | [MYBATIS-XML.md](./MYBATIS-XML.md) | 필수 mapper XML |
 | [Polyglot 가이드](./polyglot/README.md) | Kotlin / Node / Python |
 
