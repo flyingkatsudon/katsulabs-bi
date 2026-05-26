@@ -40,8 +40,8 @@ AdminLTE·플러그인은 `public/katsulabs-bi/` 에 포함됩니다 (`dist/` = 
 bash frontend/scripts/restore-adminlte-dist.sh
 ```
 
-외부 CBoard 배포본에서 전체 동기화:
+외부 레거시 WAR 배포본에서 전체 동기화:
 
 ```bash
-bash frontend/scripts/sync-katsulabs-bi-assets.sh /path/to/webapp/cboard
+bash frontend/scripts/sync-katsulabs-bi-assets.sh /path/to/legacy-webapp/katsulabs-bi
 ```

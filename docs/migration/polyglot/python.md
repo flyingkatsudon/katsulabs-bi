@@ -2,7 +2,7 @@
 
 ## 적합한 용도
 
-- ETL·데이터 품질 검사·ML 추론 등 **CBoard UI 밖** 배치
+- ETL·데이터 품질 검사·ML 추론 등 **레거시 UI 밖** 배치
 - Jupyter 기반 프로토타입
 - Postgres 메타 DB에 대한 **읽기 전용** 리포트
 
@@ -73,7 +73,7 @@ Flyway 마이그레이션과 동일 스키마 (`dashboard_*` 테이블).
 # psycopg (PostgreSQL)
 import psycopg
 
-conn = psycopg.connect("postgresql://cboard:cboard@localhost:5432/cboard")
+conn = psycopg.connect("postgresql://katsulabs_bi:katsulabs_bi@localhost:5432/katsulabs_bi")
 ```
 
 - **쓰기**는 Boot API 를 통하는 것을 권장 (RBAC·감사 로그 일관성)

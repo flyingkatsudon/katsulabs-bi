@@ -8,7 +8,7 @@ import com.katsulabs.bi.application.domains.auth.PasswordHasher;
 import org.springframework.stereotype.Component;
 
 /**
- * 레거시 CBoard: SHA-256(plain), HEX 대문자 (Spring ShaPasswordEncoder 256 호환).
+ * 레거시 v1: SHA-256(plain), HEX 대문자 (Spring ShaPasswordEncoder 256 호환).
  */
 @Component
 public class LegacySha256PasswordHasher implements PasswordHasher {

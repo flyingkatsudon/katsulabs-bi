@@ -20,7 +20,7 @@ import {
   canWriteDatasource,
 } from './utils/permissions'
 import { useAuthSession } from './auth/useAuthSession'
-import { CboardBodyClassSync } from './legacy/CboardBodyClassSync'
+import { LegacyBodyClassSync } from './legacy/LegacyBodyClassSync'
 import { RouteErrorBoundary } from './components/RouteErrorBoundary'
 import { SessionExpiredDialog } from './components/SessionExpiredDialog'
 import { ProtectedLayout } from './layout/ProtectedLayout'
@@ -121,7 +121,7 @@ function AppRoutes() {
 
   return (
     <>
-      <CboardBodyClassSync />
+      <LegacyBodyClassSync />
       <SessionExpiredDialog open={sessionExpiredOpen} onConfirm={confirmSessionExpired} />
       <Routes>
         <Route

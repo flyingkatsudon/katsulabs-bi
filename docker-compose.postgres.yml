@@ -4,9 +4,9 @@ services:
     image: postgres:16-alpine
     container_name: katsulabs-bi-postgres
     environment:
-      POSTGRES_DB: cboard
-      POSTGRES_USER: cboard
-      POSTGRES_PASSWORD: cboard
+      POSTGRES_DB: katsulabs_bi
+      POSTGRES_USER: katsulabs_bi
+      POSTGRES_PASSWORD: katsulabs_bi
     ports:
       - "5432:5432"
     volumes:

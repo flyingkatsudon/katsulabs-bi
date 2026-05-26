@@ -7,7 +7,7 @@
 
 1. **그래프·집계에 필요한 관계는 컬럼/FK** — `dataset_id`, `datasource_id`, `widget_binding`, `board_widget`
 2. **JSON은 최소** — JDBC `config_json`, 차트 스타일 `options_json`, 보드 **배치** `layout_json` 만
-3. **API 호환** — 프론트/집계 엔진이 기대하는 CBoard형 `data_json` 은 저장 시 분해·조회 시 `Cboard*Json` 브릿지로 조립
+3. **API 호환** — 프론트/집계 엔진이 기대하는 레거시 v1 `data_json` 은 저장 시 분해·조회 시 `Legacy*DataJson` 브릿지로 조립
 4. **RBAC** — `published_to_viewers`, `default_board_id`, `platform_shared` (Dataset)
 
 ## 역할

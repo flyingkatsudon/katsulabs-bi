@@ -17,7 +17,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Katsulabs BI API")
-                        .description("CBoard BDP — Spring Boot 4 REST API (v1)")
+                        .description("Katsulabs BI — Spring Boot 4 REST API (v1)")
                         .version("0.1.0"))
                 .addSecurityItem(new SecurityRequirement().addList("sessionCookie"))
                 .components(new Components()

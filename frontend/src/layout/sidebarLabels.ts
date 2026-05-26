@@ -1,4 +1,4 @@
-/** 레거시 i18n/en/cboard.json SIDEBAR 키와 동일한 라벨 */
+/** 레거시 레거시 i18n SIDEBAR 키 SIDEBAR 키와 동일한 라벨 */
 export const SIDEBAR = {
   MENU: 'MENU',
   C_DASHBOARD: 'Dashboard',

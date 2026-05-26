@@ -8,7 +8,7 @@ import java.util.Optional;
 import com.katsulabs.bi.domain.domains.widget.WidgetDetail;
 import com.katsulabs.bi.domain.domains.widget.WidgetRepository;
 import com.katsulabs.bi.domain.domains.widget.WidgetSummary;
-import com.katsulabs.bi.infrastructure.domains.widget.persistence.compat.CboardWidgetJson;
+import com.katsulabs.bi.infrastructure.domains.widget.persistence.compat.LegacyWidgetDataJson;
 import com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetBindingMapper;
 import com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetMapper;
 import com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetRow;
@@ -35,7 +35,7 @@ public class WidgetRepositoryImpl implements WidgetRepository {
             return Optional.empty();
         }
         var bindings = widgetBindingMapper.findByWidgetId(widgetId);
-        String dataJson = CboardWidgetJson.compose(row, bindings);
+        String dataJson = LegacyWidgetDataJson.compose(row, bindings);
         return Optional.of(toDetail(row, dataJson));
     }
 
@@ -50,7 +50,7 @@ public class WidgetRepositoryImpl implements WidgetRepository {
         row.setUserId(userId);
         row.setName(name);
         row.setCategoryName(defaultCategory(categoryName));
-        CboardWidgetJson.persistFromJson(widgetMapper, widgetBindingMapper, row, dataJson);
+        LegacyWidgetDataJson.persistFromJson(widgetMapper, widgetBindingMapper, row, dataJson);
         return row.getId();
     }
 
@@ -62,7 +62,7 @@ public class WidgetRepositoryImpl implements WidgetRepository {
         }
         row.setName(name);
         row.setCategoryName(defaultCategory(categoryName));
-        CboardWidgetJson.persistFromJson(widgetMapper, widgetBindingMapper, row, dataJson);
+        LegacyWidgetDataJson.persistFromJson(widgetMapper, widgetBindingMapper, row, dataJson);
     }
 
     @Override

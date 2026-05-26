@@ -16,7 +16,7 @@
 | 환경 | URL |
 |------|-----|
 | Boot 4 로컬 | `http://localhost:8081/api/v1` |
-| 레거시 | `http://localhost:8080/bdp/cboard/dashboard` (점진 폐기) |
+| 레거시 | `http://localhost:8080/bdp/.../dashboard` (점진 폐기) |
 
 ## 언어별 문서
 
@@ -35,7 +35,7 @@
 ```
 
 - **Boot 4**: 인증, RBAC, Board/Dataset 메타, DataProvider 오케스트레이션
-- **Python**: 대용량 ETL, 모델 추론 (CBoard 코어 밖)
+- **Python**: 대용량 ETL, 모델 추론 (레거시 BI 코어 밖)
 - **Node**: 프론트 전용 BFF, SSR, 실시간 알림
 - **Kotlin**: JVM 내부 배치·Kylin 연동 (Java와 모듈 공유)
 

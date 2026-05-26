@@ -1,18 +1,18 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { applyCboardBodyClass, initCboardBodyClass } from './cboardBodyClass'
+import { applyLegacyBodyClass, initLegacyBodyClass } from './legacyBodyClass'
 
 let initialized = false
 
-export function CboardBodyClassSync() {
+export function LegacyBodyClassSync() {
   const { pathname } = useLocation()
 
   useEffect(() => {
     if (!initialized) {
-      initCboardBodyClass()
+      initLegacyBodyClass()
       initialized = true
     }
-    applyCboardBodyClass(pathname)
+    applyLegacyBodyClass(pathname)
   }, [pathname])
 
   return null

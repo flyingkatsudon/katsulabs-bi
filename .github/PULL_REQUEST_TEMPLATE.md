@@ -9,7 +9,7 @@ A few sentences describing the overall goals of the pull request's commits.
 * [ ] - Task
 
 ### What is the Github issue?
-* Open an issue on Github https://github.com/yzhang921/CBoard/issues
+* Open an issue on Github https://github.com/katsulabs/katsulabs-bi/issues
 * Put link here, and add [- #ISSUE_NUMBER] in PR title
 eg. [ES] Auto adjust time interval bucket when override of date column is null #114
 

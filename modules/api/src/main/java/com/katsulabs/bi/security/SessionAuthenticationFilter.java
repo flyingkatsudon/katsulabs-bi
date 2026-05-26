@@ -24,7 +24,15 @@ import jakarta.servlet.http.HttpSession;
 @RequiredArgsConstructor
 public class SessionAuthenticationFilter extends OncePerRequestFilter {
 
-    public static final String SESSION_USER_KEY = "CBoard_USER";
+    public static final String SESSION_USER_KEY = "KATSULABS_BI_USER";
+
+    /** 구 세션 키 — 읽기 호환만 유지 (값은 레거시 WAR와 동일) */
+    private static final String LEGACY_SESSION_USER_KEY = "CBoard_USER";
+
+    public static void storeSessionUser(HttpSession session, AuthenticatedUser user) {
+        session.setAttribute(SESSION_USER_KEY, user);
+        session.removeAttribute(LEGACY_SESSION_USER_KEY);
+    }
 
     private final SessionHeaderRegistry sessionHeaderRegistry;
 
@@ -56,7 +64,19 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
         if (session == null) {
             return null;
         }
+        return getSessionUser(session);
+    }
+
+    /** HTTP 세션에 저장된 로그인 사용자 (신규·레거시 키 모두 조회). */
+    public static AuthenticatedUser getSessionUser(HttpSession session) {
+        if (session == null) {
+            return null;
+        }
         Object stored = session.getAttribute(SESSION_USER_KEY);
+        if (stored instanceof AuthenticatedUser user) {
+            return user;
+        }
+        stored = session.getAttribute(LEGACY_SESSION_USER_KEY);
         if (stored instanceof AuthenticatedUser user) {
             return user;
         }

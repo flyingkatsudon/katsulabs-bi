@@ -13,12 +13,12 @@ import com.katsulabs.bi.infrastructure.domains.dataset.persistence.mybatis.Datas
 import com.katsulabs.bi.infrastructure.domains.dataset.persistence.mybatis.DatasetMapper;
 import com.katsulabs.bi.infrastructure.domains.dataset.persistence.mybatis.DatasetRow;
 
-/** CBoard 호환 dataset data_json 조립·분해 (v2 정규화 테이블) */
-public final class CboardDatasetJson {
+/** 레거시 v1 dataset data_json 조립·분해 (v2 정규화 테이블) */
+public final class LegacyDatasetDataJson {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private CboardDatasetJson() {}
+    private LegacyDatasetDataJson() {}
 
     public static String compose(DatasetRow row, List<DatasetColumnRow> columns) {
         try {

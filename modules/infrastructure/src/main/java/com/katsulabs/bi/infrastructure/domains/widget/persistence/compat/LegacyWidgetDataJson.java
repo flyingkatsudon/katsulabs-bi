@@ -10,12 +10,12 @@ import com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.Widget
 import com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetMapper;
 import com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetRow;
 
-/** CBoard 호환 widget data_json 조립·분해 (v2 정규화 테이블) */
-public final class CboardWidgetJson {
+/** 레거시 v1 widget data_json 조립·분해 (v2 정규화 테이블) */
+public final class LegacyWidgetDataJson {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private CboardWidgetJson() {}
+    private LegacyWidgetDataJson() {}
 
     public static String compose(WidgetRow row, List<WidgetBindingRow> bindings) {
         try {

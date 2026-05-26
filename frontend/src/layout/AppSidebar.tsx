@@ -9,7 +9,7 @@ import {
   canWriteDatasource,
   isViewer,
 } from '../utils/permissions'
-import { SIDEBAR } from './cboardLabels'
+import { SIDEBAR } from './sidebarLabels'
 import { treeviewClass, useSidebarTreeState } from './sidebarTreeState'
 
 /** 펼침 ▼ / 접음 ▶ */

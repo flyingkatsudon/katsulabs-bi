@@ -4,9 +4,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/cboard
-    username: cboard
-    password: cboard
+    url: jdbc:postgresql://localhost:5432/katsulabs_bi
+    username: katsulabs_bi
+    password: katsulabs_bi
     driver-class-name: org.postgresql.Driver
   sql:
     init:

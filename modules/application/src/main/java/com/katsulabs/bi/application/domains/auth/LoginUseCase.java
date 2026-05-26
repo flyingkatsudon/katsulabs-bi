@@ -6,7 +6,7 @@ import com.katsulabs.bi.domain.domains.user.UserAccount;
 import com.katsulabs.bi.domain.domains.user.UserRepository;
 
 /**
- * 레거시 CboardAuthenticationProvider 규칙을 유스케이스로 이전.
+ * 레거시 v1AuthenticationProvider 규칙을 유스케이스로 이전.
  */
 @RequiredArgsConstructor
 public class LoginUseCase {

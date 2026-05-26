@@ -8,7 +8,7 @@ import java.util.Optional;
 import com.katsulabs.bi.domain.domains.dataset.DatasetDetail;
 import com.katsulabs.bi.domain.domains.dataset.DatasetRepository;
 import com.katsulabs.bi.domain.domains.dataset.DatasetSummary;
-import com.katsulabs.bi.infrastructure.domains.dataset.persistence.compat.CboardDatasetJson;
+import com.katsulabs.bi.infrastructure.domains.dataset.persistence.compat.LegacyDatasetDataJson;
 import com.katsulabs.bi.infrastructure.domains.dataset.persistence.mybatis.DatasetColumnMapper;
 import com.katsulabs.bi.infrastructure.domains.dataset.persistence.mybatis.DatasetMapper;
 import com.katsulabs.bi.infrastructure.domains.dataset.persistence.mybatis.DatasetRow;
@@ -35,7 +35,7 @@ public class DatasetRepositoryImpl implements DatasetRepository {
             return Optional.empty();
         }
         var columns = datasetColumnMapper.findByDatasetId(datasetId);
-        String dataJson = CboardDatasetJson.compose(row, columns);
+        String dataJson = LegacyDatasetDataJson.compose(row, columns);
         return Optional.of(toDetail(row, dataJson));
     }
 
@@ -51,7 +51,7 @@ public class DatasetRepositoryImpl implements DatasetRepository {
         row.setName(name);
         row.setCategoryName(defaultCategory(categoryName));
         row.setPlatformShared(userId != null && userId.startsWith("admin"));
-        CboardDatasetJson.persistFromJson(datasetMapper, datasetColumnMapper, row, dataJson);
+        LegacyDatasetDataJson.persistFromJson(datasetMapper, datasetColumnMapper, row, dataJson);
         return row.getId();
     }
 
@@ -63,7 +63,7 @@ public class DatasetRepositoryImpl implements DatasetRepository {
         }
         row.setName(name);
         row.setCategoryName(defaultCategory(categoryName));
-        CboardDatasetJson.persistFromJson(datasetMapper, datasetColumnMapper, row, dataJson);
+        LegacyDatasetDataJson.persistFromJson(datasetMapper, datasetColumnMapper, row, dataJson);
     }
 
     @Override

@@ -1,7 +1,7 @@
 /**
  * 레거시 JSP body 클래스와 동일하게 맞춤 (login.jsp / starter.jsp).
  */
-export function applyCboardBodyClass(pathname: string): void {
+export function applyLegacyBodyClass(pathname: string): void {
   const body = document.body
   body.classList.remove('login-page', 'skin-blue', 'sidebar-mini', 'sidebar-collapse')
 
@@ -18,8 +18,8 @@ export function applyCboardBodyClass(pathname: string): void {
   body.className = 'hold-transition skin-blue sidebar-mini fixed'
 }
 
-export function initCboardBodyClass(): void {
-  applyCboardBodyClass(window.location.pathname)
+export function initLegacyBodyClass(): void {
+  applyLegacyBodyClass(window.location.pathname)
 
   // AdminLTE: hold-transition 제거 (app.js 와 동일 효과, React 진입 후 한 번 더)
   const removeTransition = () => {

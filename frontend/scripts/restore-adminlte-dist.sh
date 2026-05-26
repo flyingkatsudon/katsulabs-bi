@@ -17,6 +17,7 @@ fi
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
+# REF 시점의 제거된 WAR 트리 경로 (과거 커밋 전용)
 git -C "$ROOT" archive "$REF" src/main/webapp/cboard/dist | tar -x -C "$TMP"
 rm -rf "$DEST"
 mkdir -p "$(dirname "$DEST")"

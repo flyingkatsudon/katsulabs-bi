@@ -45,7 +45,7 @@ public class AuthController {
         var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         var httpSession = httpRequest.getSession(true);
-        httpSession.setAttribute(SessionAuthenticationFilter.SESSION_USER_KEY, user);
+        SessionAuthenticationFilter.storeSessionUser(httpSession, user);
         sessionHeaderRegistry.bind(httpSession.getId(), user);
 
         return toLoginResponse(user, httpSession.getId());
@@ -78,8 +78,8 @@ public class AuthController {
         if (httpSession == null) {
             return ResponseEntity.noContent().build();
         }
-        Object attr = httpSession.getAttribute(SessionAuthenticationFilter.SESSION_USER_KEY);
-        if (!(attr instanceof AuthenticatedUser user)) {
+        AuthenticatedUser user = SessionAuthenticationFilter.getSessionUser(httpSession);
+        if (user == null) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(toLoginResponse(user, httpSession.getId()));
