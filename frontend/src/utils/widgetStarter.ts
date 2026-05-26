@@ -1,4 +1,5 @@
 import type { DatasetData } from './datasetModel'
+import { chartConfigZones } from './chartRender'
 import type { WidgetDataModel } from './widgetModel'
 import { toWidgetCol } from './widgetModel'
 
@@ -85,5 +86,39 @@ export function buildStarterWidgetConfig(
       }
     default:
       return { chart_type: chartType, keys, groups: [], values }
+  }
+}
+
+/** 차트 유형에서 숨겨진 Row/Column/Value 매핑 제거 */
+export function pruneWidgetConfigForChartType(
+  config: WidgetDataModel['config'],
+  chartType: string,
+): WidgetDataModel['config'] {
+  const zones = chartConfigZones(chartType)
+  const values = config.values?.length ? [...config.values] : [{ cols: [] }]
+  values[0] = {
+    ...values[0],
+    cols: zones.value ? [...(values[0].cols ?? [])] : [],
+  }
+  return {
+    ...config,
+    chart_type: chartType,
+    keys: zones.row ? [...(config.keys ?? [])] : [],
+    groups: zones.column ? [...(config.groups ?? [])] : [],
+    values,
+  }
+}
+
+/** 데이터셋·차트 유형 변경 시 Row/Column/Value 초기화 */
+export function applyWidgetMappingReset(
+  model: WidgetDataModel,
+  schema: DatasetData,
+  chartType?: string,
+): WidgetDataModel {
+  const ct = chartType ?? model.config.chart_type ?? 'table'
+  return {
+    ...model,
+    datasource: schema.datasource,
+    config: pruneWidgetConfigForChartType(buildStarterWidgetConfig(schema, ct), ct),
   }
 }

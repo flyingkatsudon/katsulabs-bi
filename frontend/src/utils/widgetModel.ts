@@ -12,6 +12,19 @@ export type WidgetValueBucket = {
   series_type?: string
 }
 
+export const AGGREGATE_TYPES = [
+  { value: 'sum', label: 'Sum' },
+  { value: 'avg', label: 'Avg' },
+  { value: 'min', label: 'Min' },
+  { value: 'max', label: 'Max' },
+  { value: 'count', label: 'Count' },
+  { value: 'distinct', label: 'Distinct' },
+] as const
+
+export type AggregateType = (typeof AGGREGATE_TYPES)[number]['value']
+
+export const DEFAULT_AGGREGATE_TYPE: AggregateType = 'sum'
+
 /** 레거시 value_series_types (line/bar 계열) */
 export const VALUE_SERIES_TYPES = [
   { value: 'line', label: 'Line' },
@@ -109,8 +122,9 @@ export function splitWidgetDisplayName(display: string): { categoryName: string;
 }
 
 export function toWidgetCol(
-  field: { column?: string; col?: string; alias?: string; type?: string; exp?: string },
+  field: { column?: string; col?: string; alias?: string; type?: string; exp?: string; aggregate_type?: string },
   asMeasure = false,
+  aggregateType: AggregateType = DEFAULT_AGGREGATE_TYPE,
 ): WidgetCol {
   const col = field.column ?? field.col ?? ''
   if (field.type === 'exp' || field.exp) {
@@ -120,6 +134,6 @@ export function toWidgetCol(
     type: 'column',
     col,
     alias: field.alias,
-    aggregate_type: asMeasure ? 'sum' : undefined,
+    aggregate_type: asMeasure ? field.aggregate_type ?? aggregateType : undefined,
   }
 }

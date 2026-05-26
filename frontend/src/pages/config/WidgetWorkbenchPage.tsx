@@ -13,7 +13,7 @@ import { WidgetSchemaPanel } from '../../components/widget/WidgetSchemaPanel'
 import { ChartConfigGuide } from '../../components/widget/ChartConfigGuide'
 import { WidgetChartConfig } from '../../components/widget/WidgetChartConfig'
 import { getChartGuide, validateWidgetForAggregate } from '../../utils/chartGuide'
-import { buildStarterWidgetConfig } from '../../utils/widgetStarter'
+import { applyWidgetMappingReset } from '../../utils/widgetStarter'
 import { parseDatasetData, type DatasetData } from '../../utils/datasetModel'
 import { buildCategoryTreeData, filterTreeList } from '../../utils/configTreeData'
 import {
@@ -48,15 +48,25 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
   const [widgetDisplayName, setWidgetDisplayName] = useState('Default Category/new_widget')
   const [model, setModel] = useState<WidgetDataModel>(() => defaultWidgetData(1, 'table'))
   const [datasetSchema, setDatasetSchema] = useState<DatasetData | null>(null)
+  const [schemaDatasetId, setSchemaDatasetId] = useState<number | null>(null)
   const [tab, setTab] = useState<'preview' | 'query' | 'option'>('preview')
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [previewResult, setPreviewResult] = useState<AggregateResult | null>(null)
+  const [previewState, setPreviewState] = useState<{
+    result: AggregateResult
+    config: WidgetDataModel['config']
+  } | null>(null)
   const [querySql, setQuerySql] = useState<string | null>(null)
   const [previewBusy, setPreviewBusy] = useState(false)
   const [schemaPickTarget, setSchemaPickTarget] = useState<'row' | 'column' | 'value'>('row')
   const lastDatasetIdRef = useRef<number | null>(null)
+  const autoPreviewOnLoadRef = useRef(false)
+
+  function invalidatePreview() {
+    setPreviewState(null)
+    setQuerySql(null)
+  }
 
   const [loadIssue, setLoadIssue] = useState<ConfigLoadIssue>(null)
   const resource = useMemo(() => parseConfigResourceId(selectedId), [selectedId])
@@ -90,6 +100,7 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
   const loadDatasetSchema = useCallback(async (datasetId: number) => {
     const detail = await api.get<DatasetDetail>(`/api/v1/datasets/${datasetId}`)
     setDatasetSchema(parseDatasetData(detail.dataJson))
+    setSchemaDatasetId(datasetId)
   }, [])
 
   const loadDetail = useCallback(
@@ -98,6 +109,8 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
       setWidgetDisplayName(formatWidgetDisplayName(detail.categoryName, detail.name))
       const parsed = parseWidgetData(detail.dataJson)
       lastDatasetIdRef.current = parsed.datasetId ?? null
+      setPreviewState(null)
+      setQuerySql(null)
       setModel(parsed)
       if (parsed.datasetId) await loadDatasetSchema(parsed.datasetId)
     },
@@ -119,10 +132,14 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
         if (isNew) {
           setWidgetDisplayName('Default Category/new_widget')
           lastDatasetIdRef.current = null
+          setPreviewState(null)
+          setQuerySql(null)
           setModel(defaultWidgetData(1, 'line'))
           await loadDatasetSchema(1)
+          autoPreviewOnLoadRef.current = true
         } else if (resource.kind === 'edit') {
           await loadDetail(resource.id)
+          autoPreviewOnLoadRef.current = true
         }
       } catch (e) {
         const resolved = resolveConfigLoadError(e, onSessionExpired)
@@ -144,18 +161,12 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
 
   useEffect(() => {
     if (!datasetSchema || !model.datasetId) return
-    const changed = lastDatasetIdRef.current !== model.datasetId
-    if (!changed) return
+    if (schemaDatasetId !== model.datasetId) return
+    if (lastDatasetIdRef.current === model.datasetId) return
     lastDatasetIdRef.current = model.datasetId
-    const chartType = model.config.chart_type ?? 'table'
-    setModel((m) => ({
-      ...m,
-      datasource: datasetSchema.datasource,
-      config: buildStarterWidgetConfig(datasetSchema, chartType),
-    }))
-    setPreviewResult(null)
-    setQuerySql(null)
-  }, [model.datasetId, datasetSchema])
+    setModel((m) => applyWidgetMappingReset(m, datasetSchema))
+    invalidatePreview()
+  }, [model.datasetId, datasetSchema, schemaDatasetId])
 
   function selectItem(id: string | null) {
     setMessage(null)
@@ -242,6 +253,7 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
       ...m,
       config: { ...m.config, keys: [...(m.config.keys ?? []), wcol] },
     }))
+    invalidatePreview()
   }
 
   function addGroup(col: string, alias?: string) {
@@ -250,22 +262,26 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
       ...m,
       config: { ...m.config, groups: [...(m.config.groups ?? []), wcol] },
     }))
+    invalidatePreview()
   }
 
   function addMeasure(col: string, alias?: string) {
     const wcol = toWidgetCol({ column: col, alias, type: 'column' }, true)
-    const values = model.config.values?.length ? [...model.config.values] : [{ cols: [] }]
-    values[0] = { cols: [...(values[0].cols ?? []), wcol] }
-    setModel((m) => ({ ...m, config: { ...m.config, values } }))
+    setModel((m) => {
+      const values = m.config.values?.length ? [...m.config.values] : [{ cols: [] }]
+      values[0] = { cols: [...(values[0].cols ?? []), wcol] }
+      return { ...m, config: { ...m.config, values } }
+    })
+    invalidatePreview()
   }
 
-  async function handlePreview() {
-    if (!model.datasetId) {
+  async function runPreview(target: WidgetDataModel) {
+    if (!target.datasetId) {
       setError('데이터셋을 선택하세요.')
       return
     }
-    const chartType = model.config.chart_type ?? 'table'
-    const validation = validateWidgetForAggregate(chartType, model.config)
+    const chartType = target.config.chart_type ?? 'table'
+    const validation = validateWidgetForAggregate(chartType, target.config)
     if (validation) {
       setError(validation)
       setTab('preview')
@@ -275,13 +291,28 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
     setError(null)
     setTab('preview')
     try {
-      setPreviewResult(await fetchAggregate(model.datasetId, model, false))
+      const result = await fetchAggregate(target.datasetId, target, false)
+      setPreviewState({ result, config: structuredClone(target.config) })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Preview 실패')
-      setPreviewResult(null)
+      invalidatePreview()
     } finally {
       setPreviewBusy(false)
     }
+  }
+
+  useEffect(() => {
+    if (loading) return
+    if (!autoPreviewOnLoadRef.current) return
+    if (!model.datasetId) return
+    if (schemaDatasetId !== model.datasetId) return
+    if (lastDatasetIdRef.current !== model.datasetId) return
+    autoPreviewOnLoadRef.current = false
+    void runPreview(model)
+  }, [loading, model, schemaDatasetId])
+
+  async function handlePreview() {
+    await runPreview(model)
   }
 
   async function handlePreviewQuery() {
@@ -444,9 +475,13 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
                       <select
                         className="form-control"
                         value={model.datasetId ?? ''}
-                        onChange={(e) =>
-                          setModel((m) => ({ ...m, datasetId: Number(e.target.value) }))
-                        }
+                        onChange={(e) => {
+                          const datasetId = Number(e.target.value)
+                          if (datasetId === model.datasetId) return
+                          lastDatasetIdRef.current = null
+                          invalidatePreview()
+                          setModel((m) => ({ ...m, datasetId }))
+                        }}
                       >
                         {datasets.map((d) => (
                           <option key={d.id} value={d.id}>
@@ -487,13 +522,13 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
                                     onClick={(e) => {
                                       e.preventDefault()
                                       const ct = chart.value
-                                      setModel((m) => ({
-                                        ...m,
-                                        config: datasetSchema
-                                          ? buildStarterWidgetConfig(datasetSchema, ct)
-                                          : { ...m.config, chart_type: ct },
-                                      }))
-                                      setPreviewResult(null)
+                                      if (ct === model.config.chart_type) return
+                                      setModel((m) =>
+                                        datasetSchema
+                                          ? applyWidgetMappingReset(m, datasetSchema, ct)
+                                          : m,
+                                      )
+                                      invalidatePreview()
                                     }}
                                   >
                                     <i className={`chart-type-icon ${chart.class}`} />
@@ -505,7 +540,16 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
                         </div>
                       </div>
                       <ChartConfigGuide chartType={model.config.chart_type ?? 'table'} />
-                      <WidgetChartConfig model={model} onChange={setModel} />
+                      <WidgetChartConfig
+                        model={model}
+                        onChange={(next) => {
+                          setModel(next)
+                          invalidatePreview()
+                        }}
+                        onDropRow={(field) => addDimension(field.column, field.alias)}
+                        onDropColumn={(field) => addGroup(field.column, field.alias)}
+                        onDropValue={(field) => addMeasure(field.column, field.alias)}
+                      />
                     </>
                   )}
                   <div className="nav-tabs-custom" style={{ marginTop: 12 }}>
@@ -567,11 +611,11 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
                     <div className="tab-content" style={{ minHeight: '43vh' }}>
                       {tab === 'preview' && (
                         <div className="tab-pane active" id="preview_widget" style={{ minHeight: 300 }}>
-                          {previewResult ? (
+                          {previewState ? (
                             <WidgetChartView
-                              chartType={model.config.chart_type ?? 'table'}
-                              result={previewResult}
-                              widgetConfig={model.config}
+                              chartType={previewState.config.chart_type ?? 'table'}
+                              result={previewState.result}
+                              widgetConfig={previewState.config}
                               widgetId={numericId ?? undefined}
                               height={300}
                             />
@@ -602,6 +646,7 @@ export function WidgetWorkbenchPage({ onSessionExpired }: WidgetWorkbenchPagePro
                             onChange={(e) => {
                               try {
                                 setModel(parseWidgetData(e.target.value))
+                                invalidatePreview()
                               } catch {
                                 setError('JSON 형식이 올바르지 않습니다.')
                               }
