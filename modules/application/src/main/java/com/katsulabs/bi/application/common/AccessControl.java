@@ -1,6 +1,6 @@
 package com.katsulabs.bi.application.common;
 
-import com.katsulabs.bi.application.auth.KatsulabsBiRole;
+import com.katsulabs.bi.application.domains.auth.KatsulabsBiRole;
 
 public interface AccessControl {
 

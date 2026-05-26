@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.katsulabs.bi.infrastructure.persistence.mybatis.WidgetMapper">
+<mapper namespace="com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetMapper">
 
     <sql id="widgetSelect">
         SELECT w.widget_id      AS id,
@@ -22,12 +22,12 @@
           LEFT JOIN ib_dataset d ON d.dataset_id = w.dataset_id
     </sql>
 
-    <select id="findAllSummaries" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.WidgetRow">
+    <select id="findAllSummaries" resultType="com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetRow">
         <include refid="widgetSelect"/>
          ORDER BY w.name
     </select>
 
-    <select id="findById" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.WidgetRow">
+    <select id="findById" resultType="com.katsulabs.bi.infrastructure.domains.widget.persistence.mybatis.WidgetRow">
         <include refid="widgetSelect"/>
          WHERE w.widget_id = #{widgetId}
     </select>

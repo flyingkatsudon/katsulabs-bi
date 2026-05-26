@@ -1,6 +1,6 @@
 package com.katsulabs.bi.security;
 
-import com.katsulabs.bi.application.auth.AuthenticatedUser;
+import com.katsulabs.bi.application.domains.auth.AuthenticatedUser;
 
 public record KatsulabsBiUserPrincipal(AuthenticatedUser user) {
 }

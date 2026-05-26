@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.katsulabs.bi.infrastructure.persistence.mybatis.UserMapper">
+<mapper namespace="com.katsulabs.bi.infrastructure.domains.user.persistence.mybatis.UserMapper">
 
-    <select id="findByUserId" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.UserRow">
+    <select id="findByUserId" resultType="com.katsulabs.bi.infrastructure.domains.user.persistence.mybatis.UserRow">
         SELECT u.user_id           AS userId,
                u.login_name        AS loginName,
                u.user_name         AS userName,
@@ -35,7 +35,7 @@
         SELECT role_name FROM ib_role WHERE role_id = #{roleId}
     </select>
 
-    <select id="findAll" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.UserSummaryRow">
+    <select id="findAll" resultType="com.katsulabs.bi.infrastructure.domains.user.persistence.mybatis.UserSummaryRow">
         SELECT u.user_id       AS userId,
                u.login_name    AS loginName,
                u.user_name     AS userName,

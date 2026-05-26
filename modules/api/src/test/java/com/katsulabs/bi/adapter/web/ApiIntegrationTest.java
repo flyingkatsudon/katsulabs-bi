@@ -1,4 +1,4 @@
-package com.katsulabs.bi.adapter.web;
+package com.katsulabs.bi.adapter.web.common;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.katsulabs.bi.application.support.JsonMapper;
+import com.katsulabs.bi.application.common.JsonMapper;
 import com.katsulabs.bi.security.SessionHeaderRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

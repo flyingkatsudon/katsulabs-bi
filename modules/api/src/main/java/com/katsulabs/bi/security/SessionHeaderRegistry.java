@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.katsulabs.bi.application.auth.AuthenticatedUser;
+import com.katsulabs.bi.application.domains.auth.AuthenticatedUser;
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 

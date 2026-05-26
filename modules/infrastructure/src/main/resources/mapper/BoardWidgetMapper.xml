@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.katsulabs.bi.infrastructure.persistence.mybatis.BoardWidgetMapper">
+<mapper namespace="com.katsulabs.bi.infrastructure.domains.board.persistence.mybatis.BoardWidgetMapper">
 
-    <select id="findByBoardId" resultType="com.katsulabs.bi.infrastructure.persistence.mybatis.BoardWidgetRow">
+    <select id="findByBoardId" resultType="com.katsulabs.bi.infrastructure.domains.board.persistence.mybatis.BoardWidgetRow">
         SELECT bw.board_id     AS boardId,
                bw.widget_id    AS widgetId,
                w.name          AS widgetName,

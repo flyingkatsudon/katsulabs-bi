@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.util.List;
 
-import com.katsulabs.bi.application.auth.AuthenticatedUser;
+import com.katsulabs.bi.application.domains.auth.AuthenticatedUser;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

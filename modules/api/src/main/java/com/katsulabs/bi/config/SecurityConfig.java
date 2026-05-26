@@ -1,6 +1,6 @@
 package com.katsulabs.bi.config;
 
-import com.katsulabs.bi.application.support.JsonMapper;
+import com.katsulabs.bi.application.common.JsonMapper;
 import com.katsulabs.bi.security.SessionAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

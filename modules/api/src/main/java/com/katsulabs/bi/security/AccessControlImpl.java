@@ -1,6 +1,6 @@
 package com.katsulabs.bi.security;
 
-import com.katsulabs.bi.application.auth.KatsulabsBiRole;
+import com.katsulabs.bi.application.domains.auth.KatsulabsBiRole;
 import com.katsulabs.bi.application.common.AccessControl;
 import com.katsulabs.bi.application.common.AccessDeniedException;
 import org.springframework.security.core.Authentication;
