@@ -2,6 +2,12 @@
 server:
   shutdown: immediate
 
+logging:
+  level:
+    root: INFO
+    com.katsulabs.bi: DEBUG
+    com.katsulabs.bi.infrastructure: DEBUG
+
 spring:
   datasource:
     url: jdbc:h2:mem:katsulabs-bi;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
@@ -12,3 +18,5 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+# 추가 JDBC 데이터소스: modules/api/src/main/resources/local-h2-datasources.json (재시작 시 자동 등록)

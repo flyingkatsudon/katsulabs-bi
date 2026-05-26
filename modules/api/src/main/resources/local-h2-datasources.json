@@ -1,0 +1,8 @@
+[
+  {
+    "name": "c-cube",
+    "type": "jdbc",
+    "ownerUserId": "admin01",
+    "configJson": "{\"driver\":\"org.postgresql.Driver\",\"jdbcurl\":\"jdbc:postgresql://10.10.224.28:53254/xtrmvob?tcpKeepAlive=true&applicationName=xtrmVOB\",\"username\":\"XtrmSalesDev\",\"password\":\"Xtrm-Sales#Dev#86\",\"pooled\":true,\"aggregateProvider\":true}"
+  }
+]

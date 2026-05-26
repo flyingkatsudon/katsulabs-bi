@@ -2,6 +2,12 @@
 server:
   shutdown: immediate
 
+logging:
+  level:
+    root: INFO
+    com.katsulabs.bi: DEBUG
+    com.katsulabs.bi.infrastructure: DEBUG
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/katsulabs_bi
