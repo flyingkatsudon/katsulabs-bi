@@ -18,7 +18,7 @@ public class UpdateDatasourceUseCase {
         if (datasourceRepository.existsByName(userId, command.name(), id)) {
             return ServiceResult.fail("Duplicated Name!");
         }
-        datasourceRepository.update(id, command.name(), command.configJson());
+        datasourceRepository.update(id, command.name(), command.type(), command.configJson());
         return ServiceResult.success("success");
     }
 }

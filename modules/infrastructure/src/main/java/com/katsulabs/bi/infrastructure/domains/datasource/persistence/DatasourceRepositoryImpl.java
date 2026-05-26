@@ -71,10 +71,11 @@ public class DatasourceRepositoryImpl implements DatasourceRepository {
     }
 
     @Override
-    public void update(long id, String name, String configJson) {
+    public void update(long id, String name, String type, String configJson) {
         DatasourceRow row = new DatasourceRow();
         row.setId(id);
         row.setName(name);
+        row.setType(type);
         row.setConfig(configJson);
         datasourceMapper.update(row);
     }

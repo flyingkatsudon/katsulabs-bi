@@ -13,7 +13,7 @@ public interface DatasourceRepository {
 
     long insert(String userId, String name, String type, String configJson);
 
-    void update(long id, String name, String configJson);
+    void update(long id, String name, String type, String configJson);
 
     void delete(long id);
 }
