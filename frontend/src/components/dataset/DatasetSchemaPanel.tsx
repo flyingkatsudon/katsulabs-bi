@@ -45,6 +45,14 @@ export function DatasetSchemaPanel({ data, onChange }: DatasetSchemaPanelProps) 
     })
   }
 
+  function addToMeasure(column: string) {
+    if (columnInSchema(data, column)) return
+    updateSchema({
+      ...data.schema,
+      measure: [...data.schema.measure, createColumnNode(column)],
+    })
+  }
+
   function removeFromDimension(index: number) {
     const dimension = [...data.schema.dimension]
     dimension.splice(index, 1)
@@ -118,6 +126,9 @@ export function DatasetSchemaPanel({ data, onChange }: DatasetSchemaPanelProps) 
     <>
       <div className="row" style={{ marginTop: 12 }}>
         <div className="col-md-6">
+          <p className="text-muted" style={{ marginBottom: 6, fontSize: 12 }}>
+            클릭 또는 드래그 → Dimension · Shift+클릭 또는 <i className="fa fa-arrow-right" /> → Measure
+          </p>
           <div
             className="form-control"
             style={{ minHeight: 200, height: 'auto', padding: 0, border: '2px dashed #d2d6de' }}
@@ -128,18 +139,37 @@ export function DatasetSchemaPanel({ data, onChange }: DatasetSchemaPanelProps) 
               setDragColumn(null)
             }}
           >
-            {data.selects.map((col) => (
-              <span
-                key={col}
-                className={`btn btn-sm ${columnInSchema(data, col) ? 'btn-primary' : 'btn-default'}`}
-                style={{ margin: '3px 3px' }}
-                draggable
-                onDragStart={() => setDragColumn(col)}
-                onClick={() => addToDimension(col)}
-              >
-                {col}
-              </span>
-            ))}
+            {data.selects.map((col) => {
+              const inSchema = columnInSchema(data, col)
+              const inMeasure = data.schema.measure.some((m) => m.column === col)
+              return (
+                <span
+                  key={col}
+                  className={`btn btn-sm ${inSchema ? (inMeasure ? 'btn-danger' : 'btn-primary') : 'btn-default'}`}
+                  style={{ margin: '3px 3px' }}
+                  draggable
+                  title="클릭: Dimension · Shift+클릭: Measure"
+                  onDragStart={() => setDragColumn(col)}
+                  onClick={(e) => {
+                    if (e.shiftKey) addToMeasure(col)
+                    else addToDimension(col)
+                  }}
+                >
+                  {col}
+                  {!inSchema && (
+                    <i
+                      className="fa fa-arrow-right"
+                      style={{ marginLeft: 6, opacity: 0.75 }}
+                      title="Measure로 추가"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        addToMeasure(col)
+                      }}
+                    />
+                  )}
+                </span>
+              )
+            })}
           </div>
         </div>
         <div className="col-md-6">
@@ -164,6 +194,11 @@ export function DatasetSchemaPanel({ data, onChange }: DatasetSchemaPanelProps) 
             />
             <MeasureTree
               data={data}
+              dragColumn={dragColumn}
+              onDropColumn={(col) => {
+                addToMeasure(col)
+                setDragColumn(null)
+              }}
               onEditAlias={(node) => editAlias(node, () => updateSchema({ ...data.schema }))}
               onRemove={removeFromMeasure}
               onMoveToDimension={moveToDimension}
@@ -295,11 +330,15 @@ function DimensionTree({
 
 function MeasureTree({
   data,
+  dragColumn,
+  onDropColumn,
   onEditAlias,
   onRemove,
   onMoveToDimension,
 }: {
   data: DatasetData
+  dragColumn: string | null
+  onDropColumn: (col: string) => void
   onEditAlias: (n: ColumnNode) => void
   onRemove: (i: number) => void
   onMoveToDimension: (n: ColumnNode, i: number) => void
@@ -311,7 +350,25 @@ function MeasureTree({
           <img src="/katsulabs-bi/imgs/schema/measure.gif" alt="" />
           <b> Measure</b>
         </span>
-        <ul style={{ paddingLeft: 12, listStyle: 'none' }}>
+        <ul
+          style={{
+            paddingLeft: 12,
+            listStyle: 'none',
+            minHeight: 24,
+            border: dragColumn ? '1px dashed #dd4b39' : undefined,
+            borderRadius: 4,
+          }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault()
+            if (dragColumn) onDropColumn(dragColumn)
+          }}
+        >
+          {data.schema.measure.length === 0 && (
+            <li className="text-muted" style={{ fontSize: 12 }}>
+              컬럼을 Shift+클릭하거나 여기로 드래그
+            </li>
+          )}
           {data.schema.measure.map((o, i) => (
             <li key={o.id}>
               <img src="/katsulabs-bi/imgs/schema/bullet_red.png" alt="" /> {columnLabel(o)}

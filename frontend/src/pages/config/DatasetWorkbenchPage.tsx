@@ -20,6 +20,7 @@ import {
   type DatasetData,
   emptyDatasetData,
   parseDatasetData,
+  inferSchemaFromPreview,
   serializeDatasetData,
   splitDisplayName,
 } from '../../utils/datasetModel'
@@ -153,8 +154,12 @@ export function DatasetWorkbenchPage({ onSessionExpired }: DatasetWorkbenchPageP
         limit: 50,
       })
       setPreview(result)
-      setDatasetData((prev) => ({ ...prev, selects: result.columns }))
-      setMessage('컬럼을 불러왔습니다.')
+      setDatasetData((prev) => ({
+        ...prev,
+        selects: result.columns,
+        schema: inferSchemaFromPreview(result.columns, result.rows, prev.schema),
+      }))
+      setMessage('컬럼을 불러왔습니다. 숫자형 컬럼은 Measure로 자동 분류됩니다.')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Load Data 실패')
     } finally {

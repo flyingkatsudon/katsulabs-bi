@@ -98,6 +98,63 @@ export function createColumnNode(column: string): ColumnNode {
   return { id: newNodeId(), type: 'column', column }
 }
 
+const MEASURE_NAME_PATTERN =
+  /_(ms|size|count|amount|sales|cost|qty|value|num|total|sum|price|rate|volume|weight)$/i
+const DIMENSION_NAME_PATTERN = /(_dt$|_date$|^date_|_at$|_time$|^time_|^year$|^month$|^day$)/i
+
+/** Sample rows에서 Measure 후보인지 추정 (Load Data 자동 분류용) */
+export function isLikelyMeasureColumn(column: string, rows: Record<string, unknown>[]): boolean {
+  const lower = column.toLowerCase()
+  if (DIMENSION_NAME_PATTERN.test(lower) && !MEASURE_NAME_PATTERN.test(column)) {
+    return false
+  }
+  const samples = rows.map((r) => r[column]).filter((v) => v != null && v !== '')
+  if (samples.length === 0) {
+    return MEASURE_NAME_PATTERN.test(column)
+  }
+  return samples.every((v) => {
+    if (typeof v === 'number' && Number.isFinite(v)) return true
+    if (typeof v === 'boolean') return false
+    if (typeof v === 'string') {
+      const trimmed = v.trim()
+      if (trimmed === '') return false
+      return !Number.isNaN(Number(trimmed))
+    }
+    return false
+  })
+}
+
+/** selects 중 schema에 없는 컬럼을 dimension/measure로 자동 분류 */
+export function inferSchemaFromPreview(
+  columns: string[],
+  rows: Record<string, unknown>[],
+  existing: DatasetData['schema'],
+): DatasetData['schema'] {
+  const dimension = [...existing.dimension]
+  const measure = [...existing.measure]
+  const scratch: DatasetData = {
+    schema: { dimension, measure },
+    selects: columns,
+    datasource: 0,
+    query: { sql: '' },
+    filters: [],
+    expressions: [],
+  }
+
+  for (const col of columns) {
+    if (columnInSchema(scratch, col)) continue
+    const node = createColumnNode(col)
+    if (isLikelyMeasureColumn(col, rows)) {
+      measure.push(node)
+    } else {
+      dimension.push(node)
+    }
+    scratch.schema = { dimension, measure }
+  }
+
+  return { dimension, measure }
+}
+
 export function splitDisplayName(displayName: string) {
   const idx = displayName.lastIndexOf('/')
   if (idx < 0) {
