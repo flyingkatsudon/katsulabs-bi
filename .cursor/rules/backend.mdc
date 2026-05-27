@@ -1,0 +1,46 @@
+---
+description: Backend 모듈 — 클린 아키텍처, MyBatis, Flyway, 테스트
+globs: modules/**/*
+alwaysApply: false
+---
+
+# Backend (`modules/`)
+
+## 레이어 의존 (엄격)
+
+`api` → `application` → `domain` ← `infrastructure` 방향만 허용합니다.
+
+- **domain**: Spring / 프레임워크 import 금지.
+- **application**: 유스케이스, 포트 정의; JSON 은 `JsonMapper` 를 사용하고 Fastjson 은 사용하지 않습니다.
+- **infrastructure**: MyBatis, JDBC 어댑터, Flyway SQL, compat mapper 구현.
+- **api**: 컨트롤러, 보안, 설정만 둡니다.
+
+## MyBatis
+
+필수 XML: `modules/infrastructure/src/main/resources/mapper/*.xml` — 자세한 설명은 [docs/migration/MYBATIS-XML.md](../../docs/migration/MYBATIS-XML.md) 를 참고하세요. 이 mapper XML 파일들은 삭제하면 안 됩니다.
+
+집계 API(`/api/v1/aggregate`) 는 MyBatis 가 아니라 `JdbcAggregateQueryAdapter` 를 통해 JDBC 로 직접 실행합니다.
+
+## Flyway
+
+- 신규 마이그레이션 파일: `modules/infrastructure/src/main/resources/db/migration/V{n}__snake_case.sql`
+- 데모 시드는 `local-h2` 프로필에서 Chart Gallery / demo datasource 가 계속 동작하도록 유지해야 합니다.
+- H2 데모 DB 이름: `katsulabs-bi` (기존 V16 마이그레이션과 일치해야 합니다).
+
+## Legacy / compat
+
+`Legacy*`, `*DataJson`, `dataJson` 필드를 수정할 때는 [04-legacy-layer-removal.md](../../docs/migration/04-legacy-layer-removal.md) 의 PR 순서를 따라야 합니다. 여러 PR 이 얽힌 작업이라면 커스텀 서브에이전트 `legacy-refactor` 사용을 우선 고려하세요.
+
+## 테스트
+
+- 통합 테스트: `modules/api/src/test/java/.../ApiIntegrationTest.java` (`@ActiveProfiles("local-h2")`).
+- 테스트 이름은 한글 `@DisplayName` 사용을 권장합니다.
+- 실행은 항상 저장소 루트에서 `./gradlew test` 로 합니다.
+
+## 프로필
+
+| Profile | 용도 |
+|---------|-----|
+| `local-h2` | 기본 개발·테스트용 프로필 |
+| `local-postgres` | Docker Postgres 연동용 |
+| `local-h2,prod` | 단일 JAR + 내장 UI 실행용 |

@@ -1,0 +1,45 @@
+---
+description: 메인 에이전트 오케스트레이션 — 위임, 범위, 하네스 정책
+alwaysApply: true
+---
+
+# Orchestrator (main agent)
+
+당신은 Katsulabs BI의 **메인 에이전트**입니다. 전체 작업을 조율하되, 서브에이전트가 맡아야 할 대규모 탐색까지 모두 떠안지 마세요.
+
+## 코드를 수정하기 전에
+
+1. 실행·테스트 커맨드는 [AGENTS.md](../../AGENTS.md) 를 기준으로 합니다.
+2. 범위가 넓거나 애매하면 [docs/harness/AGENT-HIERARCHY.md](../../docs/harness/AGENT-HIERARCHY.md) 를 먼저 읽고 어떤 서브에 위임할지 정합니다.
+3. Legacy / `dataJson` / `Legacy*` 를 건드릴 때는 [docs/migration/04-legacy-layer-removal.md](../../docs/migration/04-legacy-layer-removal.md) 의 PR 순서를 따릅니다.
+
+## 위임 (Task tool)
+
+| 상황 | 사용할 서브 |
+|-----------|-----|
+| 코드베이스 전체에서 5개 이상 파일이 얽힌 탐색 | `subagent_type=explore` |
+| git, Gradle, npm, 스크립트 실행 | `subagent_type=shell` |
+| PR 에서 CI job 하나만 실패했을 때 | `subagent_type=ci-investigator` |
+| Legacy 호환 레이어 / dataJson 마이그레이션 | 커스텀 `legacy-refactor` (`.cursor/agents/`) |
+| Flyway 시드 / 데모 대시보드 작업 | 커스텀 `flyway-seed` |
+
+**서브에이전트는 대화 히스토리가 없습니다.** 각 `prompt` 에 작업할 경로, 완료 기준, “AGENTS.md 를 읽으라”는 지시를 항상 함께 넣어야 합니다.
+
+다음 작업은 **위임하지 말고 메인에서 직접 처리**합니다.
+
+- 1~2개 파일만 간단히 읽으면 되는 경우
+- 사용자가 메인 에이전트에게 직접 요청한 일
+- 커밋/PR 생성 (사용자가 명시적으로 요청한 경우만 수행; 위임 금지)
+
+## 구현 원칙
+
+- **Minimal diff** — 관련 없는 리팩터링은 섞지 않습니다.
+- **금지**: Fastjson, Aliyun Maven 미러, `chinaMap` / Baidu 차트 타입, 새로운 `pom.xml` 기반 WAR 경로.
+- **커밋 / push / PR** 은 사용자가 명시적으로 요청했을 때만 수행합니다 (User Rules 준수).
+- 백엔드 수정 후에는 `./gradlew test`, 프론트 수정 후에는 `cd frontend && npm test` 를 기본으로 실행합니다.
+- 로컬 API 실행은 `bootRun` 보다 `./scripts/run-api.sh` 를 우선 사용합니다 (종료가 확실함).
+
+## 출력
+
+- 백그라운드 서브에이전트 결과 요약은, 사용자가 요청하지 않는 한 장황하게 반복하지 않습니다.
+- 코드 인용은 항상 ```startLine:endLine:path``` 형식으로만 합니다.

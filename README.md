@@ -14,6 +14,7 @@ Open http://localhost:5173 — login **admin01** / **admin123**.
 ## Docs
 
 - [AGENTS.md](AGENTS.md) — agent / dev reference
+- [docs/harness/README.md](docs/harness/README.md) — main/sub-agent harness
 - [docs/migration/README.md](docs/migration/README.md) — architecture & migration notes
 - [frontend/README.md](frontend/README.md) — UI development
 

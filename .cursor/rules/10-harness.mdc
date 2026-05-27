@@ -1,0 +1,15 @@
+---
+description: 하네스 문서 및 에이전트 계층 안내
+alwaysApply: true
+---
+
+# Harness
+
+이 프로젝트의 에이전트 하네스 설정은 **docs/harness/** 아래에 모여 있습니다.
+
+- 계층·위임 규칙: [docs/harness/AGENT-HIERARCHY.md](../../docs/harness/AGENT-HIERARCHY.md)
+- 인덱스: [docs/harness/README.md](../../docs/harness/README.md)
+- 커스텀 서브에이전트: `.cursor/agents/*.md`
+- Hooks: `.cursor/hooks.json` (파괴적 git 명령 차단 등)
+
+어떤 서브에이전트를 생성하든, prompt 안에 **AGENTS.md 를 읽으라**는 지시와 관련 migration 문서 경로를 함께 포함해야 합니다.
